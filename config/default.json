@@ -1,0 +1,11 @@
+{
+  "main": {
+    "overlayUrl": "https://gateway.ethswarm.org/bzz/7406369b6480b33f0721cbb77f9a06a7ecc109c04f7c8a9201c164ddcefd71f9/"
+  },
+  "test": {
+    "overlayUrl": "https://gateway.ethswarm.org/bzz/7406369b6480b33f0721cbb77f9a06a7ecc109c04f7c8a9201c164ddcefd71f9/"
+  },
+  "dev": {
+    "overlayUrl": "http://localhost:3000"
+  }
+}
