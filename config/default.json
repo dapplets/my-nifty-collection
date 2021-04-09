@@ -1,11 +1,14 @@
 {
   "main": {
-    "overlayUrl": "https://gateway.ethswarm.org/bzz/7406369b6480b33f0721cbb77f9a06a7ecc109c04f7c8a9201c164ddcefd71f9/"
+    "overlayUrl": "https://gateway.ethswarm.org/bzz/a175cf5e4217238913d8a64794f453c6e38afcb0227c508bbf14b120cbe00a23",
+    "usersUrl": "https://gateway.ethswarm.org/files/5998ccc2cbce364a25265e0b0d586ecb64f9c8b9e6370e65e09078b9750b6fcb"
   },
   "test": {
-    "overlayUrl": "https://gateway.ethswarm.org/bzz/7406369b6480b33f0721cbb77f9a06a7ecc109c04f7c8a9201c164ddcefd71f9/"
+    "overlayUrl": "https://gateway.ethswarm.org/bzz/a175cf5e4217238913d8a64794f453c6e38afcb0227c508bbf14b120cbe00a23",
+    "usersUrl": "https://gateway.ethswarm.org/files/5998ccc2cbce364a25265e0b0d586ecb64f9c8b9e6370e65e09078b9750b6fcb"
   },
   "dev": {
-    "overlayUrl": "http://localhost:3000"
+    "overlayUrl": "http://localhost:3000",
+    "usersUrl": "https://localhost:3001/src/users.json"
   }
 }

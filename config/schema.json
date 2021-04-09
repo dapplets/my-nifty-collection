@@ -4,7 +4,7 @@
   "properties": {
     "overlayUrl": {
       "type": "string",
-      "title": "Example of string property"
+      "title": "URL of the overlay"
     }
   }
 }

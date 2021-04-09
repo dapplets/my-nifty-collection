@@ -2,68 +2,74 @@ import React from 'react';
 import { Header, Input, Card, Feed } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 
+let counter = 0;
+
 interface Props {}
 
 interface State {
-  data: string | null;
+  data: {
+    user: string;
+    current: boolean;
+    nfts: {
+      name: string;
+      type: string;
+      image: string;
+      link: string;
+    }[];
+  };
 }
+
+const defaultData = {
+  user: '',
+  current: true,
+  nfts: [
+    {
+      name: '',
+      type: '',
+      image: '',
+      link: '',
+    },
+  ],
+};
 
 export default class App extends React.Component<Props, State> {
   state = {
-    data: null,
+    data: defaultData,
   };
 
   componentDidMount() {
-    bridge.onData((data) => this.setState({ data }));
+    bridge.onData(({ user, current, nfts }) =>
+      nfts
+        ? this.setState({ data: { user, nfts, current } })
+        : this.setState({ data: { user, current: true, nfts: defaultData.nfts } }),
+    );
   }
 
   render() {
     return (
       <div className="overlay-container">
-        <Header as="h1">My NFT Collection</Header>
+        <Header as="h2">
+          {this.state.data.current ? 'My' : this.state.data.user} NFT Collection
+        </Header>
         <Input icon="search" placeholder="Search..." style={{ width: '-webkit-fill-available' }} />
         <Card style={{ width: 'auto' }}>
-          <Card.Content>
-            <Feed>
-              <Feed.Event style={{ margin: '10px 0' }}>
-                <Feed.Label image="/near.svg" />
-                <Feed.Content>
-                  <Feed.Summary>NEAR Certified Developer Program</Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>NEAR certificate</Feed.Summary>
-                </Feed.Content>
-              </Feed.Event>
-
-              <Feed.Event style={{ margin: '10px 0' }}>
-                <Feed.Label image="/nft.png" />
-                <Feed.Content>
-                  <Feed.Summary>
-                    Zhoucong-Tropical betta by <a>aj.near</a>
-                  </Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>Digital Art</Feed.Summary>
-                </Feed.Content>
-              </Feed.Event>
-
-              <Feed.Event style={{ margin: '10px 0' }}>
-                <Feed.Label image="/green-nft.png" />
-                <Feed.Content>
-                  <Feed.Summary>
-                    Moonloght by <a>sanidwhalecrypto.near</a>
-                  </Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>Digital Art</Feed.Summary>
-                </Feed.Content>
-              </Feed.Event>
-
-              <Feed.Event style={{ margin: '10px 0' }}>
-                <Feed.Label image="/blue-nft.png" />
-                <Feed.Content>
-                  <Feed.Summary>
-                    Hyuga Neiji by <a>zhoumi.near</a>
-                  </Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>Digital Art</Feed.Summary>
-                </Feed.Content>
-              </Feed.Event>
-            </Feed>
-          </Card.Content>
+          {this.state.data.nfts[0].name === '' ? (
+            <Card.Content description="You don't have NFTs yet." />
+          ) : (
+            <Card.Content>
+              <Feed>
+                {this.state.data.nfts.map((nft) => (
+                  <Feed.Event style={{ margin: '10px 0' }} key={counter++}>
+                    <Feed.Label image={nft.image} />
+                    <Feed.Content>
+                      <Feed.Summary>{nft.name}</Feed.Summary>
+                      <Feed.Summary style={{ fontWeight: 'normal' }}>{nft.type}</Feed.Summary>
+                    </Feed.Content>
+                  </Feed.Event>
+                ))}
+              </Feed>
+            </Card.Content>
+          )}
         </Card>
       </div>
     );

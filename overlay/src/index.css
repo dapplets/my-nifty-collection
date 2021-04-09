@@ -5,3 +5,19 @@ body {
 .overlay-container {
   margin: 30px 10px;
 }
+
+.ui.checkbox {
+  margin: 5px 20px 0 0;
+}
+
+.ui.feed > .event:first-child {
+  margin-top: 5px !important;
+}
+
+.ui.feed > .event > .label {
+  margin-top: 0.5em;
+}
+
+.ui.feed > .event > .content > .summary {
+  margin-bottom: 5px !important;
+}
