@@ -20,7 +20,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "archive": "cd ./build && tar -cvf temp.tar .",
-    "swarm:upload": "curl -X POST -H \"Content-Type: application/x-tar\" -H \"Swarm-Index-Document: index.html\" -H \"Swarm-Error-Document: index.html\" --data-binary @build/temp.tar https://gateway.ethswarm.org/dirs",
+    "swarm:upload": "curl -X POST -H \"Content-Type: application/x-tar\" -H \"Swarm-Index-Document: index.html\" -H \"Swarm-Error-Document: index.html\" --data-binary @build/temp.tar https://swarm.dapplets.org/dirs",
     "deploy": "npm run build && npm run archive && npm run swarm:upload"
   },
   "eslintConfig": {

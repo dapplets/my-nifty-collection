@@ -48,10 +48,9 @@ export default class TwitterFeature {
             horizontal: 'right',
             init: async (ctx, me) => {
               const nfts = await this._fetchNftsByUser(usersUrl, ctx.authorUsername);
-              const nft = nfts?.find((nft) => nft.name === 'NEAR Certified Developer Program');
-              if (nft) {
+              if (nfts && nfts.length >= 1) {
                 me.hidden = false;
-                me.img = nft.image;
+                me.img = nfts[0].image;
                 me.nfts = nfts;
               }
             },
@@ -79,10 +78,9 @@ export default class TwitterFeature {
             basic: true,
             init: async (ctx, me) => {
               const nfts = await this._fetchNftsByUser(usersUrl, ctx.authorUsername);
-              const nft = nfts?.find((nft) => nft.name === 'Zhoucong-Tropical betta by aj.near');
-              if (nft) {
+              if (nfts && nfts.length >= 2) {
                 me.hidden = false;
-                me.img = nft.image;
+                me.img = nfts[1].image;
                 me.nfts = nfts;
               }
             },
@@ -108,10 +106,9 @@ export default class TwitterFeature {
             basic: true,
             init: async (ctx, me) => {
               const nfts = await this._fetchNftsByUser(usersUrl, ctx.authorUsername);
-              const nft = nfts?.find((nft) => nft.name === 'Moonloght by sanidwhalecrypto.near');
-              if (nft) {
+              if (nfts && nfts.length >= 3) {
                 me.hidden = false;
-                me.img = nft.image;
+                me.img = nfts[2].image;
                 me.nfts = nfts;
               }
             },
@@ -137,10 +134,93 @@ export default class TwitterFeature {
             basic: true,
             init: async (ctx, me) => {
               const nfts = await this._fetchNftsByUser(usersUrl, ctx.authorUsername);
-              const nft = nfts?.find((nft) => nft.name === 'Hyuga Neiji by zhoumi.near');
-              if (nft) {
+              if (nfts && nfts.length >= 4) {
                 me.hidden = false;
-                me.img = nft.image;
+                me.img = nfts[3].image;
+                me.nfts = nfts;
+              }
+            },
+            exec: async (ctx, me) => {
+              overlay.sendAndListen(
+                'data',
+                {
+                  user: ctx.authorFullname,
+                  current: ctx.authorUsername === currentUser.username,
+                  nfts: me.nfts,
+                },
+                {
+                  onClick: (op, { message }) => {},
+                },
+              );
+            },
+          },
+        }),
+        label({
+          initial: 'DEFAULT',
+          DEFAULT: {
+            hidden: true,
+            basic: true,
+            init: async (ctx, me) => {
+              const nfts = await this._fetchNftsByUser(usersUrl, ctx.authorUsername);
+              if (nfts && nfts.length >= 5) {
+                me.hidden = false;
+                me.img = nfts[4].image;
+                me.nfts = nfts;
+              }
+            },
+            exec: async (ctx, me) => {
+              overlay.sendAndListen(
+                'data',
+                {
+                  user: ctx.authorFullname,
+                  current: ctx.authorUsername === currentUser.username,
+                  nfts: me.nfts,
+                },
+                {
+                  onClick: (op, { message }) => {},
+                },
+              );
+            },
+          },
+        }),
+        label({
+          initial: 'DEFAULT',
+          DEFAULT: {
+            hidden: true,
+            basic: true,
+            init: async (ctx, me) => {
+              const nfts = await this._fetchNftsByUser(usersUrl, ctx.authorUsername);
+              if (nfts && nfts.length >= 6) {
+                me.hidden = false;
+                me.img = nfts[5].image;
+                me.nfts = nfts;
+              }
+            },
+            exec: async (ctx, me) => {
+              overlay.sendAndListen(
+                'data',
+                {
+                  user: ctx.authorFullname,
+                  current: ctx.authorUsername === currentUser.username,
+                  nfts: me.nfts,
+                },
+                {
+                  onClick: (op, { message }) => {},
+                },
+              );
+            },
+          },
+        }),
+        label({
+          initial: 'DEFAULT',
+          DEFAULT: {
+            hidden: true,
+            basic: true,
+            init: async (ctx, me) => {
+              const nfts = await this._fetchNftsByUser(usersUrl, ctx.authorUsername);
+              if (nfts && nfts.length >= 7) {
+                me.hidden = false;
+                me.img = nfts[6].image;
                 me.nfts = nfts;
               }
             },

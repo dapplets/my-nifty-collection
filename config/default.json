@@ -1,11 +1,11 @@
 {
   "main": {
-    "overlayUrl": "https://gateway.ethswarm.org/bzz/a175cf5e4217238913d8a64794f453c6e38afcb0227c508bbf14b120cbe00a23",
-    "usersUrl": "https://gateway.ethswarm.org/files/5998ccc2cbce364a25265e0b0d586ecb64f9c8b9e6370e65e09078b9750b6fcb"
+    "overlayUrl": "https://swarm.dapplets.org/bzz/825579af6f2968b875fc9fe74e1caea9a2b8d344bdf237b97f55c79bd5635fc4",
+    "usersUrl": "https://swarm.dapplets.org/files/22768d5d5c6ba5c45516ef0d2c070117a3742a80ecf45c53999122911ab99085"
   },
   "test": {
-    "overlayUrl": "https://gateway.ethswarm.org/bzz/a175cf5e4217238913d8a64794f453c6e38afcb0227c508bbf14b120cbe00a23",
-    "usersUrl": "https://gateway.ethswarm.org/files/5998ccc2cbce364a25265e0b0d586ecb64f9c8b9e6370e65e09078b9750b6fcb"
+    "overlayUrl": "https://swarm.dapplets.org/bzz/825579af6f2968b875fc9fe74e1caea9a2b8d344bdf237b97f55c79bd5635fc4",
+    "usersUrl": "https://swarm.dapplets.org/files/22768d5d5c6ba5c45516ef0d2c070117a3742a80ecf45c53999122911ab99085"
   },
   "dev": {
     "overlayUrl": "http://localhost:3000",
