@@ -21,3 +21,7 @@ body {
 .ui.feed > .event > .content > .summary {
   margin-bottom: 5px !important;
 }
+
+.ui.feed > .event > .label img {
+  border-radius: unset !important;
+}

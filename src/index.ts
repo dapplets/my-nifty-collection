@@ -15,16 +15,22 @@ export default class TwitterFeature {
   private async _fetchNftsByUser(url: string, account: string): Promise<NftMetadata[]> {
     const response = await fetch(url);
     const data = await response.json();
-    return data[account];
+    return Object.values(data).find(({ twitterIds }) => twitterIds.includes(account))?.nfts;
   }
 
   async activate() {
+    const contract: any = await Core.near.contract('dev-1618299934008-8069722', {
+        viewMethods: ['get'],
+        changeMethods: ['add']
+    });
     const usersUrl = await Core.storage.get('usersUrl');
     const overlayUrl = await Core.storage.get('overlayUrl');
     const overlay = Core.overlay({ url: overlayUrl, title: 'Overlay' });
     const currentUser = this.adapter.getCurrentUser();
+    // const { accountId } = await Core.near.wallet();
     Core.onAction(async () => {
       const nfts = await this._fetchNftsByUser(usersUrl, currentUser.username);
+      // const nfts = await contract.get({ key: hash });
       overlay.sendAndListen(
         'data',
         {
