@@ -1,5 +1,4 @@
-import { PersistentUnorderedMap } from "near-sdk-core";
-import { Context } from 'near-sdk-core';
+import { PersistentUnorderedMap, Context } from "near-sdk-core";
 
 // MODELS
 
