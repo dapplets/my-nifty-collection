@@ -1,14 +1,14 @@
 {
   "main": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/825579af6f2968b875fc9fe74e1caea9a2b8d344bdf237b97f55c79bd5635fc4",
-    "usersUrl": "https://swarm.dapplets.org/files/22768d5d5c6ba5c45516ef0d2c070117a3742a80ecf45c53999122911ab99085"
+    "overlayUrl": "https://swarm.dapplets.org/bzz/a0f2bb56a982aca1abec7c59a8b9204f1c3412cdc45240503db87d64b9fe5764",
+    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5"
   },
   "test": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/825579af6f2968b875fc9fe74e1caea9a2b8d344bdf237b97f55c79bd5635fc4",
-    "usersUrl": "https://swarm.dapplets.org/files/22768d5d5c6ba5c45516ef0d2c070117a3742a80ecf45c53999122911ab99085"
+    "overlayUrl": "https://swarm.dapplets.org/bzz/a0f2bb56a982aca1abec7c59a8b9204f1c3412cdc45240503db87d64b9fe5764",
+    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5"
   },
   "dev": {
     "overlayUrl": "http://localhost:3000",
-    "usersUrl": "https://localhost:3001/src/users.json"
+    "nftsUrl": "https://localhost:3001/src/nfts.json"
   }
 }

@@ -1,9 +1,9 @@
-import { PersistentUnorderedMap, Context } from "near-sdk-core";
+import { PersistentUnorderedMap, Context } from 'near-sdk-core';
 
 // MODELS
 
-const externalByNear = new PersistentUnorderedMap<string, string[]>("a");
-const nearByExternal = new PersistentUnorderedMap<string, string[]>("b");
+const externalByNear = new PersistentUnorderedMap<string, string[]>('a');
+const nearByExternal = new PersistentUnorderedMap<string, string[]>('b');
 
 // READ
 
@@ -13,7 +13,7 @@ const nearByExternal = new PersistentUnorderedMap<string, string[]>("b");
  * @returns Array of external accounts
  */
 export function getExternalAccounts(near: string): string[] {
-  return (externalByNear.contains(near)) ? externalByNear.getSome(near) : [];
+  return externalByNear.contains(near) ? externalByNear.getSome(near) : [];
 }
 
 /**
@@ -22,7 +22,7 @@ export function getExternalAccounts(near: string): string[] {
  * @returns Array of NEAR Account IDs
  */
 export function getNearAccounts(account: string): string[] {
-  return (nearByExternal.contains(account)) ? nearByExternal.getSome(account) : [];
+  return nearByExternal.contains(account) ? nearByExternal.getSome(account) : [];
 }
 
 // WRITE
