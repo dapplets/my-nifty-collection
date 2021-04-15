@@ -14,8 +14,9 @@ export default class TwitterFeature {
 
   private _overlay: any;
   private _contract: any;
+  private _setConfig: any;
 
-  async activate() {
+  async activate(): Promise<void> {
     this._contract = await Core.near.contract('dev-1618391705030-8760988', {
       viewMethods: ['getExternalAccounts', 'getNearAccounts'],
       changeMethods: ['addExternalAccount', 'removeExternalAccount', 'clearAll'],
@@ -25,31 +26,33 @@ export default class TwitterFeature {
 
     const { badge, label } = this.adapter.exports;
 
-    this.adapter.attachConfig({
-      POST_AVATAR_BADGE: [
-        badge({
-          initial: 'DEFAULT',
-          DEFAULT: {
-            hidden: true,
-            vertical: 'bottom',
-            horizontal: 'right',
-            init: (ctx, me) => this._onInitHandler(ctx, me, 0),
-            exec: (ctx, me) => this._openOverlay(ctx),
-          },
-        }),
-      ],
-      POST_USERNAME_LABEL: [1, 2, 3, 4, 5, 6].map((i) =>
-        label({
-          initial: 'DEFAULT',
-          DEFAULT: {
-            hidden: true,
-            basic: true,
-            init: (ctx, me) => this._onInitHandler(ctx, me, i),
-            exec: (ctx, me) => this._openOverlay(ctx),
-          },
-        }),
-      ),
-    }); // end attachConfig
+    this._setConfig = () =>
+      this.adapter.attachConfig({
+        POST_AVATAR_BADGE: [
+          badge({
+            initial: 'DEFAULT',
+            DEFAULT: {
+              hidden: true,
+              vertical: 'bottom',
+              horizontal: 'right',
+              init: (ctx, me) => this._onInitHandler(ctx, me, 0),
+              exec: (ctx, me) => this._openOverlay(ctx),
+            },
+          }),
+        ],
+        POST_USERNAME_LABEL: [1, 2, 3, 4, 5, 6].map((i) =>
+          label({
+            initial: 'DEFAULT',
+            DEFAULT: {
+              hidden: true,
+              basic: true,
+              init: (ctx, me) => this._onInitHandler(ctx, me, i),
+              exec: (ctx, me) => this._openOverlay(ctx, me),
+            },
+          }),
+        ),
+      }); // end attachConfig
+    this._setConfig();
   }
 
   private async _fetchNftsByNearAcc(account: string): Promise<NftMetadata[]> {
@@ -59,7 +62,7 @@ export default class TwitterFeature {
     return data[account];
   }
 
-  private async _onInitHandler(ctx: any, me: any, index: number) {
+  private async _onInitHandler(ctx: any, me: any, index: number): Promise<void> {
     const nearAccounts = await this._contract.getNearAccounts({ account: ctx.authorUsername });
     if (nearAccounts.length) {
       const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
@@ -71,28 +74,30 @@ export default class TwitterFeature {
     }
   }
 
-  private async _openOverlay(ctx?: any) {
+  private async _openOverlay(ctx?: any, me?: any): Promise<void> {
     if (!this._overlay) {
       const overlayUrl = await Core.storage.get('overlayUrl');
       this._overlay = Core.overlay({ url: overlayUrl, title: 'Overlay' });
     }
 
     const currentUser = this.adapter.getCurrentUser();
-
+    const nearWalletLink = await Core.storage.get('nearWalletLink');
     this._overlay.sendAndListen(
       'data',
       {
         user: ctx ? ctx.authorUsername : currentUser.username,
         current: ctx ? ctx.authorUsername === currentUser.username : true,
+        nearWalletLink,
       },
       {
         getNftsByNearAccount: (op, { type, message }) =>
           this._fetchNftsByNearAcc(message.account).then((x) =>
             this._overlay.send('getNftsByNearAccount_done', x),
           ),
-        getCurrentNearAccount: Core.near
-          .wallet()
-          .then((x) => this._overlay.send('getCurrentNearAccount_done', x.accountId)),
+        getCurrentNearAccount: (op, { type, message }) =>
+          Core.near
+            .wallet()
+            .then((x) => this._overlay.send('getCurrentNearAccount_done', x.accountId)),
         getExternalAccounts: (op, { type, message }) =>
           this._contract
             .getExternalAccounts({ near: message.near })
@@ -109,6 +114,7 @@ export default class TwitterFeature {
           this._contract
             .removeExternalAccount({ account: message.account })
             .then((x) => this._overlay.send('removeExternalAccount_done', x)),
+        afterLinking: () => this._setConfig(),
       },
     );
   }

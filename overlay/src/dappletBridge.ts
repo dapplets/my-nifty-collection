@@ -18,6 +18,13 @@ class Bridge extends GeneralBridge {
     });
   }
 
+  afterLinking() {
+    this.publish(this._subId.toString(), {
+      type: 'afterLinking',
+      message: '',
+    });
+  }
+
   async getNftsByNearAccount(account: string): Promise<NftMetadata[]> {
     return this.call('getNftsByNearAccount', { account }, 'getNftsByNearAccount_done');
   }

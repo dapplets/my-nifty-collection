@@ -1,14 +1,17 @@
 {
   "main": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/a0f2bb56a982aca1abec7c59a8b9204f1c3412cdc45240503db87d64b9fe5764",
-    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5"
+    "overlayUrl": "https://swarm.dapplets.org/bzz/af628951d40a9f2c6d86e9ef9c1a3bc987165a741ecef09bf059077d84ba1230",
+    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5",
+    "nearWalletLink": "https://wallet.near.org"
   },
   "test": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/a0f2bb56a982aca1abec7c59a8b9204f1c3412cdc45240503db87d64b9fe5764",
-    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5"
+    "overlayUrl": "https://swarm.dapplets.org/bzz/af628951d40a9f2c6d86e9ef9c1a3bc987165a741ecef09bf059077d84ba1230",
+    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5",
+    "nearWalletLink": "https://wallet.testnet.near.org"
   },
   "dev": {
     "overlayUrl": "http://localhost:3000",
-    "nftsUrl": "https://localhost:3001/src/nfts.json"
+    "nftsUrl": "https://localhost:3001/src/nfts.json",
+    "nearWalletLink": "https://wallet.testnet.near.org"
   }
 }
