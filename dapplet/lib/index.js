@@ -30,12 +30,12 @@ let TwitterFeature = class TwitterFeature {
         if (!tokenIds.length)
             return [];
         const contractMetadata = await this._nftContract.nft_metadata();
-        const tokenMetadatas = await Promise.all(tokenIds.map(x => this._nftContract.nft_token({ token_id: x })));
+        const tokenMetadatas = await Promise.all(tokenIds.map((x) => this._nftContract.nft_token({ token_id: x })));
         const result = tokenMetadatas.map((x) => ({
             name: x.metadata.title,
             type: x.metadata.description,
             image: contractMetadata.icon,
-            link: x.metadata.media
+            link: x.metadata.media,
         }));
         return result;
     }
@@ -61,14 +61,15 @@ let TwitterFeature = class TwitterFeature {
                 if (!nearAccounts.length)
                     return;
                 const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-                return nfts && nfts.slice(0, 1).map((n) => badge({
-                    DEFAULT: {
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                        img: n.image,
-                        exec: () => this._openOverlay(nearWalletLink, user),
-                    },
-                }));
+                return (nfts &&
+                    nfts.slice(0, 1).map((n) => badge({
+                        DEFAULT: {
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                            img: n.image,
+                            exec: () => this._openOverlay(nearWalletLink, user),
+                        },
+                    })));
             },
             POST_USERNAME_LABEL: async (ctx) => {
                 const user = ctx.authorUsername;
@@ -78,13 +79,14 @@ let TwitterFeature = class TwitterFeature {
                 if (!nearAccounts.length)
                     return;
                 const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-                return nfts && nfts.slice(1, 7).map((n) => label({
-                    DEFAULT: {
-                        basic: true,
-                        img: n.image,
-                        exec: () => this._openOverlay(nearWalletLink, user),
-                    },
-                }));
+                return (nfts &&
+                    nfts.slice(1, 7).map((n) => label({
+                        DEFAULT: {
+                            basic: true,
+                            img: n.image,
+                            exec: () => this._openOverlay(nearWalletLink, user),
+                        },
+                    })));
             },
         });
         console.log('in activate()');
@@ -119,7 +121,7 @@ let TwitterFeature = class TwitterFeature {
                 .then((x) => this._overlay.send('removeExternalAccount_done', x)),
             afterLinking: () => {
                 this._setConfig();
-                console.log("Linked!");
+                console.log('Linked!');
             },
         });
     }
