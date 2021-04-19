@@ -31,12 +31,26 @@ let TwitterFeature = class TwitterFeature {
             return [];
         const contractMetadata = await this._nftContract.nft_metadata();
         const tokenMetadatas = await Promise.all(tokenIds.map((x) => this._nftContract.nft_token({ token_id: x })));
-        const result = tokenMetadatas.map((x) => ({
-            name: x.metadata.title,
-            type: x.metadata.description,
-            image: contractMetadata.icon,
-            link: x.metadata.media,
-        }));
+        const result = tokenMetadatas.map((x) => {
+            const { title, description, media, issued_at, extra } = x.metadata;
+            let parsedExtra = {};
+            try {
+                parsedExtra = JSON.parse(extra);
+            }
+            catch (e) {
+                console.error('Cannot parse tokenMetadatas. ', e);
+            }
+            return {
+                name: title,
+                description,
+                image: contractMetadata.icon,
+                link: media,
+                issued_at,
+                program: parsedExtra.program,
+                cohort: parsedExtra.cohort,
+                owner: parsedExtra.owner,
+            };
+        });
         return result;
     }
     async activate() {
@@ -45,7 +59,7 @@ let TwitterFeature = class TwitterFeature {
             changeMethods: ['addExternalAccount', 'removeExternalAccount', 'clearAll'],
         });
         // https://github.com/dapplets/core-contracts/tree/ncd/nft-simple
-        this._nftContract = await Core.near.contract('dev-1618575251240-1162312', {
+        this._nftContract = await Core.near.contract('dev-1618836841859-7031732', {
             viewMethods: ['nft_metadata', 'nft_tokens_for_owner', 'nft_token'],
             changeMethods: [],
         });
@@ -120,7 +134,7 @@ let TwitterFeature = class TwitterFeature {
                 .removeExternalAccount({ account: message.account })
                 .then((x) => this._overlay.send('removeExternalAccount_done', x)),
             afterLinking: () => {
-                this._setConfig();
+                //this._setConfig();
                 console.log('Linked!');
             },
         });

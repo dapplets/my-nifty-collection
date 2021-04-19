@@ -36,8 +36,14 @@ body {
 
 #root > div > div:nth-child(1) > div > div > div:nth-child(1) {
   cursor: default;
+  padding: 1.5em 1em 1.1em !important;
 }
 
 #root > div > div:nth-child(1) > div > div > div:nth-child(1):hover {
   background: none;
+}
+
+#root > div > div:nth-child(1) > div > div > div:nth-child(2) {
+  color: IndianRed;
+  padding: 1.1em 1em 1.5em !important;
 }

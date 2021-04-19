@@ -11,12 +11,17 @@ interface State {
   current: boolean;
   nfts: {
     name: string;
-    type: string;
+    description: string;
     image: string;
     link: string;
+    issued_at: string;
+    program: string;
+    cohort: string;
+    owner: string;
   }[];
   searchQuery: string;
   isConnected: boolean;
+  linkStateChanged: boolean;
   currentNearAccount: string;
   nearWalletLink: string;
 }
@@ -27,13 +32,18 @@ const defaultState = {
   nfts: [
     {
       name: '',
-      type: '',
+      description: '',
       image: '',
       link: '',
-    },
+      issued_at: '',
+      program: '',
+      cohort: '',
+      owner: '',
+    }
   ],
   searchQuery: '',
   isConnected: true,
+  linkStateChanged: false,
   currentNearAccount: '',
   nearWalletLink: '',
 };
@@ -79,24 +89,23 @@ export default class App extends React.Component<Props, State> {
 
   handleLink = async () => {
     await bridge.addExternalAccount(this.state.user);
-    await this.setState({ isConnected: true });
+    await this.setState({ isConnected: true, linkStateChanged: true });
     await this.getData();
     bridge.afterLinking();
   };
 
   handleUnlink = async () => {
     await bridge.removeExternalAccount(this.state.user);
-    await this.setState({ isConnected: false });
-    await this.getData();
+    await this.setState({ isConnected: false, linkStateChanged: true });
     bridge.afterLinking();
   };
 
   render() {
-    const { current, user, nfts, isConnected, searchQuery, currentNearAccount } = this.state;
+    const { current, user, nfts, isConnected, searchQuery, currentNearAccount, linkStateChanged } = this.state;
     return (
       user && (
         <div className="overlay-container">
-          {current && (
+          {current && isConnected && (
             <div style={{ display: 'inline-block', marginRight: '1em' }}>
               <Dropdown item icon="ellipsis vertical" simple style={{ fontSize: '1.2em' }}>
                 <Dropdown.Menu>
@@ -114,8 +123,15 @@ export default class App extends React.Component<Props, State> {
           <Header as="h2" style={{ display: 'inline-block', marginTop: '0' }}>
             {current ? 'My' : user} NFT Collection
           </Header>
-          {!isConnected ? (
+          {!isConnected && current ? (
             <Card style={{ width: 'auto' }}>
+              {linkStateChanged && (
+                <Card.Content style={{ color: 'forestgreen' }}>
+                  <p>
+                    Twitter account <b>@{user}</b> has been unlinked from <b>{currentNearAccount}</b>
+                  </p>
+                </Card.Content>
+              )}
               <Card.Content>
                 <p>
                   Dapplet connected to{' '}
@@ -139,26 +155,64 @@ export default class App extends React.Component<Props, State> {
                 value={searchQuery}
               />
               <Card className="overlay-card">
+                {linkStateChanged && current && (
+                  <Card.Content style={{ color: 'forestgreen' }}>
+                    <p>
+                      Twitter account <b>@{user}</b> has been linked to <b>{currentNearAccount}</b>
+                    </p>
+                  </Card.Content>
+                )}
                 {nfts[0].name === '' ? (
                   <Card.Content description="You don't have NFTs yet." />
                 ) : (
                   <Card.Content>
                     <Feed>
                       {nfts
+                        .reverse()
                         .filter((nft) => {
                           const reg = new RegExp(
                             `${searchQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`,
                             'gi',
                           );
-                          return reg.exec(nft.name) || reg.exec(nft.type);
+                          return reg.exec(nft.name)
+                            || reg.exec(nft.description)
+                            || reg.exec(nft.issued_at)
+                            || reg.exec(nft.program)
+                            || reg.exec(nft.cohort)
+                            || reg.exec(nft.owner);
                         })
                         .map((nft) => (
                           <Feed.Event style={{ margin: '10px 0' }} key={counter++}>
                             <Feed.Label image={nft.image} />
                             <Feed.Content>
-                              <Feed.Summary>{nft.name}</Feed.Summary>
+                              <Feed.Summary>
+                                {nft.name}
+                              </Feed.Summary>
                               <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                {nft.type}
+                                <b>Description: </b>
+                                {nft.description}
+                              </Feed.Summary>
+                              <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                <b>Link: </b>
+                                <a href={nft.link} target="_blank">
+                                  view certificate
+                                </a>
+                              </Feed.Summary>
+                              <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                <b>Issued at: </b>
+                                {(new Date(nft.issued_at)).toLocaleDateString()}
+                              </Feed.Summary>
+                              <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                <b>Program: </b>
+                                {nft.program}
+                              </Feed.Summary>
+                              <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                <b>Cohort: </b>
+                                {nft.cohort}
+                              </Feed.Summary>
+                              <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                <b>Owner: </b>
+                                {nft.owner}
                               </Feed.Summary>
                             </Feed.Content>
                           </Feed.Event>

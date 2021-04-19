@@ -2,9 +2,13 @@ import GeneralBridge from '@dapplets/dapplet-overlay-bridge';
 
 export interface NftMetadata {
   name: string;
-  type: string;
+  description: string;
   image: string;
   link: string;
+  issued_at: string;
+  program: string;
+  cohort: string;
+  owner: string;
 }
 
 class Bridge extends GeneralBridge {

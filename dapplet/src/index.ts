@@ -2,9 +2,13 @@ import {} from '@dapplets/dapplet-extension';
 
 interface NftMetadata {
   name: string;
-  type: string;
+  description: string;
   image: string;
   link: string;
+  issued_at: string;
+  program: string;
+  cohort: string;
+  owner: string;
 }
 
 @Injectable
@@ -24,12 +28,26 @@ export default class TwitterFeature {
     const tokenMetadatas = await Promise.all(
       tokenIds.map((x) => this._nftContract.nft_token({ token_id: x })),
     );
-    const result: NftMetadata[] = tokenMetadatas.map((x: any) => ({
-      name: x.metadata.title,
-      type: x.metadata.description,
-      image: contractMetadata.icon,
-      link: x.metadata.media,
-    }));
+    const result: NftMetadata[] = tokenMetadatas.map((x: any) => {
+      const { title, description, media, issued_at, extra } = x.metadata;
+      let parsedExtra: any = {};
+      try {
+        parsedExtra = JSON.parse(extra);
+      } catch (e) {
+        console.error('Cannot parse tokenMetadatas. ', e);
+      }
+      return {
+        name: title,
+        description,
+        image: contractMetadata.icon,
+        link: media,
+        issued_at,
+        program: parsedExtra.program,
+        cohort: parsedExtra.cohort,
+        owner: parsedExtra.owner,
+      }
+    });
+
     return result;
   }
 
@@ -40,7 +58,7 @@ export default class TwitterFeature {
     });
 
     // https://github.com/dapplets/core-contracts/tree/ncd/nft-simple
-    this._nftContract = await Core.near.contract('dev-1618575251240-1162312', {
+    this._nftContract = await Core.near.contract('dev-1618836841859-7031732', {
       viewMethods: ['nft_metadata', 'nft_tokens_for_owner', 'nft_token'],
       changeMethods: [],
     });
@@ -135,7 +153,7 @@ export default class TwitterFeature {
             .removeExternalAccount({ account: message.account })
             .then((x) => this._overlay.send('removeExternalAccount_done', x)),
         afterLinking: () => {
-          this._setConfig();
+          //this._setConfig();
           console.log('Linked!');
         },
       },
