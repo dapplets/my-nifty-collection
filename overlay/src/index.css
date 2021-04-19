@@ -1,9 +1,17 @@
 body {
   background-color: #fff;
+  height: auto;
+  max-height: 600px;
 }
 
 .overlay-container {
   margin: 30px 10px;
+}
+
+.overlay-card {
+  width: auto !important;
+  overflow-y: auto;
+  max-height: calc(100vh - 130px);
 }
 
 .ui.checkbox {
@@ -24,4 +32,12 @@ body {
 
 .ui.feed > .event > .label img {
   border-radius: unset !important;
+}
+
+#root > div > div:nth-child(1) > div > div > div:nth-child(1) {
+  cursor: default;
+}
+
+#root > div > div:nth-child(1) > div > div > div:nth-child(1):hover {
+  background: none;
 }

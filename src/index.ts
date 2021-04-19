@@ -14,7 +14,24 @@ export default class TwitterFeature {
 
   private _overlay: any;
   private _contract: any;
+  private _nftContract: any;
   private _setConfig: any;
+
+  private async _fetchNftsByNearAcc(account: string): Promise<NftMetadata[]> {
+    const tokenIds = await this._nftContract.nft_tokens_for_owner({ account_id: account });
+    if (!tokenIds.length) return [];
+    const contractMetadata = await this._nftContract.nft_metadata();
+    const tokenMetadatas = await Promise.all(
+      tokenIds.map((x) => this._nftContract.nft_token({ token_id: x })),
+    );
+    const result: NftMetadata[] = tokenMetadatas.map((x: any) => ({
+      name: x.metadata.title,
+      type: x.metadata.description,
+      image: contractMetadata.icon,
+      link: x.metadata.media,
+    }));
+    return result;
+  }
 
   async activate(): Promise<void> {
     this._contract = await Core.near.contract('dev-1618391705030-8760988', {
@@ -22,71 +39,74 @@ export default class TwitterFeature {
       changeMethods: ['addExternalAccount', 'removeExternalAccount', 'clearAll'],
     });
 
-    Core.onAction(() => this._openOverlay());
+    // https://github.com/dapplets/core-contracts/tree/ncd/nft-simple
+    this._nftContract = await Core.near.contract('dev-1618575251240-1162312', {
+      viewMethods: ['nft_metadata', 'nft_tokens_for_owner', 'nft_token'],
+      changeMethods: [],
+    });
+
+    const nearWalletLink = await Core.storage.get('nearWalletLink');
+
+    Core.onAction(() => this._openOverlay(nearWalletLink));
 
     const { badge, label } = this.adapter.exports;
-
     this._setConfig = () =>
       this.adapter.attachConfig({
-        POST_AVATAR_BADGE: [
-          badge({
-            initial: 'DEFAULT',
-            DEFAULT: {
-              hidden: true,
-              vertical: 'bottom',
-              horizontal: 'right',
-              init: (ctx, me) => this._onInitHandler(ctx, me, 0),
-              exec: (ctx, me) => this._openOverlay(ctx),
-            },
-          }),
-        ],
-        POST_USERNAME_LABEL: [1, 2, 3, 4, 5, 6].map((i) =>
-          label({
-            initial: 'DEFAULT',
-            DEFAULT: {
-              hidden: true,
-              basic: true,
-              init: (ctx, me) => this._onInitHandler(ctx, me, i),
-              exec: (ctx, me) => this._openOverlay(ctx, me),
-            },
-          }),
-        ),
-      }); // end attachConfig
+        POST_AVATAR_BADGE: async (ctx) => {
+          const user = ctx.authorUsername;
+          if (!user) return;
+          const nearAccounts = await this._contract.getNearAccounts({ account: user });
+          if (!nearAccounts.length) return;
+          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+          return (
+            nfts &&
+            nfts.slice(0, 1).map((n) =>
+              badge({
+                DEFAULT: {
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                  img: n.image,
+                  exec: () => this._openOverlay(nearWalletLink, user),
+                },
+              }),
+            )
+          );
+        },
+        POST_USERNAME_LABEL: async (ctx) => {
+          const user = ctx.authorUsername;
+          if (!user) return;
+          const nearAccounts = await this._contract.getNearAccounts({ account: user });
+          if (!nearAccounts.length) return;
+          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+          return (
+            nfts &&
+            nfts.slice(1, 7).map((n) =>
+              label({
+                DEFAULT: {
+                  basic: true,
+                  img: n.image,
+                  exec: () => this._openOverlay(nearWalletLink, user),
+                },
+              }),
+            )
+          );
+        },
+      });
+    console.log('in activate()');
     this._setConfig();
   }
 
-  private async _fetchNftsByNearAcc(account: string): Promise<NftMetadata[]> {
-    const nftsUrl = await Core.storage.get('nftsUrl');
-    const response = await fetch(nftsUrl);
-    const data = await response.json();
-    return data[account];
-  }
-
-  private async _onInitHandler(ctx: any, me: any, index: number): Promise<void> {
-    const nearAccounts = await this._contract.getNearAccounts({ account: ctx.authorUsername });
-    if (nearAccounts.length) {
-      const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-      if (nfts && nfts.length >= index + 1) {
-        me.hidden = false;
-        me.img = nfts[index].image;
-        me.nfts = nfts;
-      }
-    }
-  }
-
-  private async _openOverlay(ctx?: any, me?: any): Promise<void> {
+  private async _openOverlay(nearWalletLink: string, user?: string): Promise<void> {
     if (!this._overlay) {
       const overlayUrl = await Core.storage.get('overlayUrl');
       this._overlay = Core.overlay({ url: overlayUrl, title: 'Overlay' });
     }
-
     const currentUser = this.adapter.getCurrentUser();
-    const nearWalletLink = await Core.storage.get('nearWalletLink');
     this._overlay.sendAndListen(
       'data',
       {
-        user: ctx ? ctx.authorUsername : currentUser.username,
-        current: ctx ? ctx.authorUsername === currentUser.username : true,
+        user: user ? user : currentUser.username,
+        current: user ? user === currentUser.username : true,
         nearWalletLink,
       },
       {
@@ -94,7 +114,7 @@ export default class TwitterFeature {
           this._fetchNftsByNearAcc(message.account).then((x) =>
             this._overlay.send('getNftsByNearAccount_done', x),
           ),
-        getCurrentNearAccount: (op, { type, message }) =>
+        getCurrentNearAccount: () =>
           Core.near
             .wallet()
             .then((x) => this._overlay.send('getCurrentNearAccount_done', x.accountId)),
@@ -114,7 +134,10 @@ export default class TwitterFeature {
           this._contract
             .removeExternalAccount({ account: message.account })
             .then((x) => this._overlay.send('removeExternalAccount_done', x)),
-        afterLinking: () => this._setConfig(),
+        afterLinking: () => {
+          this._setConfig();
+          console.log('Linked!');
+        },
       },
     );
   }

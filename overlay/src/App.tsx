@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Input, Card, Feed, Button } from 'semantic-ui-react';
+import { Header, Menu, Dropdown, Icon, Input, Card, Feed, Button } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 
 let counter = 0;
@@ -59,7 +59,12 @@ export default class App extends React.Component<Props, State> {
         });
       } else {
         const nfts = await bridge.getNftsByNearAccount(currentNearAccount);
-        this.setState({ user, nfts, current });
+        this.setState({
+          user,
+          nfts: nfts.length ? nfts : defaultState.nfts,
+          current,
+          currentNearAccount,
+        });
       }
     } else {
       const nearAcc = await bridge.getNearAccounts(user);
@@ -79,19 +84,43 @@ export default class App extends React.Component<Props, State> {
     bridge.afterLinking();
   };
 
+  handleUnlink = async () => {
+    await bridge.removeExternalAccount(this.state.user);
+    await this.setState({ isConnected: false });
+    await this.getData();
+    bridge.afterLinking();
+  };
+
   render() {
-    const { current, user, nfts, isConnected, searchQuery } = this.state;
+    const { current, user, nfts, isConnected, searchQuery, currentNearAccount } = this.state;
     return (
       user && (
         <div className="overlay-container">
-          <Header as="h2">{current ? 'My' : user} NFT Collection</Header>
+          {current && (
+            <div style={{ display: 'inline-block', marginRight: '1em' }}>
+              <Dropdown item icon="ellipsis vertical" simple style={{ fontSize: '1.2em' }}>
+                <Dropdown.Menu>
+                  <Dropdown.Item>
+                    Connected to{' '}
+                    <a href={this.state.nearWalletLink} target="_blank">
+                      {currentNearAccount}
+                    </a>
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={this.handleUnlink}>Unlink account @{user}</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          )}
+          <Header as="h2" style={{ display: 'inline-block', marginTop: '0' }}>
+            {current ? 'My' : user} NFT Collection
+          </Header>
           {!isConnected ? (
             <Card style={{ width: 'auto' }}>
               <Card.Content>
                 <p>
                   Dapplet connected to{' '}
                   <a href={this.state.nearWalletLink} target="_blank">
-                    {this.state.currentNearAccount}
+                    {currentNearAccount}
                   </a>
                 </p>
                 <p>Current twitter account - @{user}</p>
@@ -109,7 +138,7 @@ export default class App extends React.Component<Props, State> {
                 onChange={(e: any) => this.setState({ searchQuery: e.target.value })}
                 value={searchQuery}
               />
-              <Card style={{ width: 'auto' }}>
+              <Card className="overlay-card">
                 {nfts[0].name === '' ? (
                   <Card.Content description="You don't have NFTs yet." />
                 ) : (
