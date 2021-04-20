@@ -31,14 +31,14 @@ let TwitterFeature = class TwitterFeature {
             return [];
         const contractMetadata = await this._nftContract.nft_metadata();
         const tokenMetadatas = await Promise.all(tokenIds.map((x) => this._nftContract.nft_token({ token_id: x })));
-        const result = tokenMetadatas.map((x) => {
+        return tokenMetadatas.map((x) => {
             const { title, description, media, issued_at, extra } = x.metadata;
-            let parsedExtra = {};
+            let parsedExtra;
             try {
                 parsedExtra = JSON.parse(extra);
             }
             catch (e) {
-                console.error('Cannot parse tokenMetadatas. ', e);
+                console.error('Cannot parse tokenMetadatas.', e);
             }
             return {
                 name: title,
@@ -46,12 +46,11 @@ let TwitterFeature = class TwitterFeature {
                 image: contractMetadata.icon,
                 link: media,
                 issued_at,
-                program: parsedExtra.program,
-                cohort: parsedExtra.cohort,
-                owner: parsedExtra.owner,
+                program: parsedExtra === null || parsedExtra === void 0 ? void 0 : parsedExtra.program,
+                cohort: parsedExtra === null || parsedExtra === void 0 ? void 0 : parsedExtra.cohort,
+                owner: parsedExtra === null || parsedExtra === void 0 ? void 0 : parsedExtra.owner,
             };
         });
-        return result;
     }
     async activate() {
         this._contract = await Core.near.contract('dev-1618391705030-8760988', {
@@ -103,7 +102,6 @@ let TwitterFeature = class TwitterFeature {
                     })));
             },
         });
-        console.log('in activate()');
         this._setConfig();
     }
     async _openOverlay(nearWalletLink, user) {
@@ -134,8 +132,8 @@ let TwitterFeature = class TwitterFeature {
                 .removeExternalAccount({ account: message.account })
                 .then((x) => this._overlay.send('removeExternalAccount_done', x)),
             afterLinking: () => {
-                //this._setConfig();
-                console.log('Linked!');
+                this.adapter.detachConfig();
+                this._setConfig();
             },
         });
     }

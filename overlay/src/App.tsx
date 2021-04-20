@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Menu, Dropdown, Icon, Input, Card, Feed, Button } from 'semantic-ui-react';
+import { Header, Dropdown, Input, Card, Feed, Button } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 
 let counter = 0;
@@ -176,7 +176,7 @@ export default class App extends React.Component<Props, State> {
                           );
                           return reg.exec(nft.name)
                             || reg.exec(nft.description)
-                            || reg.exec(nft.issued_at)
+                            || reg.exec((new Date(nft.issued_at)).toLocaleDateString())
                             || reg.exec(nft.program)
                             || reg.exec(nft.cohort)
                             || reg.exec(nft.owner);
@@ -206,10 +206,12 @@ export default class App extends React.Component<Props, State> {
                                 <b>Program: </b>
                                 {nft.program}
                               </Feed.Summary>
-                              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                <b>Cohort: </b>
-                                {nft.cohort}
-                              </Feed.Summary>
+                              {nft.cohort && (
+                                <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                  <b>Cohort: </b>
+                                  {nft.cohort}
+                                </Feed.Summary>
+                              )}
                               <Feed.Summary style={{ fontWeight: 'normal' }}>
                                 <b>Owner: </b>
                                 {nft.owner}
@@ -218,6 +220,9 @@ export default class App extends React.Component<Props, State> {
                           </Feed.Event>
                         ))}
                     </Feed>
+                    <div className="nft_counter">
+                      {nfts.length} NFTs
+                    </div>
                   </Card.Content>
                 )}
               </Card>
