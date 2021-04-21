@@ -12,6 +12,7 @@ body {
   width: auto !important;
   overflow-y: auto;
   max-height: calc(100vh - 130px);
+  min-height: 200px !important;
 }
 
 .ui.checkbox {

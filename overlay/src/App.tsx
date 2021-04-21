@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Menu, Dropdown, Input, Card, Feed, Button } from 'semantic-ui-react';
+import { Header, Menu, Dropdown, Input, Card, Feed, Button, Segment, Dimmer, Loader } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 
 let counter = 0;
@@ -24,6 +24,8 @@ interface State {
   linkStateChanged: boolean;
   currentNearAccount: string;
   nearWalletLink: string;
+  nftsLoading: boolean;
+  index: number | undefined;
 }
 
 const defaultState = {
@@ -46,6 +48,8 @@ const defaultState = {
   linkStateChanged: false,
   currentNearAccount: '',
   nearWalletLink: '',
+  index: undefined,
+  nftsLoading: false,
 };
 
 export default class App extends React.Component<Props, State> {
@@ -81,10 +85,12 @@ export default class App extends React.Component<Props, State> {
       const nfts = await bridge.getNftsByNearAccount(nearAcc[0]);
       this.setState({ user, nfts, current });
     }
+    this.setState({ nftsLoading: false });
+    window.location.hash = `#nft_${this.state.index}`;
   }
 
   componentDidMount() {
-    bridge.onData((data) => this.setState({ ...data }, () => this.getData()));
+    bridge.onData((data) => this.setState({ ...data, nftsLoading: true }, () => this.getData()));
   }
 
   handleLink = async () => {
@@ -101,7 +107,7 @@ export default class App extends React.Component<Props, State> {
   };
 
   render() {
-    const { current, user, nfts, isConnected, searchQuery, currentNearAccount, linkStateChanged } = this.state;
+    const { current, user, nfts, isConnected, searchQuery, currentNearAccount, linkStateChanged, nftsLoading, index } = this.state;
     return (
       user && (
         <div className="overlay-container">
@@ -175,67 +181,88 @@ export default class App extends React.Component<Props, State> {
                   </Card.Content>
                 )}
                 {nfts[0].name === '' ? (
-                  <Card.Content description="You don't have NFTs yet." />
+                  <>
+                    {nftsLoading ? (
+                        <Dimmer active inverted>
+                          <Loader inverted content='Loading' />
+                        </Dimmer>
+                    ) : <Card.Content description="You don't have NFTs yet." />}
+                  </>
                 ) : (
-                  <Card.Content>
-                    <Feed>
-                      {nfts
-                        .reverse()
-                        .filter((nft) => {
-                          const reg = new RegExp(
-                            `${searchQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`,
-                            'gi',
-                          );
-                          return reg.exec(nft.name)
-                            || reg.exec(nft.description)
-                            || reg.exec((new Date(nft.issued_at)).toLocaleDateString())
-                            || reg.exec(nft.program)
-                            || reg.exec(nft.cohort)
-                            || reg.exec(nft.owner);
-                        })
-                        .map((nft) => (
-                          <Feed.Event style={{ margin: '10px 0' }} key={counter++}>
-                            <Feed.Label image={nft.image} />
-                            <Feed.Content>
-                              <Feed.Summary>
-                                {nft.name}
-                              </Feed.Summary>
-                              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                <b>Description: </b>
-                                {nft.description}
-                              </Feed.Summary>
-                              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                <b>Link: </b>
-                                <a href={nft.link} target="_blank">
-                                  view certificate
-                                </a>
-                              </Feed.Summary>
-                              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                <b>Issued at: </b>
-                                {(new Date(nft.issued_at)).toLocaleDateString()}
-                              </Feed.Summary>
-                              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                <b>Program: </b>
-                                {nft.program}
-                              </Feed.Summary>
-                              {nft.cohort && (
-                                <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                  <b>Cohort: </b>
-                                  {nft.cohort}
-                                </Feed.Summary>
-                              )}
-                              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                <b>Owner: </b>
-                                {nft.owner}
-                              </Feed.Summary>
-                            </Feed.Content>
-                          </Feed.Event>
-                        ))}
-                    </Feed>
-                    <div className="nft_counter">
-                      {nfts.length} NFTs
-                    </div>
-                  </Card.Content>
+                  <>
+                    {nftsLoading ? (
+                        <Dimmer active inverted>
+                          <Loader inverted content='Loading' />
+                        </Dimmer>
+                    ) : (
+                      <Card.Content style={{ padding: '1em 0' }}>
+                        <Feed>
+                          {nfts
+                            .reverse()
+                            .filter((nft) => {
+                              const reg = new RegExp(
+                                `${searchQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`,
+                                'gi',
+                              );
+                              return reg.exec(nft.name)
+                                || reg.exec(nft.description)
+                                || reg.exec((new Date(nft.issued_at)).toLocaleDateString())
+                                || reg.exec(nft.program)
+                                || reg.exec(nft.cohort)
+                                || reg.exec(nft.owner);
+                            })
+                            .map((nft, i) => (
+                              <Feed.Event
+                                id={`nft_${i}`}
+                                style={{
+                                  padding: '.6em 1em',
+                                  backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'none'}`,
+                                }}
+                                key={counter++}
+                              >
+                                <Feed.Label image={nft.image} />
+                                <Feed.Content>
+                                  <Feed.Summary>
+                                    {nft.name}
+                                  </Feed.Summary>
+                                  <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                    <b>Description: </b>
+                                    {nft.description}
+                                  </Feed.Summary>
+                                  <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                    <b>Link: </b>
+                                    <a href={nft.link} target="_blank">
+                                      view certificate
+                                    </a>
+                                  </Feed.Summary>
+                                  <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                    <b>Issued at: </b>
+                                    {(new Date(nft.issued_at)).toLocaleDateString()}
+                                  </Feed.Summary>
+                                  <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                    <b>Program: </b>
+                                    {nft.program}
+                                  </Feed.Summary>
+                                  {nft.cohort && (
+                                    <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                      <b>Cohort: </b>
+                                      {nft.cohort}
+                                    </Feed.Summary>
+                                  )}
+                                  <Feed.Summary style={{ fontWeight: 'normal' }}>
+                                    <b>Owner: </b>
+                                    {nft.owner}
+                                  </Feed.Summary>
+                                </Feed.Content>
+                              </Feed.Event>
+                            ))}
+                        </Feed>
+                        <div className="nft_counter">
+                          {nfts.length} NFTs
+                        </div>
+                      </Card.Content>
+                    )}
+                  </>
                 )}
               </Card>
             </>
