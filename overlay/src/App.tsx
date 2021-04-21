@@ -53,6 +53,8 @@ const defaultState = {
 };
 
 export default class App extends React.Component<Props, State> {
+  private references: any;
+
   constructor(props: Props) {
     super(props);
     this.state = { ...defaultState };
@@ -73,6 +75,10 @@ export default class App extends React.Component<Props, State> {
         });
       } else {
         const nfts = await bridge.getNftsByNearAccount(currentNearAccount);
+        this.references = nfts.reduce((acc: any, value, i) => {
+          acc[i] = React.createRef();
+          return acc;
+        }, {});
         this.setState({
           user,
           nfts: nfts.length ? nfts : defaultState.nfts,
@@ -83,10 +89,22 @@ export default class App extends React.Component<Props, State> {
     } else {
       const nearAcc = await bridge.getNearAccounts(user);
       const nfts = await bridge.getNftsByNearAccount(nearAcc[0]);
+      this.references = nfts.reduce((acc: any, value, i) => {
+        acc[i] = React.createRef();
+        return acc;
+      }, {});
       this.setState({ user, nfts, current });
     }
     this.setState({ nftsLoading: false });
-    window.location.hash = `#nft_${this.state.index}`;
+    //window.location.hash = `#nft_${this.state.index}`;
+    setTimeout(() => {
+      if (this.state.index) {    
+        this.references[this.state.index].current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    }, 2000) 
   }
 
   componentDidMount() {
@@ -214,6 +232,7 @@ export default class App extends React.Component<Props, State> {
                             .map((nft, i) => (
                               <Feed.Event
                                 id={`nft_${i}`}
+                                ref={this.references[i]}
                                 style={{
                                   padding: '.6em 1em',
                                   backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'none'}`,
