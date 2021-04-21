@@ -19,7 +19,7 @@ export default class TwitterFeature {
   private _overlay: any;
   private _contract: any;
   private _nftContract: any;
-  private _setConfig: any;
+  private _resetConfig: any;
 
   private async _fetchNftsByNearAcc(account: string): Promise<NftMetadata[]> {
     const tokenIds = await this._nftContract.nft_tokens_for_owner({ account_id: account });
@@ -65,50 +65,89 @@ export default class TwitterFeature {
 
     Core.onAction(() => this._openOverlay(nearWalletLink));
 
-    const { badge, label } = this.adapter.exports;
-    this._setConfig = () =>
-      this.adapter.attachConfig({
-        POST_AVATAR_BADGE: async (ctx) => {
-          const user = ctx.authorUsername;
-          if (!user) return;
-          const nearAccounts = await this._contract.getNearAccounts({ account: user });
-          if (!nearAccounts.length) return;
-          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-          return (
-            nfts &&
-            nfts.slice(0, 1).map((n) =>
-              badge({
-                DEFAULT: {
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                  img: n.image,
-                  exec: () => this._openOverlay(nearWalletLink, user),
-                },
-              }),
-            )
-          );
-        },
-        POST_USERNAME_LABEL: async (ctx) => {
-          const user = ctx.authorUsername;
-          if (!user) return;
-          const nearAccounts = await this._contract.getNearAccounts({ account: user });
-          if (!nearAccounts.length) return;
-          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-          return (
-            nfts &&
-            nfts.slice(1, 7).map((n) =>
-              label({
-                DEFAULT: {
-                  basic: true,
-                  img: n.image,
-                  exec: () => this._openOverlay(nearWalletLink, user),
-                },
-              }),
-            )
-          );
-        },
-      });
-    this._setConfig();
+    const { badge, label, button } = this.adapter.exports;
+    const { reset } = this.adapter.attachConfig({
+      POST_AVATAR_BADGE: async (ctx) => {
+        const user = ctx.authorUsername;
+        if (!user) return;
+        const nearAccounts = await this._contract.getNearAccounts({ account: user });
+        if (!nearAccounts.length) return;
+        const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+        return nfts && badge({
+          DEFAULT: {
+            vertical: 'bottom',
+            horizontal: 'right',
+            img: nfts[0].image,
+            exec: () => this._openOverlay(nearWalletLink, user),
+          },
+        });
+      },
+      POST_USERNAME_LABEL: async (ctx) => {
+        const user = ctx.authorUsername;
+        if (!user) return;
+        const nearAccounts = await this._contract.getNearAccounts({ account: user });
+        if (!nearAccounts.length) return;
+        const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+        return (
+          nfts &&
+          nfts.slice(1, 7).map((n) =>
+            label({
+              DEFAULT: {
+                basic: true,
+                img: n.image,
+                exec: () => this._openOverlay(nearWalletLink, user),
+              },
+            }),
+          )
+        );
+      },
+      PROFILE_AVATAR_BADGE: async (ctx) => {
+        const user = ctx.authorUsername;
+        if (!user) return;
+        const nearAccounts = await this._contract.getNearAccounts({ account: user });
+        if (!nearAccounts.length) return;
+        const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+
+        console.log('user = ', user)
+        console.log('nearAccounts[0] = ', nearAccounts[0])
+        console.log('nfts = ', nfts)
+
+        return nfts && badge({
+          DEFAULT: {
+            vertical: 'bottom',
+            horizontal: 'right',
+            img: nfts[0].image,
+            exec: () => this._openOverlay(nearWalletLink, user),
+          },
+        });
+      },
+      PROFILE_BUTTON_GROUP: async (ctx) => {
+        const user = ctx.authorUsername;
+        if (!user) return;
+        const nearAccounts = await this._contract.getNearAccounts({ account: user });
+        if (!nearAccounts.length) return;
+        const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+
+        console.log('user = ', user)
+        console.log('nearAccounts[0] = ', nearAccounts[0])
+        console.log('nfts = ', nfts)
+
+        return (
+          nfts &&
+          nfts.slice(1, 4).map((n) =>
+            button({
+              DEFAULT: {
+                label: '',
+                basic: true,
+                img: n.image,
+                exec: () => this._openOverlay(nearWalletLink, user),
+              },
+            }),
+          )
+        );
+      },
+    });
+    this._resetConfig = reset;
   }
 
   private async _openOverlay(nearWalletLink: string, user?: string): Promise<void> {
@@ -150,8 +189,7 @@ export default class TwitterFeature {
             .removeExternalAccount({ account: message.account })
             .then((x) => this._overlay.send('removeExternalAccount_done', x)),
         afterLinking: () => {
-          this.adapter.detachConfig();
-          this._setConfig();
+          this._resetConfig();
         },
       },
     );
