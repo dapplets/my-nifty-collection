@@ -99,6 +99,21 @@ export default class TwitterFeature {
             }),
           );
         },
+        PROFILE_AVATAR_BADGE: async (ctx) => {
+          const user = ctx.authorUsername;
+          if (!user) return;
+          const nearAccounts = await this._contract.getNearAccounts({ account: user });
+          if (!nearAccounts.length) return;
+          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+          return nfts && badge({
+            DEFAULT: {
+              vertical: 'bottom',
+              horizontal: 'right',
+              img: nfts[nfts.length - 1].image,
+              exec: () => this._openOverlay(nearWalletLink, user, 0),
+            },
+          });
+        },
         PROFILE_BUTTON_GROUP: async (ctx) => {
           const user = ctx.authorUsername;
           if (!user) return;

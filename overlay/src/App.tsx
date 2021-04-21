@@ -90,7 +90,7 @@ export default class App extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    bridge.onData((data) => this.setState({ ...data, nftsLoading: true }, () => this.getData()));
+    bridge.onData((data) => this.setState({ ...data, index: data.index || undefined, nftsLoading: true }, () => this.getData()));
   }
 
   handleLink = async () => {
