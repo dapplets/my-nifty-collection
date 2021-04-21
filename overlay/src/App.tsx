@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Dropdown, Input, Card, Feed, Button } from 'semantic-ui-react';
+import { Header, Menu, Dropdown, Input, Card, Feed, Button } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 
 let counter = 0;
@@ -105,24 +105,36 @@ export default class App extends React.Component<Props, State> {
     return (
       user && (
         <div className="overlay-container">
-          {current && isConnected && (
-            <div style={{ display: 'inline-block', marginRight: '1em' }}>
-              <Dropdown item icon="ellipsis vertical" simple style={{ fontSize: '1.2em' }}>
-                <Dropdown.Menu>
-                  <Dropdown.Item>
-                    Connected to{' '}
-                    <a href={this.state.nearWalletLink} target="_blank">
-                      {currentNearAccount}
-                    </a>
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={this.handleUnlink}>Unlink account @{user}</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          )}
-          <Header as="h2" style={{ display: 'inline-block', marginTop: '0' }}>
+          <Header as="h2" style={{ display: 'inline-block', marginTop: '20px' }}>
             {current ? 'My' : user} NFT Collection
           </Header>
+          {current && isConnected && (
+            <div style={{ display: 'inline-block', float: 'right', marginTop: '10px' }}>
+              <Menu style={{ border: 'none', boxShadow: 'none' }}>
+                <Menu.Menu position='right'>
+                  <Dropdown
+                    item
+                    simple
+                    icon="ellipsis vertical"
+                    style={{ fontSize: '1.2em' }}
+                    direction='right'
+                  >
+                    <Dropdown.Menu>
+                      <Dropdown.Item>
+                        Connected to{' '}
+                        <a href={this.state.nearWalletLink} target="_blank">
+                          {currentNearAccount}
+                        </a>
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={this.handleUnlink}>
+                        Unlink account @{user}
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </Menu.Menu>
+              </Menu>
+            </div>
+          )}
           {!isConnected && current ? (
             <Card style={{ width: 'auto' }}>
               {linkStateChanged && (

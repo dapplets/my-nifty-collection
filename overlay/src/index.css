@@ -5,7 +5,7 @@ body {
 }
 
 .overlay-container {
-  margin: 30px 10px;
+  margin: 10px;
 }
 
 .overlay-card {
@@ -34,17 +34,27 @@ body {
   border-radius: unset !important;
 }
 
-#root > div > div:nth-child(1) > div > div > div:nth-child(1) {
+.ui.menu .right.item::before, .ui.menu .right.menu>.item::before {
+  content: none !important;
+}
+
+.ui.menu:after {
+  content: none !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1) {
+  font-size: 1.1rem !important;
   cursor: default;
   padding: 1.5em 1em 1.1em !important;
 }
 
-#root > div > div:nth-child(1) > div > div > div:nth-child(1):hover {
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1):hover {
   background: none;
 }
 
-#root > div > div:nth-child(1) > div > div > div:nth-child(2) {
-  color: IndianRed;
+.ui.menu > .right.menu > .item > .menu > div:nth-child(2) {
+  font-size: 1.1rem !important;
+  color: IndianRed !important;
   padding: 1.1em 1em 1.5em !important;
 }
 
