@@ -45,7 +45,7 @@ export default class TwitterFeature {
         program: parsedExtra?.program,
         cohort: parsedExtra?.cohort,
         owner: parsedExtra?.owner,
-      }
+      };
     });
   }
 
@@ -74,14 +74,17 @@ export default class TwitterFeature {
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
           const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-          return nfts && badge({
-            DEFAULT: {
-              vertical: 'bottom',
-              horizontal: 'right',
-              img: nfts[nfts.length - 1].image,
-              exec: () => this._openOverlay(nearWalletLink, user, 0),
-            },
-          });
+          return (
+            nfts &&
+            badge({
+              DEFAULT: {
+                vertical: 'bottom',
+                horizontal: 'right',
+                img: nfts[nfts.length - 1].image,
+                exec: () => this._openOverlay(nearWalletLink, user, 0),
+              },
+            })
+          );
         },
         POST_USERNAME_LABEL: async (ctx) => {
           const user = ctx.authorUsername;
@@ -89,14 +92,20 @@ export default class TwitterFeature {
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
           const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-          return nfts && nfts.reverse().slice(1, 7).map((nft, i) =>
-            label({
-              DEFAULT: {
-                basic: true,
-                img: nft.image,
-                exec: () => this._openOverlay(nearWalletLink, user, i + 1),
-              },
-            }),
+          return (
+            nfts &&
+            nfts
+              .reverse()
+              .slice(1, 7)
+              .map((nft, i) =>
+                label({
+                  DEFAULT: {
+                    basic: true,
+                    img: nft.image,
+                    exec: () => this._openOverlay(nearWalletLink, user, i + 1),
+                  },
+                }),
+              )
           );
         },
         PROFILE_AVATAR_BADGE: async (ctx) => {
@@ -105,14 +114,17 @@ export default class TwitterFeature {
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
           const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-          return nfts && badge({
-            DEFAULT: {
-              vertical: 'bottom',
-              horizontal: 'right',
-              img: nfts[nfts.length - 1].image,
-              exec: () => this._openOverlay(nearWalletLink, user, 0),
-            },
-          });
+          return (
+            nfts &&
+            badge({
+              DEFAULT: {
+                vertical: 'bottom',
+                horizontal: 'right',
+                img: nfts[nfts.length - 1].image,
+                exec: () => this._openOverlay(nearWalletLink, user, 0),
+              },
+            })
+          );
         },
         PROFILE_BUTTON_GROUP: async (ctx) => {
           const user = ctx.authorUsername;
@@ -120,15 +132,21 @@ export default class TwitterFeature {
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
           const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
-          return nfts && nfts.reverse().slice(1, 4).map((nft, i) =>
-            button({
-              DEFAULT: {
-                label: '',
-                basic: true,
-                img: nft.image,
-                exec: () => this._openOverlay(nearWalletLink, user, i + 1),
-              },
-            }),
+          return (
+            nfts &&
+            nfts
+              .reverse()
+              .slice(1, 4)
+              .map((nft, i) =>
+                button({
+                  DEFAULT: {
+                    label: '',
+                    basic: true,
+                    img: nft.image,
+                    exec: () => this._openOverlay(nearWalletLink, user, i + 1),
+                  },
+                }),
+              )
           );
         },
       });

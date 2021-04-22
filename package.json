@@ -1,15 +1,16 @@
 {
   "name": "my-nifty-collection",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "present my NFT to public",
   "main": "",
   "scripts": {
-    "postinstall": "concurrently -c red,blue -n dapplet,overlay \"npm run install:dapplet\" \"npm run install:overlay\"",
+    "postinstall": "concurrently -c magenta,cyan -n dapplet,overlay \"npm run install:dapplet\" \"npm run install:overlay\"",
     "install:dapplet": "cd dapplet && npm i",
     "install:overlay": "cd overlay && npm i",
-    "start": "concurrently -c red,blue -n dapplet,overlay \"npm run start:dapplet\" \"npm run start:overlay\"",
+    "start": "concurrently -c magenta,cyan -n dapplet,overlay \"npm run start:dapplet\" \"npm run start:overlay\"",
     "start:dapplet": "cd dapplet && npm start",
-    "start:overlay": "cd overlay && npm start"
+    "start:overlay": "cd overlay && npm start",
+    "prettier": "npx prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,8 @@
   "author": "Project Dapplets",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^6.0.2"
+    "concurrently": "^6.0.2",
+    "prettier": "2.2.1"
   },
   "bugs": {
     "url": "https://github.com/dapplets/my-nifty-collection/issues"

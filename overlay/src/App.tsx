@@ -1,5 +1,16 @@
 import React from 'react';
-import { Header, Menu, Dropdown, Input, Card, Feed, Button, Dimmer, Loader, Ref } from 'semantic-ui-react';
+import {
+  Header,
+  Menu,
+  Dropdown,
+  Input,
+  Card,
+  Feed,
+  Button,
+  Dimmer,
+  Loader,
+  Ref,
+} from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 
 interface Props {}
@@ -39,7 +50,7 @@ const defaultState = {
       program: '',
       cohort: '',
       owner: '',
-    }
+    },
   ],
   searchQuery: '',
   isConnected: true,
@@ -51,8 +62,7 @@ const defaultState = {
 };
 
 export default class App extends React.Component<Props, State> {
-
-  refs: any
+  refs: any;
 
   constructor(props: Props) {
     super(props);
@@ -90,9 +100,8 @@ export default class App extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    bridge.onData(
-      (data) => this.setState({ ...data, index: data.index ?? undefined, nftsLoading: true },
-      async () => {
+    bridge.onData((data) =>
+      this.setState({ ...data, index: data.index ?? undefined, nftsLoading: true }, async () => {
         await this.getData();
         if (this.state.index !== undefined) {
           this.refs[`nft_${this.state.index}`].current.scrollIntoView({
@@ -100,8 +109,8 @@ export default class App extends React.Component<Props, State> {
             block: 'start',
           });
         }
-      },
-    ));
+      }),
+    );
   }
 
   handleLink = async () => {
@@ -118,7 +127,17 @@ export default class App extends React.Component<Props, State> {
   };
 
   render() {
-    const { current, user, nfts, isConnected, searchQuery, currentNearAccount, linkStateChanged, nftsLoading, index } = this.state;
+    const {
+      current,
+      user,
+      nfts,
+      isConnected,
+      searchQuery,
+      currentNearAccount,
+      linkStateChanged,
+      nftsLoading,
+      index,
+    } = this.state;
 
     this.refs = nfts.reduce((acc: any, v, i) => {
       acc[`nft_${i}`] = React.createRef();
@@ -134,13 +153,13 @@ export default class App extends React.Component<Props, State> {
           {current && isConnected && (
             <div style={{ display: 'inline-block', float: 'right', marginTop: '10px' }}>
               <Menu style={{ border: 'none', boxShadow: 'none' }}>
-                <Menu.Menu position='right'>
+                <Menu.Menu position="right">
                   <Dropdown
                     item
                     simple
                     icon="ellipsis vertical"
                     style={{ fontSize: '1.2em' }}
-                    direction='right'
+                    direction="right"
                   >
                     <Dropdown.Menu>
                       <Dropdown.Item>
@@ -163,7 +182,8 @@ export default class App extends React.Component<Props, State> {
               {linkStateChanged && (
                 <Card.Content style={{ color: 'forestgreen' }}>
                   <p>
-                    Twitter account <b>@{user}</b> has been unlinked from <b>{currentNearAccount}</b>
+                    Twitter account <b>@{user}</b> has been unlinked from{' '}
+                    <b>{currentNearAccount}</b>
                   </p>
                 </Card.Content>
               )}
@@ -200,17 +220,19 @@ export default class App extends React.Component<Props, State> {
                 {nfts[0].name === '' ? (
                   <>
                     {nftsLoading ? (
-                        <Dimmer active inverted>
-                          <Loader inverted content='Loading' />
-                        </Dimmer>
-                    ) : <Card.Content description="You don't have NFTs yet." />}
+                      <Dimmer active inverted>
+                        <Loader inverted content="Loading" />
+                      </Dimmer>
+                    ) : (
+                      <Card.Content description="You don't have NFTs yet." />
+                    )}
                   </>
                 ) : (
                   <>
                     {nftsLoading ? (
-                        <Dimmer active inverted>
-                          <Loader inverted content='Loading' />
-                        </Dimmer>
+                      <Dimmer active inverted>
+                        <Loader inverted content="Loading" />
+                      </Dimmer>
                     ) : (
                       <Card.Content style={{ padding: '1em 0' }}>
                         <Feed>
@@ -221,29 +243,28 @@ export default class App extends React.Component<Props, State> {
                                 `${searchQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`,
                                 'gi',
                               );
-                              return reg.exec(nft.name)
-                                || reg.exec(nft.description)
-                                || reg.exec((new Date(nft.issued_at)).toLocaleDateString())
-                                || reg.exec(nft.program)
-                                || reg.exec(nft.cohort)
-                                || reg.exec(nft.owner);
+                              return (
+                                reg.exec(nft.name) ||
+                                reg.exec(nft.description) ||
+                                reg.exec(new Date(nft.issued_at).toLocaleDateString()) ||
+                                reg.exec(nft.program) ||
+                                reg.exec(nft.cohort) ||
+                                reg.exec(nft.owner)
+                              );
                             })
                             .map((nft, i) => (
-                              <Ref
-                                key={`nft_${i}`}
-                                innerRef={this.refs[`nft_${i}`]}
-                              >
+                              <Ref key={`nft_${i}`} innerRef={this.refs[`nft_${i}`]}>
                                 <Feed.Event
                                   style={{
                                     padding: '.6em 1em',
-                                    backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'none'}`,
+                                    backgroundColor: `${
+                                      i === index ? 'hsl(185deg 19% 43% / 10%)' : 'none'
+                                    }`,
                                   }}
                                 >
                                   <Feed.Label image={nft.image} />
                                   <Feed.Content>
-                                    <Feed.Summary>
-                                      {nft.name}
-                                    </Feed.Summary>
+                                    <Feed.Summary>{nft.name}</Feed.Summary>
                                     <Feed.Summary style={{ fontWeight: 'normal' }}>
                                       <b>Description: </b>
                                       {nft.description}
@@ -256,7 +277,7 @@ export default class App extends React.Component<Props, State> {
                                     </Feed.Summary>
                                     <Feed.Summary style={{ fontWeight: 'normal' }}>
                                       <b>Issued at: </b>
-                                      {(new Date(nft.issued_at)).toLocaleDateString()}
+                                      {new Date(nft.issued_at).toLocaleDateString()}
                                     </Feed.Summary>
                                     <Feed.Summary style={{ fontWeight: 'normal' }}>
                                       <b>Program: </b>
@@ -277,9 +298,7 @@ export default class App extends React.Component<Props, State> {
                               </Ref>
                             ))}
                         </Feed>
-                        <div className="nft_counter">
-                          {nfts.length} NFTs
-                        </div>
+                        <div className="nft_counter">{nfts.length} NFTs</div>
                       </Card.Content>
                     )}
                   </>

@@ -1,12 +1,11 @@
 {
   "name": "my-nifty-collection",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "present my NFT to public",
   "main": "lib/index.js",
   "scripts": {
     "start": "rollup -w --config rollup.config.js",
     "build": "rollup --config rollup.config.js",
-    "prettier": "npx prettier --write .",
     "linter": "npx eslint ."
   },
   "repository": {
@@ -29,7 +28,6 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.22.0",
-    "prettier": "^2.2.1",
     "rollup": "^2.38.3",
     "rollup-plugin-serve": "^1.1.0",
     "tslib": "^2.1.0",

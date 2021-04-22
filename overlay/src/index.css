@@ -35,7 +35,8 @@ body {
   border-radius: unset !important;
 }
 
-.ui.menu .right.item::before, .ui.menu .right.menu>.item::before {
+.ui.menu .right.item::before,
+.ui.menu .right.menu > .item::before {
   content: none !important;
 }
 
@@ -63,5 +64,5 @@ body {
   display: flex;
   justify-content: center;
   font-size: 1.2em;
-  opacity: .6;
+  opacity: 0.6;
 }
