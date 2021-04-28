@@ -1,11 +1,11 @@
 {
   "main": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/6edf459e6392feb3508f7f6bd57186dc950a5a3ce51689576ef4b5ec9b5e8d65",
+    "overlayUrl": "https://swarm.dapplets.org/bzz/bde505d8589a1d6a56bf881ff63db0406c5e86e44db11f0dc03dc05b50286bf1",
     "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5",
     "nearWalletLink": "https://wallet.near.org"
   },
   "test": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/6edf459e6392feb3508f7f6bd57186dc950a5a3ce51689576ef4b5ec9b5e8d65",
+    "overlayUrl": "https://swarm.dapplets.org/bzz/bde505d8589a1d6a56bf881ff63db0406c5e86e44db11f0dc03dc05b50286bf1",
     "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5",
     "nearWalletLink": "https://wallet.testnet.near.org"
   },

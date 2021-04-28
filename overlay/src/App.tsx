@@ -83,7 +83,8 @@ export default class App extends React.Component<Props, State> {
           nearWalletLink,
         });
       } else {
-        const nfts = await bridge.getNftsByNearAccount(currentNearAccount);
+        const nearAccs = await bridge.getNearAccounts(user);
+        const nfts = await bridge.getNftsByNearAccount(nearAccs);
         this.setState({
           user,
           nfts: nfts.length ? nfts : defaultState.nfts,
@@ -92,8 +93,8 @@ export default class App extends React.Component<Props, State> {
         });
       }
     } else {
-      const nearAcc = await bridge.getNearAccounts(user);
-      const nfts = await bridge.getNftsByNearAccount(nearAcc[0]);
+      const nearAccs = await bridge.getNearAccounts(user);
+      const nfts = await bridge.getNftsByNearAccount(nearAccs);
       this.setState({ user, nfts, current });
     }
     this.setState({ nftsLoading: false });

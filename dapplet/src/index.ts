@@ -21,8 +21,15 @@ export default class TwitterFeature {
   private _nftContract: any;
   private _setConfig: any;
 
-  private async _fetchNftsByNearAcc(account: string): Promise<NftMetadata[]> {
-    const tokenIds = await this._nftContract.nft_tokens_for_owner({ account_id: account });
+  private async _fetchNftsByNearAcc(accounts: string[] | string): Promise<NftMetadata[]> {
+    let tokenIds: string[];
+    if (typeof accounts === 'string') {
+      tokenIds = await this._nftContract.nft_tokens_for_owner({ account_id: accounts });
+    } else {
+      const promisesOfTokens = accounts.map((account: string): Promise<string[]> => this._nftContract.nft_tokens_for_owner({ account_id: account }));
+      const accountsTokenIds = await Promise.all(promisesOfTokens);
+      tokenIds = accountsTokenIds.flat();
+    }
     if (!tokenIds.length) return [];
     const contractMetadata = await this._nftContract.nft_metadata();
     const tokenMetadatas = await Promise.all(
@@ -50,13 +57,13 @@ export default class TwitterFeature {
   }
 
   async activate(): Promise<void> {
-    this._contract = await Core.near.contract('dev-1618391705030-8760988', {
+    this._contract = Core.contract('near', 'dev-1618391705030-8760988', {
       viewMethods: ['getExternalAccounts', 'getNearAccounts'],
       changeMethods: ['addExternalAccount', 'removeExternalAccount', 'clearAll'],
     });
 
     // https://github.com/dapplets/core-contracts/tree/ncd/nft-simple
-    this._nftContract = await Core.near.contract('dev-1618836841859-7031732', {
+    this._nftContract = Core.contract('near', 'dev-1618836841859-7031732', {
       viewMethods: ['nft_metadata', 'nft_tokens_for_owner', 'nft_token'],
       changeMethods: [],
     });
@@ -73,7 +80,7 @@ export default class TwitterFeature {
           if (!user) return;
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
-          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+          const nfts = await this._fetchNftsByNearAcc(nearAccounts);
           return (
             nfts &&
             badge({
@@ -91,7 +98,7 @@ export default class TwitterFeature {
           if (!user) return;
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
-          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+          const nfts = await this._fetchNftsByNearAcc(nearAccounts);
           return (
             nfts &&
             nfts
@@ -113,7 +120,7 @@ export default class TwitterFeature {
           if (!user) return;
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
-          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+          const nfts = await this._fetchNftsByNearAcc(nearAccounts);
           return (
             nfts &&
             badge({
@@ -131,7 +138,7 @@ export default class TwitterFeature {
           if (!user) return;
           const nearAccounts = await this._contract.getNearAccounts({ account: user });
           if (!nearAccounts.length) return;
-          const nfts = await this._fetchNftsByNearAcc(nearAccounts[0]);
+          const nfts = await this._fetchNftsByNearAcc(nearAccounts);
           return (
             nfts &&
             nfts
@@ -141,7 +148,6 @@ export default class TwitterFeature {
                 button({
                   DEFAULT: {
                     label: '',
-                    basic: true,
                     img: nft.image,
                     exec: () => this._openOverlay(nearWalletLink, user, i + 1),
                   },
@@ -169,13 +175,16 @@ export default class TwitterFeature {
       },
       {
         getNftsByNearAccount: (op, { type, message }) =>
-          this._fetchNftsByNearAcc(message.account).then((x) =>
+          this._fetchNftsByNearAcc(message.accounts).then((x) =>
             this._overlay.send('getNftsByNearAccount_done', x),
           ),
-        getCurrentNearAccount: () =>
-          Core.near
-            .wallet()
-            .then((x) => this._overlay.send('getCurrentNearAccount_done', x.accountId)),
+        getCurrentNearAccount: async() => {
+          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+          if (!(await wallet.isConnected())) {
+            await wallet.connect();
+          }
+          this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
+        },
         getExternalAccounts: (op, { type, message }) =>
           this._contract
             .getExternalAccounts({ near: message.near })

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "target": "es2017",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2019", "dom"],
     "moduleResolution": "Node",
     "noEmitHelpers": true,
     "esModuleInterop": true,
