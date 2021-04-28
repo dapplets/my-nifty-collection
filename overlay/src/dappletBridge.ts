@@ -29,8 +29,8 @@ class Bridge extends GeneralBridge {
     });
   }
 
-  async getNftsByNearAccount(account: string): Promise<NftMetadata[]> {
-    return this.call('getNftsByNearAccount', { account }, 'getNftsByNearAccount_done');
+  async getNftsByNearAccount(accounts: string[] | string): Promise<NftMetadata[]> {
+    return this.call('getNftsByNearAccount', { accounts }, 'getNftsByNearAccount_done');
   }
 
   async getCurrentNearAccount(): Promise<string> {
