@@ -1,33 +1,14 @@
 import React from 'react';
-import {
-  Header,
-  Menu,
-  Dropdown,
-  Input,
-  Card,
-  Feed,
-  Button,
-  Dimmer,
-  Loader,
-  Ref,
-} from 'semantic-ui-react';
+import { Header, Menu, Dropdown, Input, Card, Button, Dimmer, Loader } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
+import { Nfts, INft } from './Nfts';
 
 interface Props {}
 
 interface State {
   user: string;
   current: boolean;
-  nfts: {
-    name: string;
-    description: string;
-    image: string;
-    link: string;
-    issued_at: string;
-    program: string;
-    cohort: string;
-    owner: string;
-  }[];
+  nfts: INft[];
   searchQuery: string;
   isConnected: boolean;
   linkStateChanged: boolean;
@@ -75,9 +56,12 @@ export default class App extends React.Component<Props, State> {
     const currentExternalAccounts = await bridge.getExternalAccounts(currentNearAccount);
     if (current) {
       if (!currentExternalAccounts.length) {
+        const nearAccs = await bridge.getNearAccounts(user);
+        const nfts = await bridge.getNftsByNearAccount(nearAccs);
         this.setState({
           isConnected: false,
           user,
+          nfts: nfts.length ? nfts : defaultState.nfts,
           current,
           currentNearAccount,
           nearWalletLink,
@@ -178,10 +162,11 @@ export default class App extends React.Component<Props, State> {
               </Menu>
             </div>
           )}
+
           {!isConnected && current && (
-            <Card style={{ width: 'auto' }}>
+            <Card style={{ width: 'auto', marginTop: '0' }}>
               {linkStateChanged && (
-                <Card.Content style={{ color: 'forestgreen' }}>
+                <Card.Content className="notification">
                   <p>
                     Twitter account <b>@{user}</b> has been unlinked from{' '}
                     <b>{currentNearAccount}</b>
@@ -202,107 +187,59 @@ export default class App extends React.Component<Props, State> {
               </Card.Content>
             </Card>
           )}
-            <>
-              <Input
-                icon="search"
-                placeholder="Search..."
-                style={{ width: '-webkit-fill-available' }}
-                onChange={(e: any) => this.setState({ searchQuery: e.target.value })}
-                value={searchQuery}
-              />
-              <Card className="overlay-card">
-                {linkStateChanged && current && (
-                  <Card.Content style={{ color: 'forestgreen' }}>
-                    <p>
-                      Twitter account <b>@{user}</b> has been linked to <b>{currentNearAccount}</b>
-                    </p>
-                  </Card.Content>
-                )}
-                {nfts[0].name === '' && (
-                  <>
-                    {nftsLoading ? (
-                      <Dimmer active inverted>
-                        <Loader inverted content="Loading" />
-                      </Dimmer>
-                    ) : (
-                      <Card.Content description="You don't have NFTs yet." />
-                    )}
-                  </>
-                )}
+
+          {nfts[0].name !== '' && (
+            <Input
+              icon="search"
+              placeholder="Search..."
+              style={{ width: '-webkit-fill-available' }}
+              onChange={(e: any) => this.setState({ searchQuery: e.target.value })}
+              value={searchQuery}
+            />
+          )}
+
+          <Card
+            className="overlay-card"
+            style={{
+              maxHeight: `calc(100vh - ${
+                !isConnected && current ? (linkStateChanged ? '326px' : '260px') : '130px'
+              })`,
+            }}
+          >
+            {linkStateChanged && current && isConnected && (
+              <Card.Content className="notification">
+                <p>
+                  Twitter account <b>@{user}</b> has been linked to <b>{currentNearAccount}</b>
+                </p>
+              </Card.Content>
+            )}
+
+            {nfts[0].name === '' ? (
+              <>
                 {nftsLoading ? (
-                  <Dimmer active inverted>
-                    <Loader inverted content="Loading" />
-                  </Dimmer>
+                  <div className="dimmer">
+                    <Dimmer active inverted>
+                      <Loader inverted content="Loading" />
+                    </Dimmer>
+                  </div>
                 ) : (
-                  <Card.Content style={{ padding: '1em 0' }}>
-                    <Feed>
-                      {nfts
-                        .reverse()
-                        .filter((nft) => {
-                          const reg = new RegExp(
-                            `${searchQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`,
-                            'gi',
-                          );
-                          return (
-                            reg.exec(nft.name) ||
-                            reg.exec(nft.description) ||
-                            reg.exec(new Date(nft.issued_at).toLocaleDateString()) ||
-                            reg.exec(nft.program) ||
-                            reg.exec(nft.cohort) ||
-                            reg.exec(nft.owner)
-                          );
-                        })
-                        .map((nft, i) => (
-                          <Ref key={`nft_${i}`} innerRef={this.refs[`nft_${i}`]}>
-                            <Feed.Event
-                              style={{
-                                padding: '.6em 1em',
-                                backgroundColor: `${
-                                  i === index ? 'hsl(185deg 19% 43% / 10%)' : 'none'
-                                }`,
-                              }}
-                            >
-                              <Feed.Label image={nft.image} />
-                              <Feed.Content>
-                                <Feed.Summary>{nft.name}</Feed.Summary>
-                                <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                  <b>Description: </b>
-                                  {nft.description}
-                                </Feed.Summary>
-                                <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                  <b>Link: </b>
-                                  <a href={nft.link} target="_blank">
-                                    view certificate
-                                  </a>
-                                </Feed.Summary>
-                                <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                  <b>Issued at: </b>
-                                  {new Date(nft.issued_at).toLocaleDateString()}
-                                </Feed.Summary>
-                                <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                  <b>Program: </b>
-                                  {nft.program}
-                                </Feed.Summary>
-                                {nft.cohort && (
-                                  <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                    <b>Cohort: </b>
-                                    {nft.cohort}
-                                  </Feed.Summary>
-                                )}
-                                <Feed.Summary style={{ fontWeight: 'normal' }}>
-                                  <b>Owner: </b>
-                                  {nft.owner}
-                                </Feed.Summary>
-                              </Feed.Content>
-                            </Feed.Event>
-                          </Ref>
-                        ))}
-                    </Feed>
-                    <div className="nft_counter">{nfts.length} NFTs</div>
-                  </Card.Content>
+                  <Card.Content description="You don't have NFTs yet." />
                 )}
-              </Card>
-            </>
+              </>
+            ) : (
+              <>
+                {nftsLoading ? (
+                  <div className="dimmer">
+                    <Dimmer active inverted>
+                      <Loader inverted content="Loading" />
+                    </Dimmer>
+                  </div>
+                ) : (
+                  <Nfts nfts={nfts} searchQuery={searchQuery} index={index} refs={this.refs} />
+                )}
+              </>
+            )}
+          </Card>
         </div>
       )
     );
