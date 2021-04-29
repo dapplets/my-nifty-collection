@@ -1,7 +1,7 @@
 body {
   background-color: #fff;
   height: auto;
-  max-height: 600px;
+  max-height: 100px;
 }
 
 .overlay-container {
@@ -11,8 +11,11 @@ body {
 .overlay-card {
   width: auto !important;
   overflow-y: auto;
-  max-height: calc(100vh - 130px);
-  min-height: 200px !important;
+  /*min-height: 200px !important;*/
+}
+
+.dimmer {
+  height: 100px;
 }
 
 .ui.checkbox {
@@ -65,4 +68,8 @@ body {
   justify-content: center;
   font-size: 1.2em;
   opacity: 0.6;
+}
+
+.notification {
+  color: forestgreen;
 }

@@ -4,7 +4,8 @@
   "properties": {
     "overlayUrl": {
       "type": "string",
-      "title": "URL of the overlay"
+      "title": "URL of the overlay",
+      "hidden": true
     }
   }
 }
