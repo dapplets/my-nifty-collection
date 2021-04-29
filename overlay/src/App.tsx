@@ -149,7 +149,7 @@ export default class App extends React.Component<Props, State> {
                     <Dropdown.Menu>
                       <Dropdown.Item>
                         Connected to{' '}
-                        <a href={this.state.nearWalletLink} target="_blank">
+                        <a href={this.state.nearWalletLink} target="_blank" rel="noreferrer">
                           {currentNearAccount}
                         </a>
                       </Dropdown.Item>
@@ -176,7 +176,7 @@ export default class App extends React.Component<Props, State> {
               <Card.Content>
                 <p>
                   Dapplet connected to{' '}
-                  <a href={this.state.nearWalletLink} target="_blank">
+                  <a href={this.state.nearWalletLink} target="_blank" rel="noreferrer">
                     {currentNearAccount}
                   </a>
                 </p>

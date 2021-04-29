@@ -1,13 +1,6 @@
 import React from 'react';
 import { Card, Feed, Ref } from 'semantic-ui-react';
 
-interface IProps {
-  nfts: INft[];
-  searchQuery: string;
-  index: number | undefined;
-  refs: any;
-}
-
 export interface INft {
   name: string;
   description: string;
@@ -19,17 +12,76 @@ export interface INft {
   owner: string;
 }
 
-export function Nfts(props: IProps) {
+interface INftProps {
+  nft: INft;
+  i: number;
+  index: number | undefined;
+  refs: any;
+}
+
+function ShowNft(props: INftProps) {
+  const { nft, i, index, refs } = props;
+  const { name, description, image, link, issued_at, program, cohort, owner } = nft;
+  return (
+    <Ref innerRef={refs[`nft_${i}`]}>
+      <Feed.Event
+        style={{
+          padding: '.6em 1em',
+          backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'none'}`,
+        }}
+      >
+        <Feed.Label image={image} />
+        <Feed.Content>
+          <Feed.Summary>{name}</Feed.Summary>
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Description: </b>
+            {description}
+          </Feed.Summary>
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Link: </b>
+            <a href={link} target="_blank" rel="noreferrer">
+              view certificate
+            </a>
+          </Feed.Summary>
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Issued at: </b>
+            {new Date(issued_at).toLocaleDateString()}
+          </Feed.Summary>
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Program: </b>
+            {program}
+          </Feed.Summary>
+          {cohort && (
+            <Feed.Summary style={{ fontWeight: 'normal' }}>
+              <b>Cohort: </b>
+              {cohort}
+            </Feed.Summary>
+          )}
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Owner: </b>
+            {owner}
+          </Feed.Summary>
+        </Feed.Content>
+      </Feed.Event>
+    </Ref>
+  );
+}
+
+interface INftsProps {
+  nfts: INft[];
+  searchQuery: string;
+  index: number | undefined;
+  refs: any;
+}
+
+export function Nfts(props: INftsProps) {
+  const { nfts, searchQuery, index, refs } = props;
   return (
     <Card.Content style={{ padding: '1em 0' }}>
       <Feed>
-        {props.nfts
-          .reverse()
+        {nfts
           .filter((nft) => {
-            const reg = new RegExp(
-              `${props.searchQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}`,
-              'gi',
-            );
+            const reg = new RegExp(`${searchQuery.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}`, 'gi');
             return (
               reg.exec(nft.name) ||
               reg.exec(nft.description) ||
@@ -40,50 +92,10 @@ export function Nfts(props: IProps) {
             );
           })
           .map((nft, i) => (
-            <Ref key={`nft_${i}`} innerRef={props.refs[`nft_${i}`]}>
-              <Feed.Event
-                style={{
-                  padding: '.6em 1em',
-                  backgroundColor: `${i === props.index ? 'hsl(185deg 19% 43% / 10%)' : 'none'}`,
-                }}
-              >
-                <Feed.Label image={nft.image} />
-                <Feed.Content>
-                  <Feed.Summary>{nft.name}</Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>
-                    <b>Description: </b>
-                    {nft.description}
-                  </Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>
-                    <b>Link: </b>
-                    <a href={nft.link} target="_blank">
-                      view certificate
-                    </a>
-                  </Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>
-                    <b>Issued at: </b>
-                    {new Date(nft.issued_at).toLocaleDateString()}
-                  </Feed.Summary>
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>
-                    <b>Program: </b>
-                    {nft.program}
-                  </Feed.Summary>
-                  {nft.cohort && (
-                    <Feed.Summary style={{ fontWeight: 'normal' }}>
-                      <b>Cohort: </b>
-                      {nft.cohort}
-                    </Feed.Summary>
-                  )}
-                  <Feed.Summary style={{ fontWeight: 'normal' }}>
-                    <b>Owner: </b>
-                    {nft.owner}
-                  </Feed.Summary>
-                </Feed.Content>
-              </Feed.Event>
-            </Ref>
+            <ShowNft nft={nft} i={i} index={index} refs={refs} key={`nft_${i}`} />
           ))}
       </Feed>
-      <div className="nft_counter">{props.nfts.length} NFTs</div>
+      <div className="nft_counter">{nfts.length} NFTs</div>
     </Card.Content>
   );
 }

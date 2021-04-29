@@ -22,7 +22,7 @@ export default class TwitterFeature {
   private _setConfig: any;
   public nearWalletLink: string;
 
-  private async _fetchNftsByNearAcc(accounts: string[] | string): Promise<NftMetadata[]> {
+  private async _fetchNftsByNearAcc(accounts: string | string[]): Promise<NftMetadata[]> {
     let tokenIds: string[];
     if (typeof accounts === 'string') {
       tokenIds = await this._nftContract.nft_tokens_for_owner({ account_id: accounts });
@@ -39,25 +39,31 @@ export default class TwitterFeature {
     const tokenMetadatas = await Promise.all(
       tokenIds.map((x) => this._nftContract.nft_token({ token_id: x })),
     );
-    return tokenMetadatas.map((x: any) => {
-      const { title, description, media, issued_at, extra } = x.metadata;
-      let parsedExtra: any;
-      try {
-        parsedExtra = JSON.parse(extra);
-      } catch (e) {
-        console.error('Cannot parse tokenMetadatas.', e);
-      }
-      return {
-        name: title,
-        description,
-        image: contractMetadata.icon,
-        link: media,
-        issued_at,
-        program: parsedExtra?.program,
-        cohort: parsedExtra?.cohort,
-        owner: parsedExtra?.owner,
-      };
-    });
+    return tokenMetadatas
+      .map((tokenMetadata: any) => {
+        const { title, description, media, issued_at, extra } = tokenMetadata.metadata;
+        let parsedExtra: any;
+        try {
+          parsedExtra = JSON.parse(extra);
+        } catch (e) {
+          console.error('Cannot parse tokenMetadatas.', e);
+        }
+        return {
+          name: title,
+          description,
+          image: contractMetadata.icon,
+          link: media,
+          issued_at,
+          program: parsedExtra?.program,
+          cohort: parsedExtra?.cohort,
+          owner: parsedExtra?.owner,
+        };
+      })
+      .sort((a, b) => {
+        const x = new Date(a.issued_at);
+        const y = new Date(b.issued_at);
+        return y.valueOf() - x.valueOf();
+      });
   }
 
   async activate(): Promise<void> {
@@ -88,7 +94,7 @@ export default class TwitterFeature {
             DEFAULT: {
               vertical: 'bottom',
               horizontal: 'right',
-              img: nfts[nfts.length - 1].image,
+              img: nfts[0].image,
               exec: () => this._openOverlay(user, 0),
             },
           });
@@ -100,18 +106,15 @@ export default class TwitterFeature {
           if (!nearAccounts.length) return;
           const nfts = await this._fetchNftsByNearAcc(nearAccounts);
           if (!nfts.length) return;
-          return nfts
-            .reverse()
-            .slice(1, 7)
-            .map((nft, i) =>
-              label({
-                DEFAULT: {
-                  basic: true,
-                  img: nft.image,
-                  exec: () => this._openOverlay(user, i + 1),
-                },
-              }),
-            );
+          return nfts.slice(1, 7).map((nft, i) =>
+            label({
+              DEFAULT: {
+                basic: true,
+                img: nft.image,
+                exec: () => this._openOverlay(user, i + 1),
+              },
+            }),
+          );
         },
         PROFILE_AVATAR_BADGE: async (ctx) => {
           const user = ctx.authorUsername;
@@ -124,7 +127,7 @@ export default class TwitterFeature {
             DEFAULT: {
               vertical: 'bottom',
               horizontal: 'right',
-              img: nfts[nfts.length - 1].image,
+              img: nfts[0].image,
               exec: () => this._openOverlay(user, 0),
             },
           });
@@ -136,18 +139,15 @@ export default class TwitterFeature {
           if (!nearAccounts.length) return;
           const nfts = await this._fetchNftsByNearAcc(nearAccounts);
           if (!nfts.length) return;
-          return nfts
-            .reverse()
-            .slice(1, 4)
-            .map((nft, i) =>
-              button({
-                DEFAULT: {
-                  label: '',
-                  img: nft.image,
-                  exec: () => this._openOverlay(user, i + 1),
-                },
-              }),
-            );
+          return nfts.slice(1, 4).map((nft, i) =>
+            button({
+              DEFAULT: {
+                label: '',
+                img: nft.image,
+                exec: () => this._openOverlay(user, i + 1),
+              },
+            }),
+          );
         },
       });
     this._setConfig();
