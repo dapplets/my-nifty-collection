@@ -26,43 +26,39 @@
 
     ![](https://i.imgur.com/r0SIZdD.png)
 
-7. You have opened a list of dapplets. Turn on **My NFT Collection** dapplet.
-
-    ![](https://i.imgur.com/ShvXKN7.png)
-
-8. Click the **home** icon next to the dapplet name.
+7. You have opened a **list of dapplets**. Click the **home** icon next to the dapplet name.
 
     ![](https://i.imgur.com/fPkQyYq.png)
 
-9. The overlay will open on the Login tab. Click 🔗(Link Symbol) to connect **Dapplet Extension** to the wallet.
+8. The overlay will open on the Login tab. Click 🔗(Link Symbol) to connect **Dapplet Extension** to the wallet.
 
     ![](https://i.imgur.com/ZVn9Shv.png)
 
-10. The overlay opens on the wallet connection tab. Select **NEAR Wallet**.
+9. The overlay opens on the wallet connection tab. Select **NEAR Wallet**.
 
     ![](https://i.imgur.com/4AddaCF.png)
 
-11. NEAR wallet will open in a new browser tab. Click **Allow**.
+10. NEAR wallet will open in a new browser tab. Click **Allow**.
 
     ![](https://i.imgur.com/K4n0qw0.png)
 
-12. If the connection of the Dapplet Extension to the wallet is successful, you would see this information. Сlick **Continue**.
+11. If the connection of the Dapplet Extension to the wallet is successful, you would see this information. Сlick **Continue**.
 
     ![](https://i.imgur.com/0NRSIOA.png)
 
-13. The Login tab opens. Choose the wallet to work with the dapplet. Click **Select**.
+12. The Login tab opens. Choose the wallet to work with the dapplet. Click **Select**.
 
     ![](https://i.imgur.com/bwiRkTu.png)
 
-14. Now **link** your NEAR account to your Twitter account.
+13. Now **link** your NEAR account to your Twitter account.
 
     ![Screenshot from 2021-04-30 16-47-45](https://user-images.githubusercontent.com/43613968/116704429-0bbc9000-a9d4-11eb-9508-377a626d33d1.png)
 
-15. Here is a list of your **NFTs**.
+14. Here is a list of your **NFTs**.
 
     ![image](https://user-images.githubusercontent.com/43613968/116704872-92716d00-a9d4-11eb-9f18-b69ac9714561.png)
 
-16. You can also see some of your NFT in your **profile**:
+15. You can also see some of your NFT in your **profile**:
 
     * the latest is on the avatar,
     * the next six are next to the button *Edit profile*,
@@ -74,10 +70,10 @@
 
     ![](https://i.imgur.com/z5y5ESo.png)
 
-17. If another user also uses **My NFT Collection** dapplet, then you can look at his certificates. Icons in profile and on tweets. By clicking on the icon - an overlay with a list of certificates opens, the certificate on the icon of which you clicked is highlighted with a darker background.
+16. If another user also uses **My NFT Collection** dapplet, then you can look at his certificates. Icons in profile and on tweets. By clicking on the icon - an overlay with a list of certificates opens, the certificate on the icon of which you clicked is highlighted with a darker background.
 
     ![](https://i.imgur.com/u6kOavf.png)
 
-18. In the field of **the certificate**, you will see its name, description, program and cohort, the date of its creation and see it by the link.
+17. In the field of **the certificate**, you will see its name, description, program and cohort, the date of its creation and see it by the link.
 
     ![](https://i.imgur.com/AFxKizJ.png)
