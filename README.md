@@ -1,30 +1,30 @@
-# My NFT Collection
+# My Nifty Collection
 
-1. Here is [a link to the archive with **Dapplet Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/download/v0.28.0/dapplet-extension.zip?config=https://arweave.net/EWMvYRd7JSpJkzS8NvwQkH9eYYodxQWpa2gyLPWZ9K4) (since it is not yet in the extension store).
+"My Nifty Collection" is a [Dapplet](https://dapplets.org) (an Augmentation App) injecting user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification. 
 
-2. Open **Extensions** in **Google Chrome**:
+# Installation Instructions
+
+1. Open a **Google Chrome** browser. 
+
+2. Download a [**Dapplet Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/download/v0.28.0/dapplet-extension.zip?config=https://arweave.net/EWMvYRd7JSpJkzS8NvwQkH9eYYodxQWpa2gyLPWZ9K4).
+
+2. Open **chrome://extensions** in a new Tab.
     
-    * click on the Extensions icon in the upper right corner of the browser,
-    * then click Manage extensions at the bottom of the menu.
-
-      ![](https://i.imgur.com/BCjFqi2.png)
-
-3. On the next page, turn on **developer mode** in the upper right corner of the screen. Reload the page.
+3. Switch the **developer mode** on and fress **F5** to refresh the page.
 
     ![](https://i.imgur.com/o7jpeBh.png)
 
-4. Open the folder with the downloaded archive **dapplet-extension.zip**, drag and drop it to your browser extensions page. The extension will install automatically.
+4. Drag and drop the downloaded file into the extensions page. The extension will install automatically.
 
-    ![image](https://user-images.githubusercontent.com/43613968/116676178-5546b400-a9af-11eb-8997-07fa81edea35.png)
+![image](https://user-images.githubusercontent.com/4574735/116723345-141ec600-a9e8-11eb-915d-09b201b66f4c.png)
 
+5. Go to the **[Alex Sakhaev's Twitter Page](https://twitter.com/alsakhaev)**. 
+This is the first example. You will see some his test certificates issued. 
+The Dapplet is running.
+![image](https://user-images.githubusercontent.com/4574735/116724284-22b9ad00-a9e9-11eb-9e7b-12e5bcf62dbc.png)
 
-5. Click again on the Extensions icon and pin **Dapplets**.
+# Dapplet Walk Through
 
-    ![](https://i.imgur.com/idhwl0h.png)
-
-6. Run the extension on **Twitter**. To do this, open [twitter.com](https://twitter.com/), login to your Twitter account, and click the Dapplets icon in the pinned icon row.
-
-    ![](https://i.imgur.com/r0SIZdD.png)
 
 7. You have opened a **list of dapplets**. Click the **home** icon next to the dapplet name.
 
