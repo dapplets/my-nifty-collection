@@ -26,7 +26,7 @@
 
     ![](https://i.imgur.com/r0SIZdD.png)
 
-7. You have opened a list of dapplets. Turn on the **My NFT Collection** dapplet.
+7. You have opened a list of dapplets. Turn on **My NFT Collection** dapplet.
 
     ![](https://i.imgur.com/ShvXKN7.png)
 
@@ -50,38 +50,30 @@
 
     ![](https://i.imgur.com/bwiRkTu.png)
 
-13. Here is a list of your **NFTs**.
+13. Now **link** your NEAR account to your Twitter account.
 
-    ![](https://i.imgur.com/gu3SAle.png)
+    ![Screenshot from 2021-04-30 16-47-45](https://user-images.githubusercontent.com/43613968/116704429-0bbc9000-a9d4-11eb-9508-377a626d33d1.png)
 
-14. You can also see some of your NFT in your profile (the first in order - on the avatar, the next three - next to the button "Edit Profile") and on your tweets (the first in order - on the avatar, the next six - next to the button "Edit Profile")  
+14. Here is a list of your **NFTs**.
+
+    ![image](https://user-images.githubusercontent.com/43613968/116704872-92716d00-a9d4-11eb-9f18-b69ac9714561.png)
+
+15. You can also see some of your NFT in your **profile**:
+
+    * the latest is on the avatar,
+    * the next six are next to the button *Edit profile*,
+
+    and on your **tweets**:
+
+    * the latest is on the avatar,
+    * the next six are next to the username. 
 
     ![](https://i.imgur.com/z5y5ESo.png)
 
-15. You can change your Twitter account (if you have more than one). For example - from yourname to yourname111
-
-    ![](https://i.imgur.com/QTfPuM9.png)
-
-16. Then you will need to change your twitter account and in the dapplet. To do this, move the cursor over three dots to the right of the text "My NFT Collection" and click on "Unlink account" in the menu that appears
-
-    ![](https://i.imgur.com/ME7HnWp.png)
-
-17.You will be redirected to the NEAR wallet again. And again just click on "ALLOW" button
-
-   ![](https://i.imgur.com/K4n0qw0.png)
-
-18. Now (we are back in the overlay) we need to link our current twitter account
-
-    ![](https://i.imgur.com/vxWshw3.png)
-
-19. The third time we go to the NEAR wallet and allow. No screenshot now - use your memory
-
-20. If another user also uses this dapplet, then you can look at his certificates.
-Icons in profile and on tweets.
-By clicking on the icon - an overlay with a list of certificates opens, the certificate on the icon of which you clicked is highlighted with a darker background
+16. If another user also uses **My NFT Collection** dapplet, then you can look at his certificates. Icons in profile and on tweets. By clicking on the icon - an overlay with a list of certificates opens, the certificate on the icon of which you clicked is highlighted with a darker background.
 
     ![](https://i.imgur.com/u6kOavf.png)
 
-21. In the field of the certificate, you will see its name, description, program and cohort, the date of its creation and see it by the link
+17. In the field of **the certificate**, you will see its name, description, program and cohort, the date of its creation and see it by the link.
 
     ![](https://i.imgur.com/AFxKizJ.png)
