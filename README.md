@@ -23,8 +23,7 @@ This is the first example. You will see some his test certificates issued.
 The Dapplet is running.
 ![image](https://user-images.githubusercontent.com/4574735/116724284-22b9ad00-a9e9-11eb-9e7b-12e5bcf62dbc.png)
 
-# Dapplet Walk Through
-
+# Dapplet Walk-Through
 
 7. You have opened a **list of dapplets**. Click the **home** icon next to the dapplet name.
 
