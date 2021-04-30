@@ -1,17 +1,14 @@
 {
   "main": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/592ef07914a0845248d32000a668c17669bfa2c1e611f8d41ee2599da815119a",
-    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5",
+    "overlayUrl": "https://my-nifty-collection.netlify.app/",
     "nearWalletLink": "https://wallet.near.org"
   },
   "test": {
-    "overlayUrl": "https://swarm.dapplets.org/bzz/592ef07914a0845248d32000a668c17669bfa2c1e611f8d41ee2599da815119a",
-    "nftsUrl": "https://swarm.dapplets.org/files/2e0d260fe9f01cb53e5069eb665a2711d4458b6c3b8774e4c75b5fcf6f2a18c5",
+    "overlayUrl": "https://my-nifty-collection.netlify.app/",
     "nearWalletLink": "https://wallet.testnet.near.org"
   },
   "dev": {
     "overlayUrl": "http://localhost:3000",
-    "nftsUrl": "https://localhost:3001/src/nfts.json",
     "nearWalletLink": "https://wallet.testnet.near.org"
   }
 }
