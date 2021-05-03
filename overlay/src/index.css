@@ -11,7 +11,7 @@ body {
 .overlay-card {
   width: auto !important;
   overflow-y: auto;
-  /*min-height: 200px !important;*/
+  max-height: calc(100vh - 130px);
 }
 
 .dimmer {
@@ -59,8 +59,27 @@ body {
 
 .ui.menu > .right.menu > .item > .menu > div:nth-child(2) {
   font-size: 1.1rem !important;
-  color: IndianRed !important;
   padding: 1.1em 1em 1.5em !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(2).red {
+  color: IndianRed !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(2).green {
+  color: forestgreen !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1).connect {
+  cursor: pointer;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1).connect > p {
+  margin-bottom: auto;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1).connect > p > span {
+  color: forestgreen;
 }
 
 .nft_counter {

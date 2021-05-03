@@ -15,7 +15,14 @@ export interface INft {
 interface INftProps {
   nft: INft;
   i: number;
-  index: number | undefined;
+  refs: any;
+  index?: number;
+}
+
+interface INftsProps {
+  nfts: INft[];
+  searchQuery: string;
+  index?: number;
   refs: any;
 }
 
@@ -27,7 +34,7 @@ function ShowNft(props: INftProps) {
       <Feed.Event
         style={{
           padding: '.6em 1em',
-          backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'none'}`,
+          backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'inherit'}`,
         }}
       >
         <Feed.Label image={image} />
@@ -65,13 +72,6 @@ function ShowNft(props: INftProps) {
       </Feed.Event>
     </Ref>
   );
-}
-
-interface INftsProps {
-  nfts: INft[];
-  searchQuery: string;
-  index: number | undefined;
-  refs: any;
 }
 
 export function Nfts(props: INftsProps) {

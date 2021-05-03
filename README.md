@@ -1,41 +1,40 @@
 # My Nifty Collection
 
-"My Nifty Collection" is a [Dapplet](https://dapplets.org) (an Augmentation App) injecting user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification. 
+"My Nifty Collection" is a [Dapplet](https://dapplets.org) (an Augmentation App) injecting user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification.
 
 # Installation Instructions
 
-1. Open a **Google Chrome** browser. 
+1. Open a **Google Chrome** browser.
 
 2. Download a [**Dapplet Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/download/v0.28.0/dapplet-extension.zip?config=https://arweave.net/EWMvYRd7JSpJkzS8NvwQkH9eYYodxQWpa2gyLPWZ9K4).
 
-2. Open **chrome://extensions** in a new Tab.
-    
-3. Switch the **developer mode** on and fress **F5** to refresh the page.
+3. Open **chrome://extensions** in a new Tab.
+4. Switch the **developer mode** on and fress **F5** to refresh the page.
 
-    ![](https://i.imgur.com/o7jpeBh.png)
+   ![](https://i.imgur.com/o7jpeBh.png)
 
-4. Drag and drop the downloaded file into the extensions page. The extension will install automatically.
+5. Drag and drop the downloaded file into the extensions page. The extension will install automatically.
 
 ![image](https://user-images.githubusercontent.com/4574735/116723345-141ec600-a9e8-11eb-915d-09b201b66f4c.png)
 
-5. Go to the **[Alex Sakhaev's Twitter Page](https://twitter.com/alsakhaev)**. 
-This is the first example. You will see some his test certificates issued. 
-The Dapplet is running.
-![image](https://user-images.githubusercontent.com/4574735/116724284-22b9ad00-a9e9-11eb-9e7b-12e5bcf62dbc.png)
+5. Go to the **[Alex Sakhaev's Twitter Page](https://twitter.com/alsakhaev)**.
+   This is the first example. You will see some his test certificates issued.
+   The Dapplet is running.
+   ![image](https://user-images.githubusercontent.com/4574735/116724284-22b9ad00-a9e9-11eb-9e7b-12e5bcf62dbc.png)
 
 # Dapplet Walk-Through
 
 7. You have opened a **list of dapplets**. Click the **home** icon next to the dapplet name.
 
-    ![](https://i.imgur.com/fPkQyYq.png)
+   ![](https://i.imgur.com/fPkQyYq.png)
 
 8. The overlay will open on the Login tab. Click 🔗(Link Symbol) to connect **Dapplet Extension** to the wallet.
 
-    ![](https://i.imgur.com/ZVn9Shv.png)
+   ![](https://i.imgur.com/ZVn9Shv.png)
 
 9. The overlay opens on the wallet connection tab. Select **NEAR Wallet**.
 
-    ![](https://i.imgur.com/4AddaCF.png)
+   ![](https://i.imgur.com/4AddaCF.png)
 
 10. NEAR wallet will open in a new browser tab. Click **Allow**.
 
@@ -59,13 +58,13 @@ The Dapplet is running.
 
 15. You can also see some of your NFT in your **profile**:
 
-    * the latest is on the avatar,
-    * the next six are next to the button *Edit profile*,
+    - the latest is on the avatar,
+    - the next six are next to the button _Edit profile_,
 
     and on your **tweets**:
 
-    * the latest is on the avatar,
-    * the next six are next to the username. 
+    - the latest is on the avatar,
+    - the next six are next to the username.
 
     ![](https://i.imgur.com/z5y5ESo.png)
 

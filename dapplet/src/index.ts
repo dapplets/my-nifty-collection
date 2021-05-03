@@ -144,7 +144,11 @@ export default class TwitterFeature {
       changeMethods: [],
     });
 
-    Core.onAction(() => this._openOverlay());
+    Core.onAction(async () => {
+      const user = this.adapter.getCurrentUser().username;
+      const nfts = await this._getNfts(user);
+      this._openOverlay(user, nfts, -1);
+    });
 
     const { badge, label, button } = this.adapter.exports;
     this._setConfig = () =>
@@ -159,7 +163,7 @@ export default class TwitterFeature {
                 vertical: 'bottom',
                 horizontal: 'right',
                 img: nfts[0].image,
-                exec: () => this._openOverlay(authorUsername, 0),
+                exec: () => this._openOverlay(authorUsername, nfts, 0),
               },
             })
           );
@@ -175,7 +179,7 @@ export default class TwitterFeature {
                 DEFAULT: {
                   basic: true,
                   img: nfts[i].image,
-                  exec: () => this._openOverlay(authorUsername, i),
+                  exec: () => this._openOverlay(authorUsername, nfts, i),
                 },
               }),
             );
@@ -192,7 +196,7 @@ export default class TwitterFeature {
                 vertical: 'bottom',
                 horizontal: 'right',
                 img: nfts[0].image,
-                exec: () => this._openOverlay(authorUsername, 0),
+                exec: () => this._openOverlay(authorUsername, nfts, 0),
               },
             })
           );
@@ -207,7 +211,7 @@ export default class TwitterFeature {
               button({
                 DEFAULT: {
                   img: nfts[i].image,
-                  exec: () => this._openOverlay(authorUsername, i),
+                  exec: () => this._openOverlay(authorUsername, nfts, i),
                 },
               }),
             );
@@ -218,7 +222,12 @@ export default class TwitterFeature {
     this._setConfig();
   }
 
-  private async _openOverlay(user?: string, index?: number): Promise<void> {
+  private async _openOverlay(
+    user: string,
+    nfts: NftMetadata[],
+    index: number,
+    linkStateChanged: boolean = false,
+  ): Promise<void> {
     if (!this._overlay) {
       try {
         const overlayUrl = await Core.storage.get('overlayUrl');
@@ -237,16 +246,23 @@ export default class TwitterFeature {
     this._overlay.sendAndListen(
       'data',
       {
-        user: user ? user : currentUser.username,
+        user,
+        nfts,
         current: user ? user === currentUser.username : true,
         nearWalletLink: this.nearWalletLink,
         index,
+        linkStateChanged,
       },
       {
-        getNftsByNearAccount: (op: any, { type, message }: any) =>
-          this._fetchNftsByNearAcc(message.accounts).then((x) =>
-            this._overlay.send('getNftsByNearAccount_done', x),
-          ),
+        isWalletConnected: async () => {
+          try {
+            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+            const isWalletConnected = await wallet.isConnected();
+            this._overlay.send('isWalletConnected_done', isWalletConnected);
+          } catch (err) {
+            console.log('Cannot get Current NEAR Account from Core.wallet.', err);
+          }
+        },
         getCurrentNearAccount: async () => {
           try {
             const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
@@ -273,8 +289,13 @@ export default class TwitterFeature {
           this._contract
             .removeExternalAccount({ account: message.account })
             .then((x: any) => this._overlay.send('removeExternalAccount_done', x)),
-        afterLinking: () => {
+        afterLinking: async () => {
           this.adapter.detachConfig();
+          if (this._overlay) {
+            const user = this.adapter.getCurrentUser().username;
+            const nfts = await this._getNfts(user);
+            this._openOverlay(user, nfts, -1, true);
+          }
           this._setConfig();
         },
       },
