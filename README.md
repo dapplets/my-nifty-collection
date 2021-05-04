@@ -6,7 +6,7 @@
 
 1. Open a **Google Chrome** browser.
 
-2. Download a [**Dapplet Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/download/v0.28.0/dapplet-extension.zip?config=https://arweave.net/EWMvYRd7JSpJkzS8NvwQkH9eYYodxQWpa2gyLPWZ9K4).
+2. Download a [**Dapplet Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/latest/download/dapplet-extension.zip?config=https://gist.githubusercontent.com/Ni-2/a959bb851729b151cc5d688e62bd9cef/raw/).
 
 3. Open **chrome://extensions** in a new Tab.
 4. Switch the **developer mode** on and fress **F5** to refresh the page.
