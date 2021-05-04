@@ -12,7 +12,7 @@ interface IDropdownMenuProps {
   handleConnect: () => {};
 }
 
-export function DropdownMenu(props: IDropdownMenuProps) {
+export default function DropdownMenu(props: IDropdownMenuProps) {
   const {
     isConnected,
     nearWalletLink,

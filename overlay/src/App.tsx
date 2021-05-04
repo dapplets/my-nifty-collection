@@ -1,8 +1,9 @@
 import React from 'react';
 import { Header, Input, Card } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
-import { Nfts, INft } from './Nfts';
-import { DropdownMenu } from './DropdownMenu';
+import { INft } from './Nft';
+import NftContainer from './NftContainer';
+import DropdownMenu from './DropdownMenu';
 
 interface Props {}
 
@@ -59,6 +60,24 @@ export default class App extends React.Component<Props, State> {
     this.setState({ isLinked: currentExternalAccounts.includes(user) });
   };
 
+  handleConnect = async () => {
+    const currentNearAccount = await bridge.getCurrentNearAccount();
+    this.setState({ currentNearAccount, isConnected: true });
+    this.tryIsLinked();
+  };
+
+  handleLink = async () => {
+    await bridge.addExternalAccount(this.state.user);
+    await this.setState({ isConnected: true, linkStateChanged: true });
+    bridge.afterLinking();
+  };
+
+  handleUnlink = async () => {
+    await bridge.removeExternalAccount(this.state.user);
+    await this.setState({ isConnected: false, linkStateChanged: true });
+    bridge.afterLinking();
+  };
+
   componentDidMount() {
     bridge.onData((data) =>
       this.setState({ ...defaultState, ...data }, async () => {
@@ -78,24 +97,6 @@ export default class App extends React.Component<Props, State> {
       }),
     );
   }
-
-  handleLink = async () => {
-    await bridge.addExternalAccount(this.state.user);
-    await this.setState({ isConnected: true, linkStateChanged: true });
-    bridge.afterLinking();
-  };
-
-  handleUnlink = async () => {
-    await bridge.removeExternalAccount(this.state.user);
-    await this.setState({ isConnected: false, linkStateChanged: true });
-    bridge.afterLinking();
-  };
-
-  handleConnect = async () => {
-    const currentNearAccount = await bridge.getCurrentNearAccount();
-    this.setState({ currentNearAccount, isConnected: true });
-    this.tryIsLinked();
-  };
 
   render() {
     if (!this.state) return <></>;
@@ -167,7 +168,7 @@ export default class App extends React.Component<Props, State> {
             nfts[0].name === '' ? (
               <Card.Content description="You don't have NFTs yet." />
             ) : (
-              <Nfts nfts={nfts} searchQuery={searchQuery} index={index} refs={this.refs} />
+              <NftContainer nfts={nfts} searchQuery={searchQuery} index={index} refs={this.refs} />
             )
           }
         </Card>

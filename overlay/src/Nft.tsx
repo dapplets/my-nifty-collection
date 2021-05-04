@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Feed, Ref } from 'semantic-ui-react';
+import { Feed, Ref } from 'semantic-ui-react';
 
 export interface INft {
   name: string;
@@ -19,14 +19,7 @@ interface INftProps {
   index?: number;
 }
 
-interface INftsProps {
-  nfts: INft[];
-  searchQuery: string;
-  index?: number;
-  refs: any;
-}
-
-function ShowNft(props: INftProps) {
+export function Nft(props: INftProps) {
   const { nft, i, index, refs } = props;
   const { name, description, image, link, issued_at, program, cohort, owner } = nft;
   return (
@@ -71,31 +64,5 @@ function ShowNft(props: INftProps) {
         </Feed.Content>
       </Feed.Event>
     </Ref>
-  );
-}
-
-export function Nfts(props: INftsProps) {
-  const { nfts, searchQuery, index, refs } = props;
-  return (
-    <Card.Content style={{ padding: '1em 0' }}>
-      <Feed>
-        {nfts
-          .filter((nft) => {
-            const reg = new RegExp(`${searchQuery.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}`, 'gi');
-            return (
-              reg.exec(nft.name) ||
-              reg.exec(nft.description) ||
-              reg.exec(new Date(nft.issued_at).toLocaleDateString()) ||
-              reg.exec(nft.program) ||
-              reg.exec(nft.cohort) ||
-              reg.exec(nft.owner)
-            );
-          })
-          .map((nft, i) => (
-            <ShowNft nft={nft} i={i} index={index} refs={refs} key={`nft_${i}`} />
-          ))}
-      </Feed>
-      <div className="nft_counter">{nfts.length} NFTs</div>
-    </Card.Content>
   );
 }
