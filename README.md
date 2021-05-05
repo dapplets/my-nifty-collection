@@ -11,7 +11,7 @@
 3. Open **chrome://extensions** in a new Tab.
 4. Switch the **developer mode** on and fress **F5** to refresh the page.
 
-   ![](https://i.imgur.com/o7jpeBh.png)
+   ![image](https://user-images.githubusercontent.com/43613968/117107075-ad076580-ad89-11eb-9046-58dd1ede2868.png)
 
 5. Drag and drop the downloaded file into the extensions page. The extension will install automatically.
 
