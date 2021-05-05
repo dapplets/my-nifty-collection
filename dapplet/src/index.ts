@@ -231,7 +231,7 @@ export default class TwitterFeature {
     if (!this._overlay) {
       try {
         const overlayUrl = await Core.storage.get('overlayUrl');
-        this._overlay = Core.overlay({ url: overlayUrl, title: 'Overlay' });
+        this._overlay = Core.overlay({ url: overlayUrl, title: 'My Nifty Collection' });
       } catch (err) {
         console.log('Cannot get overlayUrl from Core.storage in method _openOverlay.', err);
       }
