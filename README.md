@@ -1,6 +1,6 @@
 # My Nifty Collection
 
-"My Nifty Collection" is a [Dapplet](https://dapplets.org) (an Augmentation App) injecting user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification.
+**My Nifty Collection** is a [Dapplet](https://dapplets.org) (an Augmentation App) injecting user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification.
 
 # Installation guide
 
@@ -17,7 +17,7 @@
 
    ![image](https://user-images.githubusercontent.com/43613968/117132354-6cb8df00-adab-11eb-93bb-eb17b287e140.png)
 
-6. Go to the **[Alex Sakhaev's Twitter Page](https://twitter.com/alsakhaev)**. This is the first example. You will see some his test certificates issued.
+6. Go to the **[Alex Sakhaev's Twitter page](https://twitter.com/alsakhaev)**. This is the first example. You will see some of his test certificates issued.
    The Dapplet is running.
 
    ![](https://user-images.githubusercontent.com/43613968/117031152-fb285480-ad08-11eb-88fb-71d89f00eb3e.png)
@@ -28,21 +28,21 @@
    ![](https://user-images.githubusercontent.com/43613968/117028602-89e7a200-ad06-11eb-8edc-ef022a13d711.png)
 
 
-# How to link NEAR account to Twitter account
+# How to link the NEAR account to the Twitter account
 
-1. Open **Dapplets Extension**. You will see a list of dapplets with **My Nifty Collection** dapplet. Click the **home** icon next to the dapplet name.
+1. Open the **Dapplets Extension**. You see a list of dapplets with the **My Nifty Collection** dapplet. Click the **home** icon next to the dapplet name.
 
    ![image](https://user-images.githubusercontent.com/43613968/117032522-370fe980-ad0a-11eb-8546-8dee7f0f6fd8.png)
    
-2. This is the overlay with NFTs from **NEAR accounts** linked to your **Twitter account**. To link NEAR account to Twitter account **click** the dropdown menu icon.
+2. This is the overlay with NFTs from **NEAR accounts** linked to your **Twitter account**. To link the NEAR account to the Twitter account **click** the dropdown menu icon.
 
    ![image](https://user-images.githubusercontent.com/43613968/117033464-0da38d80-ad0b-11eb-880b-e5dae3dbd25c.png)
 
-3. If you are **not connected to NEAR account** you will see this button. Click to connect.
+3. If you are **not connected to the NEAR account** you see this button. Click to connect.
 
    ![image](https://user-images.githubusercontent.com/43613968/117034297-d386bb80-ad0b-11eb-9239-46334de4b0ac.png)
 
-4. The overlay will open on the Login tab. Click **Connect a new wallet**.
+4. The overlay opens on the Login tab. Click **Connect a new wallet**.
 
    ![image](https://user-images.githubusercontent.com/43613968/117034775-4db74000-ad0c-11eb-9564-315be97661a0.png)
 
@@ -50,11 +50,11 @@
 
    ![image](https://user-images.githubusercontent.com/43613968/117104185-606d5b80-ad84-11eb-80de-a906e5801247.png)
 
-6. NEAR wallet will open in a new browser tab. Click **Allow**.
+6. The NEAR wallet opens in a new browser tab. Click **Allow**.
 
    ![image](https://user-images.githubusercontent.com/43613968/117135456-9f64d680-adaf-11eb-97e2-0bcf91f2c9f9.png)
 
-7. If the connection of the Dapplet Extension to the wallet is successful, you would see this information. Сlick **Continue**.
+7. If the connection of the Dapplet Extension to the wallet was successful, you see this information. Сlick **Continue**.
 
    ![image](https://user-images.githubusercontent.com/43613968/117105145-1ab19280-ad86-11eb-9972-67a40adedfbf.png)
 
@@ -70,7 +70,7 @@
 
     ![image](https://user-images.githubusercontent.com/43613968/117105632-1d60b780-ad87-11eb-8bd8-a014156b185b.png)
 
-11. You can also see some of your NFT in your **profile**:
+11. You can also see some of your NFTs in your **profile**:
 
     - the latest is on the avatar,
     - the next six are next to the button _Edit profile_,
