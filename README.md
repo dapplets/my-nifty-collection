@@ -9,7 +9,7 @@
 2. Download a [**Dapplet Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/latest/download/dapplet-extension.zip?config=https://gist.githubusercontent.com/Ni-2/a959bb851729b151cc5d688e62bd9cef/raw/).
 
 3. Open **chrome://extensions** in a new Tab.
-4. Switch the **developer mode** on and fress **F5** to refresh the page.
+4. Switch the **developer mode** on and press **F5** to refresh the page.
 
    ![image](https://user-images.githubusercontent.com/43613968/117107075-ad076580-ad89-11eb-9046-58dd1ede2868.png)
 
