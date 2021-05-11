@@ -20,9 +20,9 @@ export interface ITokenMetadata {
 }
 
 export interface overlayProps {
-  user: string,
-  current?: boolean,
-  nfts: INftMetadata[],
-  index: number,
-  linkStateChanged?: boolean,
+  user: string;
+  current?: boolean;
+  nfts: INftMetadata[];
+  index: number;
+  linkStateChanged?: boolean;
 }

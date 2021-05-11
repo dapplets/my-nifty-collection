@@ -11,7 +11,10 @@ const nftContract = Core.contract('near', 'dev-1619612403093-1786669', {
   changeMethods: [],
 });
 
-const fetchNftsByNearAcc = async (accounts: string | string[], _nftContract: any): Promise<INftMetadata[]> => {
+const fetchNftsByNearAcc = async (
+  accounts: string | string[],
+  _nftContract: any,
+): Promise<INftMetadata[]> => {
   let tokenIds: string[];
   try {
     if (typeof accounts === 'string') {
@@ -110,4 +113,4 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
   }
   if (nfts === undefined || !nfts.length) return;
   return nfts;
-}
+};

@@ -32,80 +32,57 @@ export default class TwitterFeature {
       this.openOverlay({ user, current: true, nfts, index: -1 });
     });
 
-    const { badge, label, button } = this.adapter.exports;
+    interface IWidgets {
+      type: string;
+      indexFrom?: number;
+      indexTo: number;
+      params?: {};
+    }
 
-    this._setConfig = () =>
-      this.adapter.attachConfig({
-        POST_AVATAR_BADGE: async (ctx: { authorUsername: string }) => {
-          const { authorUsername } = ctx;
-          const nfts = await getNfts(authorUsername);
-          return (
-            nfts &&
-            badge({
-              DEFAULT: {
-                vertical: 'bottom',
-                horizontal: 'right',
-                img: nfts[0].image,
-                exec: () => this.openOverlay({ user: authorUsername, nfts, index: 0 }),
-              },
-            })
-          );
-        },
-        POST_USERNAME_LABEL: async (ctx: { authorUsername: string }) => {
-          const { authorUsername } = ctx;
-          const nfts = await getNfts(authorUsername);
-          if (nfts === undefined || !nfts.length) return;
-          const widgets = [];
-          for (let i = 1; i < nfts.length && i < 7; i++) {
-            widgets.push(
-              label({
-                DEFAULT: {
-                  basic: true,
-                  img: nfts[i].image,
-                  exec: () => this.openOverlay({ user: authorUsername, nfts, index: i }),
-                },
-              }),
-            );
-          }
-          return widgets;
-        },
-        PROFILE_AVATAR_BADGE: async (ctx: { authorUsername: string }) => {
-          const { authorUsername } = ctx;
-          const nfts = await getNfts(authorUsername);
-          return (
-            nfts &&
-            badge({
-              DEFAULT: {
-                vertical: 'bottom',
-                horizontal: 'right',
-                img: nfts[0].image,
-                exec: () => this.openOverlay({ user: authorUsername, nfts, index: 0 }),
-              },
-            })
-          );
-        },
-        PROFILE_BUTTON_GROUP: async (ctx: { authorUsername: string }) => {
-          const { authorUsername } = ctx;
-          const nfts = await getNfts(authorUsername);
-          if (nfts === undefined || !nfts.length) return;
-          const widgets = [];
-          for (let i = 1; i < nfts.length && i < 4; i++) {
-            widgets.push(
-              button({
-                DEFAULT: {
-                  img: nfts[i].image,
-                  exec: () => this.openOverlay({ user: authorUsername, nfts, index: i }),
-                },
-              }),
-            );
-          }
-          return widgets;
-        },
-      });
+    const widgets = (props: IWidgets) => async (ctx: { authorUsername: string }) => {
+      const nfts = await getNfts(ctx.authorUsername);
+      if (nfts === undefined || !nfts.length) return;
+
+      const { type, indexFrom, indexTo, params } = props;
+      const widgets = [];
+      for (let i = indexFrom ?? 0; i < nfts.length && i < indexTo; i++) {
+        const defParams = {
+          img: nfts[i].image,
+          exec: () => this.openOverlay({ user: ctx.authorUsername, nfts, index: i }),
+          ...params,
+        };
+        const widget = this.adapter.exports[type]({ DEFAULT: defParams });
+        widgets.push(widget);
+      }
+      return widgets;
+    };
+
+    this._setConfig = () => {
+      const config = {
+        POST_AVATAR_BADGE: widgets({
+          type: 'badge',
+          indexTo: 1,
+          params: { vertical: 'bottom', horizontal: 'right' },
+        }),
+        POST_USERNAME_LABEL: widgets({
+          type: 'label',
+          indexFrom: 1,
+          indexTo: 7,
+          params: { basic: true },
+        }),
+        PROFILE_AVATAR_BADGE: widgets({
+          type: 'badge',
+          indexTo: 1,
+          params: { vertical: 'bottom', horizontal: 'right' },
+        }),
+        PROFILE_BUTTON_GROUP: widgets({ type: 'button', indexFrom: 1, indexTo: 4 }),
+      };
+      this.adapter.attachConfig(config);
+    };
     this._setConfig();
   }
 
-  async openOverlay (props: overlayProps): Promise<void> {
+  async openOverlay(props: overlayProps): Promise<void> {
     const { user, current, nfts, index, linkStateChanged } = props;
     this._overlay.sendAndListen(
       'data',
@@ -158,7 +135,7 @@ export default class TwitterFeature {
           if (this._overlay) {
             const user = this.adapter.getCurrentUser().username;
             const nfts = await getNfts(user);
-            this.openOverlay({ user, current, nfts, index: -1, linkStateChanged: true});
+            this.openOverlay({ user, current, nfts, index: -1, linkStateChanged: true });
           }
           this._setConfig();
         },

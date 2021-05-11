@@ -22,18 +22,16 @@
 
    ![](https://user-images.githubusercontent.com/43613968/117031152-fb285480-ad08-11eb-88fb-71d89f00eb3e.png)
 
-
 7. By clicking on the icons an **overlay** with a list of certificates opens. **The certificate** on the icon of which you clicked is highlighted with a darker background. In the field of the certificate you will see its name, description, the date of creation, program, cohort and owner and see it by the link.
 
    ![](https://user-images.githubusercontent.com/43613968/117028602-89e7a200-ad06-11eb-8edc-ef022a13d711.png)
-
 
 # How to link the NEAR account to the Twitter account
 
 1. Open the **Dapplets Extension**. You see a list of dapplets with the **My Nifty Collection** dapplet. Click the **home** icon next to the dapplet name.
 
    ![image](https://user-images.githubusercontent.com/43613968/117032522-370fe980-ad0a-11eb-8546-8dee7f0f6fd8.png)
-   
+
 2. This is the overlay with NFTs from **NEAR accounts** linked to your **Twitter account**. To link the NEAR account to the Twitter account **click** the dropdown menu icon.
 
    ![image](https://user-images.githubusercontent.com/43613968/117033464-0da38d80-ad0b-11eb-880b-e5dae3dbd25c.png)

@@ -30,7 +30,9 @@ export default function NftContainer(props: INftContainerProps) {
             <Nft nft={nft} i={i} index={index} refs={refs} key={`nft_${i}`} />
           ))}
       </Feed>
-      <div className="nft_counter">{nfts.length} { nfts.length === 1 ? 'NFT' : 'NFTs'}</div>
+      <div className="nft_counter">
+        {nfts.length} {nfts.length === 1 ? 'NFT' : 'NFTs'}
+      </div>
     </Card.Content>
   );
 }
