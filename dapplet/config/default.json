@@ -1,14 +1,11 @@
 {
   "main": {
-    "overlayUrl": "https://my-nifty-collection.netlify.app/",
     "nearWalletLink": "https://wallet.near.org"
   },
   "test": {
-    "overlayUrl": "https://my-nifty-collection.netlify.app/",
     "nearWalletLink": "https://wallet.testnet.near.org"
   },
   "dev": {
-    "overlayUrl": "http://localhost:3000",
     "nearWalletLink": "https://wallet.testnet.near.org"
   }
 }

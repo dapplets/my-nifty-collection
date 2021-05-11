@@ -14,5 +14,8 @@
   },
   "dependencies": {
     "twitter-adapter.dapplet-base.eth": "0.5.1"
+  },
+  "overlays": {
+    "nft-viewer": "http://localhost:3000/"
   }
 }
