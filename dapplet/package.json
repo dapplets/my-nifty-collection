@@ -1,6 +1,6 @@
 {
   "name": "my-nifty-collection",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "present my Near Certificates to public",
   "main": "lib/index.js",
   "scripts": {
