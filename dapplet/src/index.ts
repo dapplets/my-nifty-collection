@@ -9,22 +9,12 @@ export default class TwitterFeature {
   private _overlay: any;
   public nearWalletLink: string;
   private _setConfig: any;
+  private _cachedNfts = {};
 
   async activate(): Promise<void> {
-    // get _overlay
-    try {
-      const overlayUrl = await Core.storage.get('overlayUrl');
-      this._overlay = Core.overlay({ url: overlayUrl, title: 'My Nifty Collection' });
-    } catch (err) {
-      console.log('Cannot get overlayUrl from Core.storage in method activate().', err);
-    }
-
-    // get nearWalletLink
-    try {
-      this.nearWalletLink = await Core.storage.get('nearWalletLink');
-    } catch (err) {
-      console.log('Cannot get nearWalletLink from Core.storage in method activate().', err);
-    }
+    const overlayUrl = await Core.storage.get('overlayUrl');
+    this._overlay = Core.overlay({ url: overlayUrl, title: 'My Nifty Collection' });
+    this.nearWalletLink = await Core.storage.get('nearWalletLink');
 
     Core.onAction(async () => {
       const user = this.adapter.getCurrentUser().username;
@@ -33,17 +23,19 @@ export default class TwitterFeature {
     });
 
     interface IWidgets {
-      type: string;
+      widgetType: string;
       indexFrom?: number;
       indexTo: number;
       params?: {};
     }
 
-    const widgets = (props: IWidgets) => async (ctx: { authorUsername: string }) => {
-      const nfts = await getNfts(ctx.authorUsername);
+    const addWidgets = (props: IWidgets, updateNfts: boolean) => async (ctx: { authorUsername: string }) => {
+      if (!this._cachedNfts[ctx.authorUsername] || updateNfts) {
+        this._cachedNfts[ctx.authorUsername] = getNfts(ctx.authorUsername);
+      }
+      const nfts = await this._cachedNfts[ctx.authorUsername];
       if (nfts === undefined || !nfts.length) return;
-
-      const { type, indexFrom, indexTo, params } = props;
+      const { widgetType, indexFrom, indexTo, params } = props;
       const widgets = [];
       for (let i = indexFrom ?? 0; i < nfts.length && i < indexTo; i++) {
         const defParams = {
@@ -51,31 +43,31 @@ export default class TwitterFeature {
           exec: () => this.openOverlay({ user: ctx.authorUsername, nfts, index: i }),
           ...params,
         };
-        const widget = this.adapter.exports[type]({ DEFAULT: defParams });
+        const widget = this.adapter.exports[widgetType]({ DEFAULT: defParams });
         widgets.push(widget);
       }
       return widgets;
     };
 
-    this._setConfig = () => {
+    this._setConfig = (updateNfts: boolean = false) => {
       const config = {
-        POST_AVATAR_BADGE: widgets({
-          type: 'badge',
+        POST_AVATAR_BADGE: addWidgets({
+          widgetType: 'badge',
           indexTo: 1,
           params: { vertical: 'bottom', horizontal: 'right' },
-        }),
-        POST_USERNAME_LABEL: widgets({
-          type: 'label',
+        }, updateNfts),
+        POST_USERNAME_LABEL: addWidgets({
+          widgetType: 'label',
           indexFrom: 1,
           indexTo: 7,
           params: { basic: true },
-        }),
-        PROFILE_AVATAR_BADGE: widgets({
-          type: 'badge',
+        }, updateNfts),
+        PROFILE_AVATAR_BADGE: addWidgets({
+          widgetType: 'badge',
           indexTo: 1,
           params: { vertical: 'bottom', horizontal: 'right' },
-        }),
-        PROFILE_BUTTON_GROUP: widgets({ type: 'button', indexFrom: 1, indexTo: 4 }),
+        }, updateNfts),
+        PROFILE_BUTTON_GROUP: addWidgets({ widgetType: 'button', indexFrom: 1, indexTo: 4 }, updateNfts),
       };
       this.adapter.attachConfig(config);
     };
@@ -137,7 +129,7 @@ export default class TwitterFeature {
             const nfts = await getNfts(user);
             this.openOverlay({ user, current, nfts, index: -1, linkStateChanged: true });
           }
-          this._setConfig();
+          this._setConfig(true);
         },
       },
     );
