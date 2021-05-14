@@ -24,7 +24,7 @@ const defaultNfts: INft[] = [
   {
     name: '',
     description: '',
-    image: '',
+    image: { LIGHT: '' },
     link: '',
     issued_at: '',
     program: '',

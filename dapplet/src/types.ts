@@ -1,7 +1,7 @@
 export interface INftMetadata {
   name: string;
   description: string;
-  image: string;
+  image: { DARK: string, LIGHT: string };
   link: string;
   issued_at: string;
   program: string;

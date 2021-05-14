@@ -49,10 +49,15 @@ const fetchNftsByNearAcc = async (
     tokenMetadatas = [];
   }
 
-  let image: string;
+  let image: { DARK: string, LIGHT: string };
   try {
-    const { icon } = await _nftContract.nft_metadata();
-    image = <string>icon;
+    const { icon, reference } = await _nftContract.nft_metadata();
+    const res = await fetch(reference);
+    const parsedImages = await res.json();
+    image = {
+      DARK: parsedImages.icon_dark,
+      LIGHT: parsedImages.icon_light,
+    };
   } catch (err) {
     console.log('Cannot get icon from NFTMetadata of nftContract in method nft_metadata().', err);
   }

@@ -4,7 +4,7 @@ import { Feed, Ref } from 'semantic-ui-react';
 export interface INft {
   name: string;
   description: string;
-  image: string;
+  image: { LIGHT: string };
   link: string;
   issued_at: string;
   program: string;
@@ -30,7 +30,7 @@ export function Nft(props: INftProps) {
           backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'inherit'}`,
         }}
       >
-        <Feed.Label image={image} />
+        <Feed.Label image={image.LIGHT} />
         <Feed.Content>
           <Feed.Summary>{name}</Feed.Summary>
           <Feed.Summary style={{ fontWeight: 'normal' }}>
