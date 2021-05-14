@@ -1,4 +1,4 @@
-import {} from '@dapplets/dapplet-extension';
+import { } from '@dapplets/dapplet-extension';
 import { overlayProps } from './types';
 import getNfts, { contract } from './get-nfts';
 
@@ -15,6 +15,50 @@ export default class TwitterFeature {
     try {
       const overlayUrl = await Core.storage.get('overlayUrl');
       this._overlay = Core.overlay({ url: overlayUrl, title: 'My Nifty Collection' });
+      this._overlay.listen({
+        isWalletConnected: async () => {
+          try {
+            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+            const isWalletConnected = await wallet.isConnected();
+            this._overlay.send('isWalletConnected_done', isWalletConnected);
+          } catch (err) {
+            console.log('Cannot get Current NEAR Account from Core.wallet.', err);
+          }
+        },
+        getCurrentNearAccount: async () => {
+          try {
+            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+            const isWalletConnected = await wallet.isConnected();
+            if (!isWalletConnected) await wallet.connect();
+            this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
+          } catch (err) {
+            console.log('Cannot get Current NEAR Account from Core.wallet.', err);
+          }
+        },
+        getExternalAccounts: (op: any, { type, message }: any) =>
+          contract
+            .getExternalAccounts({ near: message.near })
+            .then((x: any) => this._overlay.send('getExternalAccounts_done', x)),
+        getNearAccounts: (op: any, { type, message }: any) =>
+          contract
+            .getNearAccounts({ account: message.account })
+            .then((x: any) => this._overlay.send('getNearAccounts_done', x)),
+        addExternalAccount: (op: any, { type, message }: any) =>
+          contract
+            .addExternalAccount({ account: message.account })
+            .then((x: any) => this._overlay.send('addExternalAccount_done', x)),
+        removeExternalAccount: (op: any, { type, message }: any) =>
+          contract
+            .removeExternalAccount({ account: message.account })
+            .then((x: any) => this._overlay.send('removeExternalAccount_done', x)),
+        afterLinking: async () => {
+          this.adapter.detachConfig();
+          // const user = this.adapter.getCurrentUser().username;
+          // const nfts = await getNfts(user);
+          // this.openOverlay({ user, current, nfts, index: -1, linkStateChanged: true });
+          this._setConfig();
+        },
+      });
     } catch (err) {
       console.log('Cannot get overlayUrl from Core.storage in method activate().', err);
     }
@@ -84,7 +128,7 @@ export default class TwitterFeature {
 
   async openOverlay(props: overlayProps): Promise<void> {
     const { user, current, nfts, index, linkStateChanged } = props;
-    this._overlay.sendAndListen(
+    this._overlay.send(
       'data',
       {
         user,
@@ -93,53 +137,7 @@ export default class TwitterFeature {
         nearWalletLink: this.nearWalletLink,
         index,
         linkStateChanged,
-      },
-      {
-        isWalletConnected: async () => {
-          try {
-            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-            const isWalletConnected = await wallet.isConnected();
-            this._overlay.send('isWalletConnected_done', isWalletConnected);
-          } catch (err) {
-            console.log('Cannot get Current NEAR Account from Core.wallet.', err);
-          }
-        },
-        getCurrentNearAccount: async () => {
-          try {
-            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-            const isWalletConnected = await wallet.isConnected();
-            if (!isWalletConnected) await wallet.connect();
-            this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
-          } catch (err) {
-            console.log('Cannot get Current NEAR Account from Core.wallet.', err);
-          }
-        },
-        getExternalAccounts: (op: any, { type, message }: any) =>
-          contract
-            .getExternalAccounts({ near: message.near })
-            .then((x: any) => this._overlay.send('getExternalAccounts_done', x)),
-        getNearAccounts: (op: any, { type, message }: any) =>
-          contract
-            .getNearAccounts({ account: message.account })
-            .then((x: any) => this._overlay.send('getNearAccounts_done', x)),
-        addExternalAccount: (op: any, { type, message }: any) =>
-          contract
-            .addExternalAccount({ account: message.account })
-            .then((x: any) => this._overlay.send('addExternalAccount_done', x)),
-        removeExternalAccount: (op: any, { type, message }: any) =>
-          contract
-            .removeExternalAccount({ account: message.account })
-            .then((x: any) => this._overlay.send('removeExternalAccount_done', x)),
-        afterLinking: async () => {
-          this.adapter.detachConfig();
-          if (this._overlay) {
-            const user = this.adapter.getCurrentUser().username;
-            const nfts = await getNfts(user);
-            this.openOverlay({ user, current, nfts, index: -1, linkStateChanged: true });
-          }
-          this._setConfig();
-        },
-      },
+      }
     );
   }
 }
