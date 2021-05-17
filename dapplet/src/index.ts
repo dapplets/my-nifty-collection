@@ -29,7 +29,9 @@ export default class TwitterFeature {
       params?: {};
     }
 
-    const addWidgets = (props: IWidgets, updateNfts: boolean) => async (ctx: { authorUsername: string }) => {
+    const addWidgets = (props: IWidgets, updateNfts: boolean) => async (ctx: {
+      authorUsername: string;
+    }) => {
       if (!this._cachedNfts[ctx.authorUsername] || updateNfts) {
         this._cachedNfts[ctx.authorUsername] = getNfts(ctx.authorUsername);
       }
@@ -51,23 +53,35 @@ export default class TwitterFeature {
 
     this._setConfig = (updateNfts: boolean = false) => {
       const config = {
-        POST_AVATAR_BADGE: addWidgets({
-          widgetType: 'badge',
-          indexTo: 1,
-          params: { vertical: 'bottom', horizontal: 'right' },
-        }, updateNfts),
-        POST_USERNAME_LABEL: addWidgets({
-          widgetType: 'label',
-          indexFrom: 1,
-          indexTo: 7,
-          params: { basic: true },
-        }, updateNfts),
-        PROFILE_AVATAR_BADGE: addWidgets({
-          widgetType: 'badge',
-          indexTo: 1,
-          params: { vertical: 'bottom', horizontal: 'right' },
-        }, updateNfts),
-        PROFILE_BUTTON_GROUP: addWidgets({ widgetType: 'button', indexFrom: 1, indexTo: 4 }, updateNfts),
+        POST_AVATAR_BADGE: addWidgets(
+          {
+            widgetType: 'badge',
+            indexTo: 1,
+            params: { vertical: 'bottom', horizontal: 'right' },
+          },
+          updateNfts,
+        ),
+        POST_USERNAME_LABEL: addWidgets(
+          {
+            widgetType: 'label',
+            indexFrom: 1,
+            indexTo: 7,
+            params: { basic: true },
+          },
+          updateNfts,
+        ),
+        PROFILE_AVATAR_BADGE: addWidgets(
+          {
+            widgetType: 'badge',
+            indexTo: 1,
+            params: { vertical: 'bottom', horizontal: 'right' },
+          },
+          updateNfts,
+        ),
+        PROFILE_BUTTON_GROUP: addWidgets(
+          { widgetType: 'button', indexFrom: 1, indexTo: 4 },
+          updateNfts,
+        ),
       };
       this.adapter.attachConfig(config);
     };

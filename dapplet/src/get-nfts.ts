@@ -49,7 +49,7 @@ const fetchNftsByNearAcc = async (
     tokenMetadatas = [];
   }
 
-  let image: { DARK: string, LIGHT: string };
+  let image: { DARK: string; LIGHT: string };
   try {
     const { icon, reference } = await _nftContract.nft_metadata();
     const res = await fetch(reference);

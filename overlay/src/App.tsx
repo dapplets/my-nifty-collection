@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Input, Card } from 'semantic-ui-react';
+import { Header, Dimmer, Loader, Input, Card } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 import { INft } from './Nft';
 import NftContainer from './NftContainer';
@@ -18,6 +18,7 @@ interface State {
   currentNearAccount: string;
   nearWalletLink: string;
   index: number;
+  isDataLoading: boolean;
 }
 
 const defaultNfts: INft[] = [
@@ -44,6 +45,7 @@ const defaultState: State = {
   currentNearAccount: '',
   nearWalletLink: '',
   index: -1,
+  isDataLoading: true,
 };
 
 export default class App extends React.Component<Props, State> {
@@ -80,7 +82,7 @@ export default class App extends React.Component<Props, State> {
 
   componentDidMount() {
     bridge.onData((data) =>
-      this.setState({ ...defaultState, ...data }, async () => {
+      this.setState({ ...defaultState, ...data, isDataLoading: false }, async () => {
         const isConnected = await bridge.isWalletConnected();
         this.setState({ isConnected });
         if (isConnected) {
@@ -99,7 +101,6 @@ export default class App extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.state) return <></>;
     const {
       current,
       user,
@@ -111,6 +112,7 @@ export default class App extends React.Component<Props, State> {
       linkStateChanged,
       index,
       nearWalletLink,
+      isDataLoading,
     } = this.state;
 
     this.refs = nfts.reduce((acc: any, v, i) => {
@@ -165,7 +167,13 @@ export default class App extends React.Component<Props, State> {
           }
           {
             // ------- NFTs -------
-            nfts[0].name === '' ? (
+            isDataLoading ? (
+              <div style={{ display: 'block', height: '100px' }}>
+                <Dimmer active inverted>
+                  <Loader inverted content="Loading" />
+                </Dimmer>
+              </div>
+            ) : nfts[0].name === '' ? (
               <Card.Content description="You don't have NFTs yet." />
             ) : (
               <NftContainer nfts={nfts} searchQuery={searchQuery} index={index} refs={this.refs} />

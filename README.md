@@ -16,11 +16,11 @@
 5. **Drag and drop** the downloaded file into the extensions page. The extension will install automatically.
 
    ![image](https://user-images.githubusercontent.com/43613968/117132354-6cb8df00-adab-11eb-93bb-eb17b287e140.png)
-   
+
    > If you are using Ubuntu or possibly another Linux OS the Dapplets extension can disappear from the Chrome Extensions after restarting the PC. To avoid this unzip the archive and use the `Load unpacked` button to add the extension.
-   > 
+   >
    > ![image](https://user-images.githubusercontent.com/43613968/118473499-b93cdc80-b712-11eb-8a1a-d3779e490e8c.png)
-   > 
+   >
    > ![image](https://user-images.githubusercontent.com/43613968/118473927-2ea8ad00-b713-11eb-9bbf-f2b7cb33a6bf.png)
 
 6. Go to the **[Alex Sakhaev's Twitter page](https://twitter.com/alsakhaev)**. This is the first example. You will see some of his test certificates issued.
