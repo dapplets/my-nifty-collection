@@ -62,19 +62,25 @@ export default class App extends React.Component<Props, State> {
     this.setState({ isLinked: currentExternalAccounts.includes(user) });
   };
 
-  handleConnect = async () => {
+  handleConnect = async (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     const currentNearAccount = await bridge.getCurrentNearAccount();
     this.setState({ currentNearAccount, isConnected: true });
     this.tryIsLinked();
   };
 
-  handleLink = async () => {
+  handleLink = async (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     await bridge.addExternalAccount(this.state.user);
     await this.setState({ isConnected: true, linkStateChanged: true });
     bridge.afterLinking();
   };
 
-  handleUnlink = async () => {
+  handleUnlink = async (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     await bridge.removeExternalAccount(this.state.user);
     await this.setState({ isConnected: false, linkStateChanged: true });
     bridge.afterLinking();

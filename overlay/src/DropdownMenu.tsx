@@ -7,9 +7,9 @@ interface IDropdownMenuProps {
   currentNearAccount: string;
   isLinked: boolean;
   user: string;
-  handleLink: () => {};
-  handleUnlink: () => {};
-  handleConnect: () => {};
+  handleLink: (e: any) => {};
+  handleUnlink: (e: any) => {};
+  handleConnect: (e: any) => {};
 }
 
 export default function DropdownMenu(props: IDropdownMenuProps) {
@@ -37,7 +37,7 @@ export default function DropdownMenu(props: IDropdownMenuProps) {
             <Dropdown.Menu>
               {isConnected ? (
                 <>
-                  <Dropdown.Item>
+                  <Dropdown.Item onClick={(e: any) => e.stopPropagation()}>
                     Connected to{' '}
                     <a href={nearWalletLink} target="_blank" rel="noreferrer">
                       {currentNearAccount}
