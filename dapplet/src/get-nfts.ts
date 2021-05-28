@@ -11,7 +11,7 @@ const nftContract = Core.contract('near', 'dev-1619612403093-1786669', {
   changeMethods: [],
 });
 
-const fetchNftsByNearAcc = async (
+const fetchNftsByNearAcc_NCD = async (
   accounts: string | string[],
   _nftContract: any,
 ): Promise<INftMetadata[]> => {
@@ -93,6 +93,85 @@ const fetchNftsByNearAcc = async (
       const y = new Date(b.issued_at);
       return y.valueOf() - x.valueOf();
     });
+}
+
+const fetchNftsByNearAcc_Mintbase = async (
+  accounts: string | string[]
+): Promise<INftMetadata[]> => {
+  const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
+
+  const fetchMetadata = async (metaId: string) => {
+    const resp = await fetch(`https://arweave.net/${metaId}`);
+    return resp.json();
+  }
+
+  const fetchTokens = async (account: string): Promise<any> => {
+    const resp = await fetch("https://mintbase-mainnet.hasura.app/v1/graphql", {
+      "body": `{\"operationName\":\"token\",\"variables\":{\"account\":\"${account}\",\"limit\":10,\"lastDate\":\"now()\"},\"query\":\"query token($account: String!, $limit: Int!, $lastDate: timestamptz!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: $limit) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      store {\\n        id\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}`,
+      "method": "POST"
+    });
+    const result = await resp.json();
+    return Promise.all(result.data.token.map(token => fetchMetadata(token.thing.metaId).then(metadata => ({ ...token, metadata }))));
+  }
+
+  const subArraysTokens = await Promise.all(accountsArray.map(fetchTokens));
+  const tokens = subArraysTokens.flat();
+
+  return tokens.map(x => ({
+    name: x.metadata.title,
+    description: x.metadata.description,
+    image: {
+      LIGHT: x.metadata.media,
+      DARK: x.metadata.media
+    },
+    issued_at: x.lastTransferred,
+    link: `https://www.mintbase.io/thing/${x.thing.id}`,
+    cohort: '',
+    owner: x.ownerId,
+    program: ''
+  }));
+}
+
+const fetchNftsByNearAcc_Paras = async (
+  accounts: string | string[]
+): Promise<INftMetadata[]> => {
+  const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
+
+  const fetchTokens = async (account: string): Promise<any> => {
+    const resp = await fetch(`https://mainnet-api.paras.id/tokens?ownerId=${account}`);
+    const result = await resp.json();
+    return result.data.results.map(x => ({ ...x, ownerId: account }));
+  }
+
+  const subArraysTokens = await Promise.all(accountsArray.map(fetchTokens));
+  const tokens = subArraysTokens.flat();
+
+  return tokens.map(x => ({
+    name: x.metadata.name,
+    description: x.metadata.description,
+    image: {
+      LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.image.replace('ipfs://', '')}`,
+      DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.image.replace('ipfs://', '')}`,
+    },
+    issued_at: new Date(x.createdAt).toISOString(),
+    link: `https://paras.id/token/${x.tokenId}`,
+    cohort: '',
+    owner: x.ownerId,
+    program: ''
+  }));
+}
+
+const fetchNftsByNearAcc = async (
+  accounts: string | string[],
+  _nftContract: any,
+): Promise<INftMetadata[]> => {
+  const subArraysTokens = await Promise.all([
+    fetchNftsByNearAcc_NCD(accounts, _nftContract),
+    fetchNftsByNearAcc_Mintbase(accounts),
+    fetchNftsByNearAcc_Paras(accounts)
+  ]);
+
+  return subArraysTokens.flat();
 };
 
 export default async (authorUsername?: string): Promise<INftMetadata[]> => {
@@ -101,6 +180,8 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
   let nearAccounts: string[];
   try {
     nearAccounts = await contract.getNearAccounts({ account: authorUsername });
+    // ToDo: eliminate it
+    if (nearAccounts.indexOf("buidl.testnet") !== -1) nearAccounts.push("alsakhaev.near");
   } catch (err) {
     console.log(
       'Cannot get NEAR accounts by authorUsername:',
