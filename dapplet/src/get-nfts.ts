@@ -99,6 +99,7 @@ const fetchNftsByNearAcc_Mintbase = async (
   accounts: string | string[]
 ): Promise<INftMetadata[]> => {
   const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
+  const mainnetAccounts = accountsArray.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
 
   const fetchMetadata = async (metaId: string) => {
     const resp = await fetch(`https://arweave.net/${metaId}`);
@@ -114,7 +115,7 @@ const fetchNftsByNearAcc_Mintbase = async (
     return Promise.all(result.data.token.map(token => fetchMetadata(token.thing.metaId).then(metadata => ({ ...token, metadata }))));
   }
 
-  const subArraysTokens = await Promise.all(accountsArray.map(fetchTokens));
+  const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
   const tokens = subArraysTokens.flat();
 
   return tokens.map(x => ({
@@ -136,6 +137,7 @@ const fetchNftsByNearAcc_Paras = async (
   accounts: string | string[]
 ): Promise<INftMetadata[]> => {
   const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
+  const mainnetAccounts = accountsArray.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
 
   const fetchTokens = async (account: string): Promise<any> => {
     const resp = await fetch(`https://mainnet-api.paras.id/tokens?ownerId=${account}`);
@@ -143,7 +145,7 @@ const fetchNftsByNearAcc_Paras = async (
     return result.data.results.map(x => ({ ...x, ownerId: account }));
   }
 
-  const subArraysTokens = await Promise.all(accountsArray.map(fetchTokens));
+  const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
   const tokens = subArraysTokens.flat();
 
   return tokens.map(x => ({
@@ -180,9 +182,6 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
   let nearAccounts: string[];
   try {
     nearAccounts = await contract.getNearAccounts({ account: authorUsername });
-    // ToDo: eliminate it
-    if (nearAccounts.indexOf("buidl.testnet") !== -1) nearAccounts.push("alsakhaev.near");
-    if (nearAccounts.indexOf("sashatb.testnet") !== -1) nearAccounts.push("baksht.near");
   } catch (err) {
     console.log(
       'Cannot get NEAR accounts by authorUsername:',
