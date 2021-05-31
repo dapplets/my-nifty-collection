@@ -182,6 +182,7 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
     nearAccounts = await contract.getNearAccounts({ account: authorUsername });
     // ToDo: eliminate it
     if (nearAccounts.indexOf("buidl.testnet") !== -1) nearAccounts.push("alsakhaev.near");
+    if (nearAccounts.indexOf("sashatb.testnet") !== -1) nearAccounts.push("baksht.near");
   } catch (err) {
     console.log(
       'Cannot get NEAR accounts by authorUsername:',

@@ -81,7 +81,7 @@ export default class TwitterFeature {
       params?: {};
     }
 
-    const addWidgets = (props: IWidgets, updateNfts: boolean) => async (ctx: {
+    const addWidgets = (updateNfts: boolean, ...widgetsParams: IWidgets[]) => async (ctx: {
       authorUsername: string;
     }) => {
       if (!this._cachedNfts[ctx.authorUsername] || updateNfts) {
@@ -89,55 +89,55 @@ export default class TwitterFeature {
       }
       const nfts = await this._cachedNfts[ctx.authorUsername];
       if (nfts === undefined || !nfts.length) return;
-      const { widgetType, indexFrom, indexTo, params } = props;
       const widgets = [];
-      for (let i = indexFrom ?? 0; i < nfts.length && i < indexTo; i++) {
-        const defParams = {
-          img: nfts[i].image,
-          exec: () => this.openOverlay({
-            user: ctx.authorUsername,
-            current: ctx.authorUsername === this.adapter.getCurrentUser().username,
-            nfts,
-            index: i,
-          }),
-          ...params,
-        };
-        const widget = this.adapter.exports[widgetType]({ DEFAULT: defParams });
-        widgets.push(widget);
+      for (const widgetParams of widgetsParams) {
+        const { widgetType, indexFrom, indexTo, params } = widgetParams;
+        for (let i = indexFrom ?? 0; i < nfts.length && i < indexTo; i++) {
+          const defParams = {
+            img: nfts[i].image,
+            exec: () => this.openOverlay({
+              user: ctx.authorUsername,
+              current: ctx.authorUsername === this.adapter.getCurrentUser().username,
+              nfts,
+              index: i,
+            }),
+            ...params,
+          };
+          const widget = this.adapter.exports[widgetType]({ DEFAULT: defParams });
+          widgets.push(widget);
+        }
       }
       return widgets;
     };
 
     this._setConfig = (updateNfts: boolean = false) => {
       const config = {
-        POST_AVATAR_BADGE: addWidgets(
+        POST: addWidgets(
+          updateNfts,
           {
-            widgetType: 'badge',
+            widgetType: 'avatarBadge',
             indexTo: 1,
             params: { vertical: 'bottom', horizontal: 'right' },
           },
-          updateNfts,
-        ),
-        POST_USERNAME_LABEL: addWidgets(
           {
             widgetType: 'label',
             indexFrom: 1,
             indexTo: 7,
             params: { basic: true },
           },
-          updateNfts,
         ),
-        PROFILE_AVATAR_BADGE: addWidgets(
+        PROFILE: addWidgets(
+          updateNfts,
           {
-            widgetType: 'badge',
+            widgetType: 'avatarBadge',
             indexTo: 1,
             params: { vertical: 'bottom', horizontal: 'right' },
           },
-          updateNfts,
-        ),
-        PROFILE_BUTTON_GROUP: addWidgets(
-          { widgetType: 'button', indexFrom: 1, indexTo: 4 },
-          updateNfts,
+          {
+            widgetType: 'button',
+            indexFrom: 1,
+            indexTo: 4,
+          },
         ),
       };
       this.adapter.attachConfig(config);
