@@ -1,5 +1,5 @@
 import React from 'react';
-import { Feed, Ref } from 'semantic-ui-react';
+import { Feed, Ref, Checkbox } from 'semantic-ui-react';
 
 export interface INft {
   name: string;
@@ -10,6 +10,7 @@ export interface INft {
   program: string;
   cohort: string;
   owner: string;
+  id?: string;
 }
 
 interface INftProps {
@@ -21,7 +22,7 @@ interface INftProps {
 
 export function Nft(props: INftProps) {
   const { nft, i, index, refs } = props;
-  const { name, description, image, link, issued_at, program, cohort, owner } = nft;
+  const { name, description, image, link, issued_at, program, cohort, owner, id } = nft;
   return (
     <Ref innerRef={refs[`nft_${i}`]}>
       <Feed.Event
@@ -43,14 +44,16 @@ export function Nft(props: INftProps) {
               view certificate
             </a>
           </Feed.Summary>
-          <Feed.Summary style={{ fontWeight: 'normal' }}>
-            <b>Issued at: </b>
-            {new Date(issued_at).toLocaleDateString()}
-          </Feed.Summary>
-          <Feed.Summary style={{ fontWeight: 'normal' }}>
-            <b>Program: </b>
-            {program}
-          </Feed.Summary>
+          {program && (<Feed.Summary style={{ fontWeight: 'normal' }}>
+              <b>Issued at: </b>
+              {new Date(issued_at).toLocaleDateString()}
+            </Feed.Summary>
+          )}
+          {program && (<Feed.Summary style={{ fontWeight: 'normal' }}>
+              <b>Program: </b>
+              {program}
+            </Feed.Summary>
+          )}
           {cohort && (
             <Feed.Summary style={{ fontWeight: 'normal' }}>
               <b>Cohort: </b>
@@ -60,6 +63,13 @@ export function Nft(props: INftProps) {
           <Feed.Summary style={{ fontWeight: 'normal' }}>
             <b>Owner: </b>
             {owner}
+          </Feed.Summary>
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <Checkbox label='Avatar' />
+          </Feed.Summary>
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Id: </b>
+            {id}
           </Feed.Summary>
         </Feed.Content>
       </Feed.Event>

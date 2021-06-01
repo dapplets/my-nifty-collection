@@ -1,0 +1,41 @@
+{
+  "name": "@dapplets/my-nifty-collection-contract-state",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "asb",
+    "build:debug": "asb --target debug",
+    "test": "npm run build:debug && npm run test:integration",
+    "test:unit": "asp --nologo",
+    "test:integration": "jest",
+    "deploy:dev": "near dev-deploy",
+    "deploy": "near deploy"
+  },
+  "devDependencies": {
+    "@as-pect/cli": "^6.0.0",
+    "@babel/preset-env": "^7.13.15",
+    "@types/jest": "^26.0.22",
+    "asbuild": "0.0.11",
+    "assemblyscript": "^0.18.20",
+    "jest": "^26.6.3",
+    "near-cli": "~1.6.0",
+    "near-sdk-as": "3.0.0",
+    "typescript": "^4.2.3"
+  },
+  "jest": {
+    "projects": [
+      {
+        "displayName": "Integration tests",
+        "testEnvironment": "near-cli/test_environment",
+        "testMatch": [
+          "<rootDir>/tests/*.js"
+        ]
+      }
+    ],
+    "testPathIgnorePatterns": [
+      "assembly/*"
+    ],
+    "testTimeout": 15000
+  }
+}

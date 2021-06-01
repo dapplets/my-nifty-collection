@@ -11,6 +11,24 @@ const nftContract = Core.contract('near', 'dev-1619612403093-1786669', {
   changeMethods: [],
 });
 
+const contractState = Core.contract('near', 'dev-1622552220236-3717385', {
+  viewMethods: ['getNftId'],
+  changeMethods: ['setNftId', 'removeNftId'],
+});
+
+// TESTING CONTRACT_STATE
+/*contractState.getNftId({ twitterAcc: 'twitter.com:tester1' }).then((res1) => {
+  console.log(res1);
+  contractState.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3' }).then(() => {
+    contractState.getNftId({ twitterAcc: 'twitter.com:tester1' }).then((res2) => {
+      console.log(res2);
+      contractState.removeNftId({ twitterAcc: 'twitter.com:tester1' }).then(() => {
+        contractState.getNftId({ twitterAcc: 'twitter.com:tester1' }).then((res3) => console.log(res3));
+      });
+    });
+  });
+});*/
+
 const fetchNftsByNearAcc_NCD = async (
   accounts: string | string[],
   _nftContract: any,
@@ -85,6 +103,7 @@ const fetchNftsByNearAcc_NCD = async (
           program: parsedExtra?.program,
           cohort: parsedExtra?.cohort,
           owner: parsedExtra?.owner,
+          id: tokenMetadata.token_id,
         };
       },
     )
@@ -183,6 +202,7 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
     // ToDo: eliminate it
     if (nearAccounts.indexOf("buidl.testnet") !== -1) nearAccounts.push("alsakhaev.near");
     if (nearAccounts.indexOf("sashatb.testnet") !== -1) nearAccounts.push("baksht.near");
+    if (nearAccounts.indexOf("baksht.testnet") !== -1) nearAccounts.push("baksht.near");
   } catch (err) {
     console.log(
       'Cannot get NEAR accounts by authorUsername:',

@@ -7,6 +7,7 @@ export interface INftMetadata {
   program: string;
   cohort: string;
   owner: string;
+  id?: string;
 }
 
 export interface ITokenMetadata {
@@ -17,6 +18,7 @@ export interface ITokenMetadata {
     issued_at: string;
     extra: string;
   };
+  token_id?: string;
 }
 
 export interface overlayProps {
