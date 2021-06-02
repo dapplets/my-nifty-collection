@@ -23,7 +23,7 @@ export default class TwitterFeature {
             const isWalletConnected = await wallet.isConnected();
             this._overlay.send('isWalletConnected_done', isWalletConnected);
           } catch (err) {
-            console.log('Cannot get Current NEAR Account from Core.wallet.', err);
+            this._overlay.send('isWalletConnected_undone', err);
           }
         },
         getCurrentNearAccount: async () => {
@@ -33,38 +33,45 @@ export default class TwitterFeature {
             if (!isWalletConnected) await wallet.connect();
             this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
           } catch (err) {
-            console.log('Cannot get Current NEAR Account from Core.wallet.', err);
+            this._overlay.send('getCurrentNearAccount_undone', err);
           }
         },
         getExternalAccounts: (op: any, { type, message }: any) =>
           contract
             .getExternalAccounts({ near: message.near })
             // TODO: .then((x: any) => message.reply(),
-            .then((x: any) => this._overlay.send('getExternalAccounts_done', x)),
+            .then((x: any) => this._overlay.send('getExternalAccounts_done', x))
+            .catch((err: any) => this._overlay.send('getExternalAccounts_undone', err)),
         getNearAccounts: (op: any, { type, message }: any) =>
           contract
             .getNearAccounts({ account: message.account })
-            .then((x: any) => this._overlay.send('getNearAccounts_done', x)),
+            .then((x: any) => this._overlay.send('getNearAccounts_done', x))
+            .catch((err: any) => this._overlay.send('getNearAccounts_undone', err)),
         addExternalAccount: (op: any, { type, message }: any) =>
           contract
             .addExternalAccount({ account: message.account })
-            .then((x: any) => this._overlay.send('addExternalAccount_done', x)),
+            .then((x: any) => this._overlay.send('addExternalAccount_done', x))
+            .catch((err: any) => this._overlay.send('addExternalAccount_undone', err)),
         removeExternalAccount: (op: any, { type, message }: any) =>
           contract
             .removeExternalAccount({ account: message.account })
-            .then((x: any) => this._overlay.send('removeExternalAccount_done', x)),
+            .then((x: any) => this._overlay.send('removeExternalAccount_done', x))
+            .catch((err: any) => this._overlay.send('removeExternalAccount_undone', err)),
         getNftId: (op: any, { type, message }: any) =>
           contractState
             .getNftId({ twitterAcc: message.twitterAcc })
-            .then((x: any) => this._overlay.send('getNftId_done', x)),
+            .then((x: any) => this._overlay.send('getNftId_done', x))
+            .catch((err: any) => this._overlay.send('getNftId_undone', err)),
         setNftId: (op: any, { type, message }: any) =>
           contractState
             .setNftId({ twitterAcc: message.twitterAcc, id: message.id })
-            .then((x: any) => this._overlay.send('setNftId_done', x)),
+            .then((x: any) => this._overlay.send('setNftId_done', x))
+            .catch((err: any) => this._overlay.send('setNftId_undone', err)),
         removeNftId: (op: any, { type, message }: any) =>
           contractState
             .removeNftId({ twitterAcc: message.twitterAcc })
-            .then((x: any) => this._overlay.send('removeNftId_done', x)),
+            .then((x: any) => this._overlay.send('removeNftId_done', x))
+            .catch((err: any) => this._overlay.send('removeNftId_undone', err)),
         afterLinking: async () => {
           this.adapter.detachConfig();
           const user = this.adapter.getCurrentUser().username;

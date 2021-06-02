@@ -62,22 +62,34 @@ export default class App extends React.Component<Props, State> {
 
   tryIsLinked = async () => {
     const { user, currentNearAccount } = this.state;
-    const currentExternalAccounts = await bridge.getExternalAccounts(currentNearAccount);
-    this.setState({ isLinked: currentExternalAccounts.includes(user) });
+    try {
+      const currentExternalAccounts = await bridge.getExternalAccounts(currentNearAccount);
+      this.setState({ isLinked: currentExternalAccounts.includes(user) });
+    } catch (err) {
+      console.log('The error in getExternalAccounts(): ', err);
+    }
   };
 
   handleConnect = async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    const currentNearAccount = await bridge.getCurrentNearAccount();
-    this.setState({ currentNearAccount, isConnected: true });
+    try {
+      const currentNearAccount = await bridge.getCurrentNearAccount();
+      this.setState({ currentNearAccount, isConnected: true });
+    } catch (err) {
+      console.log('The error in getCurrentNearAccount(): ', err);
+    }
     this.tryIsLinked();
   };
 
   handleLink = async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    await bridge.addExternalAccount(this.state.user);
+    try {
+      await bridge.addExternalAccount(this.state.user);
+    } catch (err) {
+      console.log('The error in addExternalAccount(): ', err);
+    }
     await this.setState({ isConnected: true, linkStateChanged: true });
     bridge.afterLinking();
   };
@@ -85,7 +97,11 @@ export default class App extends React.Component<Props, State> {
   handleUnlink = async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    await bridge.removeExternalAccount(this.state.user);
+    try {
+      await bridge.removeExternalAccount(this.state.user);
+    } catch (err) {
+      console.log('The error in removeExternalAccount(): ', err);
+    }
     await this.setState({ isConnected: false, linkStateChanged: true });
     bridge.afterLinking();
   };
@@ -93,16 +109,27 @@ export default class App extends React.Component<Props, State> {
   handleToggleAvatar = (nftId: string) => async (e: any) => {
     e.preventDefault();
     if (this.state.avatarNftId === nftId) {
-      await bridge.removeNftId(this.state.user);
+      try {
+        await bridge.removeNftId(this.state.user);
+      } catch (err) {
+        console.log('The error in removeNftId(): ', err);
+      }
     } else if (this.state.avatarNftId === null) {
-      await bridge.setNftId(this.state.user, nftId);
+      try {
+        await bridge.setNftId(this.state.user, nftId);
+      } catch (err) {
+        console.log('The error in setNftId(): ', err);
+      }
     } else {
-      await bridge.setNftId(this.state.user, nftId);
-      this.setState({ avatarNftId: null });
+      try {
+        await bridge.setNftId(this.state.user, nftId);
+        this.setState({ avatarNftId: null });
+      } catch (err) {
+        console.log('The error in setNftId(): ', err);
+      }
     }
-    console.log('here')
     bridge.afterLinking();
-  }
+  };
 
   componentDidMount() {
     bridge.onData((data) =>
