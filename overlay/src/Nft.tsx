@@ -45,7 +45,7 @@ export function Nft(props: INftProps) {
           <Feed.Summary style={{ fontWeight: 'normal' }}>
             <b>Link: </b>
             <a href={link} target="_blank" rel="noreferrer">
-              view certificate
+              View NFT
             </a>
           </Feed.Summary>
           {program && (<Feed.Summary style={{ fontWeight: 'normal' }}>
