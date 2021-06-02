@@ -1,16 +1,5 @@
 import GeneralBridge from '@dapplets/dapplet-overlay-bridge';
 
-export interface NftMetadata {
-  name: string;
-  description: string;
-  image: string;
-  link: string;
-  issued_at: string;
-  program: string;
-  cohort: string;
-  owner: string;
-}
-
 class Bridge extends GeneralBridge {
   _subId: number = 0;
 
@@ -51,6 +40,18 @@ class Bridge extends GeneralBridge {
 
   async removeExternalAccount(account: string): Promise<void> {
     return this.call('removeExternalAccount', { account }, 'removeExternalAccount_done');
+  }
+
+  async getNftId(twitterAcc: string): Promise<string> {
+    return this.call('getNftId', { twitterAcc }, 'getNftId_done');
+  }
+
+  async setNftId(twitterAcc: string, id: string): Promise<void> {
+    return this.call('setNftId', { twitterAcc, id }, 'setNftId_done');
+  }
+
+  async removeNftId(twitterAcc: string): Promise<void> {
+    return this.call('removeNftId', { twitterAcc }, 'removeNftId_done');
   }
 
   public async call(method: string, args: any, callbackEvent: string): Promise<any> {

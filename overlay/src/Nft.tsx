@@ -10,7 +10,8 @@ export interface INft {
   program: string;
   cohort: string;
   owner: string;
-  id?: string;
+  id: string;
+  isAvatar: boolean;
 }
 
 interface INftProps {
@@ -18,10 +19,13 @@ interface INftProps {
   i: number;
   refs: any;
   index?: number;
+  handleToggleAvatar: any;
+  current: boolean;
+  avatarNftId: string | null;
 }
 
 export function Nft(props: INftProps) {
-  const { nft, i, index, refs } = props;
+  const { nft, i, index, refs, handleToggleAvatar, current, avatarNftId } = props;
   const { name, description, image, link, issued_at, program, cohort, owner, id } = nft;
   return (
     <Ref innerRef={refs[`nft_${i}`]}>
@@ -64,13 +68,11 @@ export function Nft(props: INftProps) {
             <b>Owner: </b>
             {owner}
           </Feed.Summary>
-          <Feed.Summary style={{ fontWeight: 'normal' }}>
-            <Checkbox label='Avatar' />
-          </Feed.Summary>
-          <Feed.Summary style={{ fontWeight: 'normal' }}>
-            <b>Id: </b>
-            {id}
-          </Feed.Summary>
+          {current && (
+            <Feed.Summary style={{ fontWeight: 'normal' }}>
+              <Checkbox slider label='Avatar' checked={id === avatarNftId} onChange={handleToggleAvatar(id)} />
+            </Feed.Summary>
+          )}
         </Feed.Content>
       </Feed.Event>
     </Ref>

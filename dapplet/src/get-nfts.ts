@@ -11,7 +11,7 @@ const nftContract = Core.contract('near', 'dev-1619612403093-1786669', {
   changeMethods: [],
 });
 
-const contractState = Core.contract('near', 'dev-1622552220236-3717385', {
+export const contractState = Core.contract('near', 'dev-1622552220236-3717385', {
   viewMethods: ['getNftId'],
   changeMethods: ['setNftId', 'removeNftId'],
 });
@@ -148,7 +148,8 @@ const fetchNftsByNearAcc_Mintbase = async (
     link: `https://www.mintbase.io/thing/${x.thing.id}`,
     cohort: '',
     owner: x.ownerId,
-    program: ''
+    program: '',
+    id: x.id,
   }));
 }
 
@@ -178,7 +179,8 @@ const fetchNftsByNearAcc_Paras = async (
     link: `https://paras.id/token/${x.tokenId}`,
     cohort: '',
     owner: x.ownerId,
-    program: ''
+    program: '',
+    id: x._id,
   }));
 }
 
@@ -217,5 +219,9 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
     console.log('Cannot get NFTs of NEAR accounts:', nearAccounts, 'in method _getNfts.', err);
   }
   if (nfts === undefined || !nfts.length) return;
+
+  const avatarNftId = await contractState.getNftId({ twitterAcc: authorUsername });
+  nfts.forEach((nft) => nft.isAvatar = nft.id === avatarNftId);
+
   return nfts;
 };

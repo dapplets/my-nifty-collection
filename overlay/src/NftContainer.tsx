@@ -7,10 +7,13 @@ interface INftContainerProps {
   searchQuery: string;
   index?: number;
   refs: any;
+  handleToggleAvatar: any;
+  current: boolean;
+  avatarNftId: string | null;
 }
 
 export default function NftContainer(props: INftContainerProps) {
-  const { nfts, searchQuery, index, refs } = props;
+  const { nfts, searchQuery, index, refs, handleToggleAvatar, current, avatarNftId } = props;
   return (
     <Card.Content style={{ padding: '1em 0' }}>
       <Feed>
@@ -27,7 +30,16 @@ export default function NftContainer(props: INftContainerProps) {
             );
           })
           .map((nft, i) => (
-            <Nft nft={nft} i={i} index={index} refs={refs} key={`nft_${i}`} />
+            <Nft
+              nft={nft}
+              i={i}
+              index={index}
+              refs={refs}
+              key={`nft_${i}`}
+              handleToggleAvatar={handleToggleAvatar}
+              current={current}
+              avatarNftId={avatarNftId}
+            />
           ))}
       </Feed>
       <div className="nft_counter">

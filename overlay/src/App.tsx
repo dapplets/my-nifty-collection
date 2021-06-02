@@ -19,6 +19,7 @@ interface State {
   nearWalletLink: string;
   index: number;
   isDataLoading: boolean;
+  avatarNftId: string | null;
 }
 
 const defaultNfts: INft[] = [
@@ -31,6 +32,8 @@ const defaultNfts: INft[] = [
     program: '',
     cohort: '',
     owner: '',
+    id: '',
+    isAvatar: false,
   },
 ];
 
@@ -46,6 +49,7 @@ const defaultState: State = {
   nearWalletLink: '',
   index: -1,
   isDataLoading: true,
+  avatarNftId: null,
 };
 
 export default class App extends React.Component<Props, State> {
@@ -86,6 +90,20 @@ export default class App extends React.Component<Props, State> {
     bridge.afterLinking();
   };
 
+  handleToggleAvatar = (nftId: string) => async (e: any) => {
+    e.preventDefault();
+    if (this.state.avatarNftId === nftId) {
+      await bridge.removeNftId(this.state.user);
+    } else if (this.state.avatarNftId === null) {
+      await bridge.setNftId(this.state.user, nftId);
+    } else {
+      await bridge.setNftId(this.state.user, nftId);
+      this.setState({ avatarNftId: null });
+    }
+    console.log('here')
+    bridge.afterLinking();
+  }
+
   componentDidMount() {
     bridge.onData((data) =>
       this.setState({ ...defaultState, ...data, isDataLoading: false }, async () => {
@@ -102,6 +120,10 @@ export default class App extends React.Component<Props, State> {
             block: 'start',
           });
         }
+        this.setState({ avatarNftId: null });
+        this.state.nfts.forEach((nft) => {
+          if (nft.isAvatar) this.setState({ avatarNftId: nft.id });
+        });
       }),
     );
   }
@@ -119,6 +141,7 @@ export default class App extends React.Component<Props, State> {
       index,
       nearWalletLink,
       isDataLoading,
+      avatarNftId,
     } = this.state;
 
     this.refs = nfts.reduce((acc: any, v, i) => {
@@ -182,7 +205,15 @@ export default class App extends React.Component<Props, State> {
             ) : nfts[0].name === '' ? (
               <Card.Content description="You don't have NFTs yet." />
             ) : (
-              <NftContainer nfts={nfts} searchQuery={searchQuery} index={index} refs={this.refs} />
+              <NftContainer
+                nfts={nfts}
+                searchQuery={searchQuery}
+                index={index}
+                refs={this.refs}
+                handleToggleAvatar={this.handleToggleAvatar}
+                current={current}
+                avatarNftId={avatarNftId}
+              />
             )
           }
         </Card>

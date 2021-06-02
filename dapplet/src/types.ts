@@ -7,7 +7,8 @@ export interface INftMetadata {
   program: string;
   cohort: string;
   owner: string;
-  id?: string;
+  id: string;
+  isAvatar?: boolean;
 }
 
 export interface ITokenMetadata {

@@ -1,6 +1,6 @@
 import {} from '@dapplets/dapplet-extension';
 import { overlayProps } from './types';
-import getNfts, { contract } from './get-nfts';
+import getNfts, { contract, contractState } from './get-nfts';
 
 @Injectable
 export default class TwitterFeature {
@@ -53,6 +53,18 @@ export default class TwitterFeature {
           contract
             .removeExternalAccount({ account: message.account })
             .then((x: any) => this._overlay.send('removeExternalAccount_done', x)),
+        getNftId: (op: any, { type, message }: any) =>
+          contractState
+            .getNftId({ twitterAcc: message.twitterAcc })
+            .then((x: any) => this._overlay.send('getNftId_done', x)),
+        setNftId: (op: any, { type, message }: any) =>
+          contractState
+            .setNftId({ twitterAcc: message.twitterAcc, id: message.id })
+            .then((x: any) => this._overlay.send('setNftId_done', x)),
+        removeNftId: (op: any, { type, message }: any) =>
+          contractState
+            .removeNftId({ twitterAcc: message.twitterAcc })
+            .then((x: any) => this._overlay.send('removeNftId_done', x)),
         afterLinking: async () => {
           this.adapter.detachConfig();
           const user = this.adapter.getCurrentUser().username;
@@ -90,9 +102,28 @@ export default class TwitterFeature {
       const nfts = await this._cachedNfts[ctx.authorUsername];
       if (nfts === undefined || !nfts.length) return;
       const widgets = [];
+      let avatarNftIndex = -1;
+      for (let i = 0; i < nfts.length; i++) {
+        if (nfts[i].isAvatar) {
+          const avatar = this.adapter.exports.avatar({
+            DEFAULT: {
+              img: nfts[i].image,
+              exec: () => this.openOverlay({
+                user: ctx.authorUsername,
+                current: ctx.authorUsername === this.adapter.getCurrentUser().username,
+                nfts,
+                index: i,
+              }),
+            }
+          })
+          widgets.push(avatar);
+          avatarNftIndex = i;
+        }
+      }
       for (const widgetParams of widgetsParams) {
         const { widgetType, indexFrom, indexTo, params } = widgetParams;
         for (let i = indexFrom ?? 0; i < nfts.length && i < indexTo; i++) {
+          if (i === avatarNftIndex) continue;
           const defParams = {
             img: nfts[i].image,
             exec: () => this.openOverlay({
