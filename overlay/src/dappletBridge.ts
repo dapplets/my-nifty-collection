@@ -18,6 +18,13 @@ class Bridge extends GeneralBridge {
     });
   }
 
+  afterAvatarChanging() {
+    this.publish(this._subId.toString(), {
+      type: 'afterAvatarChanging',
+      message: '',
+    });
+  }
+
   async isWalletConnected(): Promise<boolean> {
     return this.call('isWalletConnected', null, 'isWalletConnected_done', 'isWalletConnected_undone');
   }

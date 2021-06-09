@@ -128,12 +128,13 @@ export default class App extends React.Component<Props, State> {
         console.log('The error in setNftId(): ', err);
       }
     }
-    bridge.afterLinking();
+    bridge.afterAvatarChanging();
   };
 
   componentDidMount() {
     bridge.onData((data) =>
       this.setState({ ...defaultState, ...data, isDataLoading: false }, async () => {
+        console.log('linkStateChanged:', this.state.linkStateChanged)
         const isConnected = await bridge.isWalletConnected();
         this.setState({ isConnected });
         if (isConnected) {

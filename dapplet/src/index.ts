@@ -85,6 +85,18 @@ export default class TwitterFeature {
           });
           this._setConfig(true);
         },
+        afterAvatarChanging: async () => {
+          this.adapter.detachConfig();
+          const user = this.adapter.getCurrentUser().username;
+          const nfts = await getNfts(user);
+          this.openOverlay({
+            user,
+            current: user === this.adapter.getCurrentUser().username,
+            nfts,
+            index: -1,
+          });
+          this._setConfig(true);
+        },
       });
 
     Core.onAction(async () => {
