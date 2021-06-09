@@ -134,7 +134,6 @@ export default class App extends React.Component<Props, State> {
   componentDidMount() {
     bridge.onData((data) =>
       this.setState({ ...defaultState, ...data, isDataLoading: false }, async () => {
-        console.log('linkStateChanged:', this.state.linkStateChanged)
         const isConnected = await bridge.isWalletConnected();
         this.setState({ isConnected });
         if (isConnected) {
