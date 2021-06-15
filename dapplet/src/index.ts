@@ -76,7 +76,7 @@ export default class TwitterFeature {
         afterLinking: async () => {
           this._resetConfig = this._resetConfig(this._setConfig(true)).reset;
           const user = this.adapter.getCurrentUser().username;
-          const nfts = await getNfts(user);
+          const nfts = await this._cachedNfts[user];
           this.openOverlay({
             user,
             current: user === this.adapter.getCurrentUser().username,
@@ -88,7 +88,7 @@ export default class TwitterFeature {
         afterAvatarChanging: async () => {
           this._resetConfig = this._resetConfig(this._setConfig(true)).reset;
           const user = this.adapter.getCurrentUser().username;
-          const nfts = await getNfts(user);
+          const nfts = await this._cachedNfts[user];
           this.openOverlay({
             user,
             current: user === this.adapter.getCurrentUser().username,
