@@ -9,8 +9,8 @@ export default class TwitterFeature {
   private _nearWalletLink: string;
   private _overlay: any;
   private _setConfig: any;
-  private _resetConfig: any;
   private _cachedNfts = {};
+  private _config: any;
 
   async activate(): Promise<void> {
     this._nearWalletLink = await Core.storage.get('nearWalletLink');
@@ -74,7 +74,7 @@ export default class TwitterFeature {
             .then((x: any) => this._overlay.send('removeNftId_done', x))
             .catch((err: any) => this._overlay.send('removeNftId_undone', err)),
         afterLinking: async () => {
-          this._resetConfig = this._resetConfig(this._setConfig(true)).reset;
+          this.adapter.resetConfig(this._config, this._setConfig(true));
           const user = this.adapter.getCurrentUser().username;
           const nfts = await this._cachedNfts[user];
           this.openOverlay({
@@ -86,7 +86,7 @@ export default class TwitterFeature {
           });
         },
         afterAvatarChanging: async () => {
-          this._resetConfig = this._resetConfig(this._setConfig(true)).reset;
+          this.adapter.resetConfig(this._config, this._setConfig(true));
           const user = this.adapter.getCurrentUser().username;
           const nfts = await this._cachedNfts[user];
           this.openOverlay({
@@ -159,36 +159,39 @@ export default class TwitterFeature {
       return widgets;
     };
 
-    this._setConfig = (updateNfts: boolean = false) => ({
-      POST: addWidgets(
-        updateNfts,
-        {
-          widgetType: 'avatarBadge',
-          indexTo: 1,
-          params: { vertical: 'bottom', horizontal: 'right' },
-        },
-        {
-          widgetType: 'label',
-          indexFrom: 1,
-          indexTo: 7,
-          params: { basic: true },
-        },
-      ),
-      PROFILE: addWidgets(
-        updateNfts,
-        {
-          widgetType: 'avatarBadge',
-          indexTo: 1,
-          params: { vertical: 'bottom', horizontal: 'right' },
-        },
-        {
-          widgetType: 'button',
-          indexFrom: 1,
-          indexTo: 4,
-        },
-      ),
-    });
-    this._resetConfig = this.adapter.attachConfig(this._setConfig()).reset;
+    this._setConfig = (updateNfts: boolean = false) => {
+      this._config = {
+        POST: addWidgets(
+          updateNfts,
+          {
+            widgetType: 'avatarBadge',
+            indexTo: 1,
+            params: { vertical: 'bottom', horizontal: 'right' },
+          },
+          {
+            widgetType: 'label',
+            indexFrom: 1,
+            indexTo: 7,
+            params: { basic: true },
+          },
+        ),
+        PROFILE: addWidgets(
+          updateNfts,
+          {
+            widgetType: 'avatarBadge',
+            indexTo: 1,
+            params: { vertical: 'bottom', horizontal: 'right' },
+          },
+          {
+            widgetType: 'button',
+            indexFrom: 1,
+            indexTo: 4,
+          },
+        ),
+      };
+      return this._config;
+    };
+    this.adapter.attachConfig(this._setConfig());
   }
 
   async openOverlay(props: overlayProps): Promise<void> {
