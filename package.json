@@ -1,7 +1,7 @@
 {
   "name": "my-nifty-collection",
-  "version": "0.5.2",
-  "description": "present my Near Certificates to public",
+  "version": "0.5.3",
+  "description": "present my NFTs to public",
   "main": "",
   "scripts": {
     "postinstall": "concurrently -c magenta,cyan -n dapplet,overlay \"npm run install:dapplet\" \"npm run install:overlay\"",
