@@ -5,7 +5,7 @@ class Bridge extends GeneralBridge {
 
   onData(callback: (data: any) => void) {
     this.subscribe('data', (data: any) => {
-      ++this._subId;
+      this._subId = Math.trunc(Math.random() * 1_000_000_000);
       callback(data);
       return this._subId.toString();
     });
@@ -73,6 +73,7 @@ class Bridge extends GeneralBridge {
       });
       this.subscribe(callbackEventDone, (result: any) => {
         this.unsubscribe(callbackEventDone);
+        this.unsubscribe(callbackEventUndone);
         res(result);
       });
       this.subscribe(callbackEventUndone, () => {
