@@ -18,6 +18,15 @@ export default class TwitterFeature {
     this._overlay = Core
       .overlay({ url: overlayUrl, title: 'My Nifty Collection' })
       .listen({
+        connectWallet: async () => {
+          try {
+            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+            await wallet.connect();
+            this._overlay.send('connectWallet_done', wallet.accountId);
+          } catch (err) {
+            this._overlay.send('connectWallet_undone', err);
+          }
+        },
         isWalletConnected: async () => {
           try {
             const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
@@ -30,8 +39,6 @@ export default class TwitterFeature {
         getCurrentNearAccount: async () => {
           try {
             const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-            const isWalletConnected = await wallet.isConnected();
-            if (!isWalletConnected) await wallet.connect();
             this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
           } catch (err) {
             this._overlay.send('getCurrentNearAccount_undone', err);

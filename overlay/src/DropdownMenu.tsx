@@ -10,6 +10,7 @@ interface IDropdownMenuProps {
   handleLink: (e: any) => {};
   handleUnlink: (e: any) => {};
   handleConnect: (e: any) => {};
+  updateNearAccount: (e: any) => {};
 }
 
 export default function DropdownMenu(props: IDropdownMenuProps) {
@@ -22,10 +23,11 @@ export default function DropdownMenu(props: IDropdownMenuProps) {
     handleUnlink,
     handleLink,
     handleConnect,
+    updateNearAccount,
   } = props;
   return (
     <div style={{ display: 'inline-block', float: 'right', marginTop: '10px' }}>
-      <Menu style={{ border: 'none', boxShadow: 'none' }}>
+      <Menu style={{ border: 'none', boxShadow: 'none' }} onMouseOver={updateNearAccount}>
         <Menu.Menu position="right">
           <Dropdown
             item

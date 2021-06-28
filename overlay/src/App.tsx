@@ -74,10 +74,10 @@ export default class App extends React.Component<Props, State> {
     e.preventDefault();
     e.stopPropagation();
     try {
-      const currentNearAccount = await bridge.getCurrentNearAccount();
+      const currentNearAccount = await bridge.connectWallet();
       this.setState({ currentNearAccount, isConnected: true });
     } catch (err) {
-      console.log('The error in getCurrentNearAccount(): ', err);
+      console.log('The error in connectWallet(): ', err);
     }
     this.tryIsLinked();
   };
@@ -105,6 +105,16 @@ export default class App extends React.Component<Props, State> {
     await this.setState({ isConnected: false, linkStateChanged: true });
     bridge.afterLinking();
   };
+
+  updateNearAccount = async (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.state.isConnected === false) return;
+    const updatedNearAcount = await bridge.getCurrentNearAccount();
+    if (updatedNearAcount !== this.state.currentNearAccount) {
+      this.setState({ currentNearAccount: updatedNearAcount, isConnected: false });
+    }
+  }
 
   handleToggleAvatar = (nftId: string) => async (e: any) => {
     e.preventDefault();
@@ -194,6 +204,7 @@ export default class App extends React.Component<Props, State> {
               handleLink={this.handleLink}
               handleUnlink={this.handleUnlink}
               handleConnect={this.handleConnect}
+              updateNearAccount={this.updateNearAccount}
             />
           )
         }

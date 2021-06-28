@@ -25,6 +25,10 @@ class Bridge extends GeneralBridge {
     });
   }
 
+  async connectWallet(): Promise<string> {
+    return this.call('connectWallet', null, 'connectWallet_done', 'connectWallet_undone');
+  }
+
   async isWalletConnected(): Promise<boolean> {
     return this.call('isWalletConnected', null, 'isWalletConnected_done', 'isWalletConnected_undone');
   }
