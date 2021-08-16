@@ -65,6 +65,18 @@ class Bridge extends GeneralBridge {
     return this.call('removeNftId', { twitterAcc }, 'removeNftId_done', 'removeNftId_undone');
   }
 
+  async getNftBadgeId(twitterAcc: string): Promise<string> {
+    return this.call('getNftBadgeId', { twitterAcc }, 'getNftBadgeId_done', 'getNftBadgeId_undone');
+  }
+
+  async setNftBadgeId(twitterAcc: string, id: string): Promise<void> {
+    return this.call('setNftBadgeId', { twitterAcc, id }, 'setNftBadgeId_done', 'setNftBadgeId_undone');
+  }
+
+  async removeNftBadgeId(twitterAcc: string): Promise<void> {
+    return this.call('removeNftBadgeId', { twitterAcc }, 'removeNftBadgeId_done', 'removeNftBadgeId_undone');
+  }
+
   public async call(method: string, args: any, callbackEventDone: string, callbackEventUndone: string): Promise<any> {
     return new Promise((res, rej) => {
       this.publish(this._subId.toString(), {

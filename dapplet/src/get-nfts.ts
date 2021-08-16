@@ -11,9 +11,9 @@ const nftContract = Core.contract('near', 'dev-1619612403093-1786669', {
   changeMethods: [],
 });
 
-export const contractState = Core.contract('near', 'dev-1622552220236-3717385', {
-  viewMethods: ['getNftId'],
-  changeMethods: ['setNftId', 'removeNftId'],
+export const contractState = Core.contract('near', 'dev-1629115076832-5517488', {
+  viewMethods: ['getNftId', 'getNftBadgeId'],
+  changeMethods: ['setNftId', 'removeNftId', 'setNftBadgeId', 'removeNftBadgeId'],
 });
 
 // TESTING CONTRACT_STATE
@@ -221,7 +221,11 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
   if (nfts === undefined || !nfts.length) return;
 
   const avatarNftId = await contractState.getNftId({ twitterAcc: authorUsername });
-  nfts.forEach((nft) => nft.isAvatar = nft.id === avatarNftId);
+  const avatarNftBadgeId = await contractState.getNftBadgeId({ twitterAcc: authorUsername });
+  nfts.forEach((nft) => {
+    nft.isAvatar = nft.id === avatarNftId;
+    nft.isAvatarBadge = nft.id === avatarNftBadgeId;
+  });
 
   return nfts;
 };

@@ -8,18 +8,19 @@ import DropdownMenu from './DropdownMenu';
 interface Props {}
 
 interface State {
-  user: string;
-  current: boolean;
-  nfts: INft[];
-  searchQuery: string;
-  isConnected: boolean;
-  isLinked: boolean;
-  linkStateChanged: boolean;
-  currentNearAccount: string;
-  nearWalletLink: string;
-  index: number;
-  isDataLoading: boolean;
-  avatarNftId: string | null;
+  user: string
+  current: boolean
+  nfts: INft[]
+  searchQuery: string
+  isConnected: boolean
+  isLinked: boolean
+  linkStateChanged: boolean
+  currentNearAccount: string
+  nearWalletLink: string
+  index: number
+  isDataLoading: boolean
+  avatarNftId: string | null
+  avatarNftBadgeId: string | null
 }
 
 const defaultNfts: INft[] = [
@@ -34,6 +35,7 @@ const defaultNfts: INft[] = [
     owner: '',
     id: '',
     isAvatar: false,
+    isAvatarBadge: false,
   },
 ];
 
@@ -50,6 +52,7 @@ const defaultState: State = {
   index: -1,
   isDataLoading: true,
   avatarNftId: null,
+  avatarNftBadgeId: null,
 };
 
 export default class App extends React.Component<Props, State> {
@@ -141,6 +144,31 @@ export default class App extends React.Component<Props, State> {
     bridge.afterAvatarChanging();
   };
 
+  handleToggleAvatarBadge = (nftBadgeId: string) => async (e: any) => {
+    e.preventDefault();
+    if (this.state.avatarNftBadgeId === nftBadgeId) {
+      try {
+        await bridge.removeNftBadgeId(this.state.user);
+      } catch (err) {
+        console.log('The error in removeNftBadgeId(): ', err);
+      }
+    } else if (this.state.avatarNftBadgeId === null) {
+      try {
+        await bridge.setNftBadgeId(this.state.user, nftBadgeId);
+      } catch (err) {
+        console.log('The error in setNftBadgeId(): ', err);
+      }
+    } else {
+      try {
+        await bridge.setNftBadgeId(this.state.user, nftBadgeId);
+        this.setState({ avatarNftBadgeId: null });
+      } catch (err) {
+        console.log('The error in setNftBadgeId(): ', err);
+      }
+    }
+    bridge.afterAvatarChanging();
+  };
+
   componentDidMount() {
     bridge.onData((data) =>
       this.setState({ ...defaultState, ...data, isDataLoading: false }, async () => {
@@ -160,6 +188,7 @@ export default class App extends React.Component<Props, State> {
         this.setState({ avatarNftId: null });
         this.state.nfts.forEach((nft) => {
           if (nft.isAvatar) this.setState({ avatarNftId: nft.id });
+          if (nft.isAvatarBadge) this.setState({ avatarNftBadgeId: nft.id });
         });
       }),
     );
@@ -179,6 +208,7 @@ export default class App extends React.Component<Props, State> {
       nearWalletLink,
       isDataLoading,
       avatarNftId,
+      avatarNftBadgeId,
     } = this.state;
 
     this.refs = nfts.reduce((acc: any, v, i) => {
@@ -249,8 +279,10 @@ export default class App extends React.Component<Props, State> {
                 index={index}
                 refs={this.refs}
                 handleToggleAvatar={this.handleToggleAvatar}
+                handleToggleAvatarBadge={this.handleToggleAvatarBadge}
                 current={current}
                 avatarNftId={avatarNftId}
+                avatarNftBadgeId={avatarNftBadgeId}
               />
             )
           }

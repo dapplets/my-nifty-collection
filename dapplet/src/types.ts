@@ -9,6 +9,7 @@ export interface INftMetadata {
   owner: string;
   id: string;
   isAvatar?: boolean;
+  isAvatarBadge?: boolean;
 }
 
 export interface ITokenMetadata {

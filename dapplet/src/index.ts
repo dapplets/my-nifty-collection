@@ -65,6 +65,7 @@ export default class TwitterFeature {
             .removeExternalAccount({ account: message.account })
             .then((x: any) => this._overlay.send('removeExternalAccount_done', x))
             .catch((err: any) => this._overlay.send('removeExternalAccount_undone', err)),
+
         getNftId: (op: any, { type, message }: any) =>
           contractState
             .getNftId({ twitterAcc: message.twitterAcc })
@@ -80,6 +81,23 @@ export default class TwitterFeature {
             .removeNftId({ twitterAcc: message.twitterAcc })
             .then((x: any) => this._overlay.send('removeNftId_done', x))
             .catch((err: any) => this._overlay.send('removeNftId_undone', err)),
+
+        getNftBadgeId: (op: any, { type, message }: any) =>
+          contractState
+            .getNftBadgeId({ twitterAcc: message.twitterAcc })
+            .then((x: any) => this._overlay.send('getNftBadgeId_done', x))
+            .catch((err: any) => this._overlay.send('getNftBadgeId_undone', err)),
+        setNftBadgeId: (op: any, { type, message }: any) =>
+          contractState
+            .setNftBadgeId({ twitterAcc: message.twitterAcc, id: message.id })
+            .then((x: any) => this._overlay.send('setNftBadgeId_done', x))
+            .catch((err: any) => this._overlay.send('setNftBadgeId_undone', err)),
+        removeNftBadgeId: (op: any, { type, message }: any) =>
+          contractState
+            .removeNftBadgeId({ twitterAcc: message.twitterAcc })
+            .then((x: any) => this._overlay.send('removeNftBadgeId_done', x))
+            .catch((err: any) => this._overlay.send('removeNftBadgeId_undone', err)),
+
         afterLinking: async () => {
           this.adapter.resetConfig(this._config, this._setConfig(true));
           const user = this.adapter.getCurrentUser().username;
@@ -111,14 +129,14 @@ export default class TwitterFeature {
       this.openOverlay({ user, current: true, nfts, index: -1 });
     });
 
-    interface IWidgets {
+    /*interface IWidgets {
       widgetType: string;
       indexFrom?: number;
       indexTo: number;
       params?: {};
-    }
+    }*/
 
-    const addWidgets = (updateNfts: boolean, ...widgetsParams: IWidgets[]) => async (ctx: {
+    const addWidgets = (updateNfts: boolean, /*...widgetsParams: IWidgets[]*/) => async (ctx: {
       authorUsername: string;
     }) => {
       if (!this._cachedNfts[ctx.authorUsername] || updateNfts) {
@@ -128,6 +146,7 @@ export default class TwitterFeature {
       if (nfts === undefined || !nfts.length) return;
       const widgets = [];
       let avatarNftIndex = -1;
+      let avatarNftBadgeIndex = -1;
       for (let i = 0; i < nfts.length; i++) {
         if (nfts[i].isAvatar) {
           const avatar = this.adapter.exports.avatar({
@@ -144,8 +163,25 @@ export default class TwitterFeature {
           widgets.push(avatar);
           avatarNftIndex = i;
         }
+        if (nfts[i].isAvatarBadge) {
+          const avatarBadge = this.adapter.exports.avatarBadge({
+            DEFAULT: {
+              img: nfts[i].image,
+              vertical: 'bottom',
+              horizontal: 'right',
+              exec: () => this.openOverlay({
+                user: ctx.authorUsername,
+                current: ctx.authorUsername === this.adapter.getCurrentUser().username,
+                nfts,
+                index: i,
+              }),
+            }
+          })
+          widgets.push(avatarBadge);
+          avatarNftBadgeIndex = i;
+        }
       }
-      for (const widgetParams of widgetsParams) {
+      /*for (const widgetParams of widgetsParams) {
         const { widgetType, indexFrom, indexTo, params } = widgetParams;
         for (let i = indexFrom ?? 0; i < nfts.length && i < indexTo; i++) {
           if (i === avatarNftIndex) continue;
@@ -162,29 +198,29 @@ export default class TwitterFeature {
           const widget = this.adapter.exports[widgetType]({ DEFAULT: defParams });
           widgets.push(widget);
         }
-      }
+      }*/
       return widgets;
     };
 
     this._setConfig = (updateNfts: boolean = false) => {
       this._config = {
         POST: addWidgets(
-          updateNfts,
-          {
+           updateNfts,
+          /*{
             widgetType: 'avatarBadge',
             indexTo: 1,
             params: { vertical: 'bottom', horizontal: 'right' },
           },
-          {
+         {
             widgetType: 'label',
             indexFrom: 1,
             indexTo: 7,
             params: { basic: true },
-          },
+          },*/
         ),
         PROFILE: addWidgets(
           updateNfts,
-          {
+          /*{
             widgetType: 'avatarBadge',
             indexTo: 1,
             params: { vertical: 'bottom', horizontal: 'right' },
@@ -193,7 +229,7 @@ export default class TwitterFeature {
             widgetType: 'button',
             indexFrom: 1,
             indexTo: 4,
-          },
+          },*/
         ),
       };
       return this._config;

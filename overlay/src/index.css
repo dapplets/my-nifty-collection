@@ -92,3 +92,7 @@ body {
 .notification {
   color: forestgreen;
 }
+
+.ui.divider {
+  margin: 10px 24px !important;
+}

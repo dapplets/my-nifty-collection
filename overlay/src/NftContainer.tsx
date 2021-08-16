@@ -1,19 +1,31 @@
 import React from 'react';
-import { Card, Feed } from 'semantic-ui-react';
+import { Card, Feed, Divider } from 'semantic-ui-react';
 import { Nft, INft } from './Nft';
 
 interface INftContainerProps {
-  nfts: INft[];
-  searchQuery: string;
-  index?: number;
-  refs: any;
-  handleToggleAvatar: any;
-  current: boolean;
-  avatarNftId: string | null;
+  nfts: INft[]
+  searchQuery: string
+  index?: number
+  refs: any
+  current: boolean
+  avatarNftId: string | null
+  handleToggleAvatar: any
+  avatarNftBadgeId: string | null
+  handleToggleAvatarBadge: any
 }
 
 export default function NftContainer(props: INftContainerProps) {
-  const { nfts, searchQuery, index, refs, handleToggleAvatar, current, avatarNftId } = props;
+  const {
+    nfts,
+    searchQuery,
+    index,
+    refs,
+    current,
+    avatarNftId,
+    handleToggleAvatar,
+    avatarNftBadgeId,
+    handleToggleAvatarBadge,
+  } = props;
   return (
     <Card.Content style={{ padding: '1em 0' }}>
       <Feed>
@@ -30,16 +42,21 @@ export default function NftContainer(props: INftContainerProps) {
             );
           })
           .map((nft, i) => (
-            <Nft
-              nft={nft}
-              i={i}
-              index={index}
-              refs={refs}
-              key={`nft_${i}`}
-              handleToggleAvatar={handleToggleAvatar}
-              current={current}
-              avatarNftId={avatarNftId}
-            />
+            <React.Fragment key={`nft_${i}`}>
+              <Nft
+                key={`nft_${i}`}
+                nft={nft}
+                i={i}
+                index={index}
+                refs={refs}
+                current={current}
+                avatarNftId={avatarNftId}
+                handleToggleAvatar={handleToggleAvatar}
+                avatarNftBadgeId={avatarNftBadgeId}
+                handleToggleAvatarBadge={handleToggleAvatarBadge}
+              />
+              <Divider />
+            </React.Fragment>
           ))}
       </Feed>
       <div className="nft_counter">

@@ -2,31 +2,54 @@ import React from 'react';
 import { Feed, Ref, Checkbox } from 'semantic-ui-react';
 
 export interface INft {
-  name: string;
-  description: string;
-  image: { LIGHT: string };
-  link: string;
-  issued_at: string;
-  program: string;
-  cohort: string;
-  owner: string;
-  id: string;
-  isAvatar: boolean;
+  name: string
+  description: string
+  image: { LIGHT: string }
+  link: string
+  issued_at: string
+  program: string
+  cohort: string
+  owner: string
+  id: string
+  isAvatar: boolean
+  isAvatarBadge: boolean
 }
 
 interface INftProps {
-  nft: INft;
-  i: number;
-  refs: any;
-  index?: number;
-  handleToggleAvatar: any;
-  current: boolean;
-  avatarNftId: string | null;
+  nft: INft
+  i: number
+  refs: any
+  index?: number
+  current: boolean
+  avatarNftId: string | null
+  handleToggleAvatar: any
+  avatarNftBadgeId: string | null
+  handleToggleAvatarBadge: any
 }
 
 export function Nft(props: INftProps) {
-  const { nft, i, index, refs, handleToggleAvatar, current, avatarNftId } = props;
-  const { name, description, image, link, issued_at, program, cohort, owner, id } = nft;
+  const {
+    nft,
+    i,
+    index,
+    refs,
+    handleToggleAvatar,
+    current,
+    avatarNftId,
+    avatarNftBadgeId,
+    handleToggleAvatarBadge,
+  } = props;
+  const {
+    name,
+    description,
+    image,
+    link,
+    issued_at,
+    program,
+    cohort,
+    owner,
+    id,
+  } = nft;
   return (
     <Ref innerRef={refs[`nft_${i}`]}>
       <Feed.Event
@@ -69,9 +92,29 @@ export function Nft(props: INftProps) {
             {owner}
           </Feed.Summary>
           {current && (
-            <Feed.Summary style={{ fontWeight: 'normal' }}>
-              <Checkbox slider label='Avatar' checked={id === avatarNftId} onChange={handleToggleAvatar(id)} />
-            </Feed.Summary>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-around',
+              position: 'relative',
+              marginTop: '1em',
+            }}>
+              <Feed.Summary style={{ fontWeight: 'normal' }}>
+                <Checkbox
+                  slider
+                  label='Avatar'
+                  checked={id === avatarNftId}
+                  onChange={handleToggleAvatar(id)}
+                />
+              </Feed.Summary>
+              <Feed.Summary style={{ fontWeight: 'normal' }}>
+                <Checkbox
+                  slider
+                  label='Badge'
+                  checked={id === avatarNftBadgeId}
+                  onChange={handleToggleAvatarBadge(id)}
+                />
+              </Feed.Summary>
+            </div>
           )}
         </Feed.Content>
       </Feed.Event>
