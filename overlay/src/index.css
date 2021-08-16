@@ -96,3 +96,23 @@ body {
 .ui.divider {
   margin: 10px 24px !important;
 }
+
+.overlay-container.dpp-dark,
+.dpp-dark h2,
+.dpp-dark [role='listbox'],
+.dpp-dark .ui.menu .ui.dropdown .menu>.item,
+.dpp-dark .ui.icon.input > input,
+.dpp-dark .content,
+.dpp-dark .ui.feed,
+.dpp-dark .ui.feed > .event,
+.dpp-dark .ui.feed>.event>.content .summary,
+.dpp-dark .ui.feed>.event>.content .summary > .ui.slider.checkbox > label {
+  color: #fff !important;
+  background: #15202B !important;
+}
+
+
+.dpp-dark .ui.menu .ui.dropdown .menu>.item:hover {
+  color: #fff !important;
+  background: #1f2a35 !important;
+}

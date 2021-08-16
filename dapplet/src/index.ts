@@ -11,6 +11,7 @@ export default class TwitterFeature {
   private _setConfig: any;
   private _cachedNfts = {};
   private _config: any;
+  private _theme: 'DARK' | 'LIGHT'
 
   async activate(): Promise<void> {
     this._nearWalletLink = await Core.storage.get('nearWalletLink');
@@ -108,6 +109,7 @@ export default class TwitterFeature {
             nfts,
             index: -1,
             linkStateChanged: true,
+            theme: this._theme,
           });
         },
         afterAvatarChanging: async () => {
@@ -119,6 +121,7 @@ export default class TwitterFeature {
             current: user === this.adapter.getCurrentUser().username,
             nfts,
             index: -1,
+            theme: this._theme,
           });
         },
       });
@@ -126,7 +129,7 @@ export default class TwitterFeature {
     Core.onAction(async () => {
       const user = this.adapter.getCurrentUser().username;
       const nfts = await getNfts(user);
-      this.openOverlay({ user, current: true, nfts, index: -1 });
+      this.openOverlay({ user, current: true, nfts, index: -1, theme: this._theme });
     });
 
     /*interface IWidgets {
@@ -138,7 +141,9 @@ export default class TwitterFeature {
 
     const addWidgets = (updateNfts: boolean, /*...widgetsParams: IWidgets[]*/) => async (ctx: {
       authorUsername: string;
+      theme: 'DARK' | 'LIGHT'
     }) => {
+      this._theme = ctx.theme;
       if (!this._cachedNfts[ctx.authorUsername] || updateNfts) {
         this._cachedNfts[ctx.authorUsername] = getNfts(ctx.authorUsername);
       }
@@ -157,6 +162,7 @@ export default class TwitterFeature {
                 current: ctx.authorUsername === this.adapter.getCurrentUser().username,
                 nfts,
                 index: i,
+                theme: ctx.theme,
               }),
             }
           })
@@ -174,6 +180,7 @@ export default class TwitterFeature {
                 current: ctx.authorUsername === this.adapter.getCurrentUser().username,
                 nfts,
                 index: i,
+                theme: ctx.theme,
               }),
             }
           })

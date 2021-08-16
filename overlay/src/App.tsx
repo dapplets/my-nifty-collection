@@ -21,6 +21,7 @@ interface State {
   isDataLoading: boolean
   avatarNftId: string | null
   avatarNftBadgeId: string | null
+  theme: 'DARK' | 'LIGHT'
 }
 
 const defaultNfts: INft[] = [
@@ -53,6 +54,7 @@ const defaultState: State = {
   isDataLoading: true,
   avatarNftId: null,
   avatarNftBadgeId: null,
+  theme: 'LIGHT',
 };
 
 export default class App extends React.Component<Props, State> {
@@ -209,7 +211,10 @@ export default class App extends React.Component<Props, State> {
       isDataLoading,
       avatarNftId,
       avatarNftBadgeId,
+      theme,
     } = this.state;
+
+    if (theme === 'DARK') document.body.style.background = '#15202B';
 
     this.refs = nfts.reduce((acc: any, v, i) => {
       acc[`nft_${i}`] = React.createRef();
@@ -217,7 +222,7 @@ export default class App extends React.Component<Props, State> {
     }, {});
 
     return (
-      <div className="overlay-container">
+      <div className={theme === 'DARK' ? 'overlay-container dpp-dark' : 'overlay-container'}>
         <Header as="h2" style={{ display: 'inline-block', marginTop: '20px' }}>
           {current ? 'My' : user} Nifty Collection
         </Header>

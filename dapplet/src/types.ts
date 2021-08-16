@@ -29,4 +29,5 @@ export interface overlayProps {
   nfts: INftMetadata[];
   index: number;
   linkStateChanged?: boolean;
+  theme: 'DARK' | 'LIGHT'
 }
