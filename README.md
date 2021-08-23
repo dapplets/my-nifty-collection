@@ -1,6 +1,6 @@
 # My Nifty Collection
 
-**My Nifty Collection** is a [Dapplet](https://dapplets.org) (an Augmentation App) injecting user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification.
+**My Nifty Collection** is a [Dapplet](https://dapplets.org) (an Augmentation App) can inject user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification. It can also display NFTs from [Paras](https://paras.id/) and [Mintbase](https://www.mintbase.io/).
 
 # Installation guide
 
@@ -23,14 +23,14 @@
    >
    > ![image](https://user-images.githubusercontent.com/43613968/118473927-2ea8ad00-b713-11eb-9bbf-f2b7cb33a6bf.png)
 
-6. Go to the **[Alex Sakhaev's Twitter page](https://twitter.com/alsakhaev)**. This is the first example. You will see some of his test certificates issued.
+6. Go to the **[Nikita Teremovskii's Twitter page](https://twitter.com/teremovskii)**. This is the first example. You will see some of his test certificates issued.
    The Dapplet is running.
 
-   ![](https://user-images.githubusercontent.com/43613968/117031152-fb285480-ad08-11eb-88fb-71d89f00eb3e.png)
+   ![image](https://user-images.githubusercontent.com/43613968/130480746-107b6df9-a9fa-43a0-aaad-20f42feaad4f.png)
 
-7. By clicking on the icons an **overlay** with a list of certificates opens. **The certificate** on the icon of which you clicked is highlighted with a darker background. In the field of the certificate you will see its name, description, the date of creation, program, cohort and owner and see it by the link.
+7. By clicking on the icons an **overlay** with a list of certificates opens. **The certificate** or **NFT** on the icon of which you clicked is highlighted with a darker background. In the field of the NFT you will see its description and the link.
 
-   ![](https://user-images.githubusercontent.com/43613968/117028602-89e7a200-ad06-11eb-8edc-ef022a13d711.png)
+   ![image](https://user-images.githubusercontent.com/43613968/130484174-261db393-d2e1-40ed-8194-3fdf90a36e50.png)
 
 # How to link the NEAR account to the Twitter account
 
@@ -72,16 +72,6 @@
 
 10. Here is a list of **NFTs** from the linked NEAR account.
 
-    ![image](https://user-images.githubusercontent.com/43613968/117105632-1d60b780-ad87-11eb-8bd8-a014156b185b.png)
+   ![image](https://user-images.githubusercontent.com/43613968/130485997-6f819230-451b-4d83-b9d1-84cfb18ccbf5.png)
 
-11. You can also see some of your NFTs in your **profile**:
-
-    - the latest is on the avatar,
-    - the next six are next to the button _Edit profile_,
-
-    and on your **tweets**:
-
-    - the latest is on the avatar,
-    - the next six are next to the username.
-
-    ![image](https://user-images.githubusercontent.com/43613968/117106819-31a5b400-ad89-11eb-8923-77bd2f313a0a.png)
+11. You can choose NFTs for the avatar or badge image to appear in your **profile** and on your **tweets**.
