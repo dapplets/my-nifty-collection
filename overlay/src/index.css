@@ -111,8 +111,16 @@ body {
   background: #15202B !important;
 }
 
-
 .dpp-dark .ui.menu .ui.dropdown .menu>.item:hover {
   color: #fff !important;
   background: #1f2a35 !important;
+}
+
+.dpp-dark .ui.slider.checkbox .box:before,
+.dpp-dark .ui.slider.checkbox label:before {
+  background-color: rgb(255 255 255 / 30%) !important;
+}
+.dpp-dark .ui.slider.checkbox input:checked~.box:before,
+.dpp-dark .ui.slider.checkbox input:checked~label:before {
+  background-color: rgb(255 255 255 / 80%) !important;
 }

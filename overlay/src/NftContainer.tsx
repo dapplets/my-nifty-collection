@@ -12,6 +12,7 @@ interface INftContainerProps {
   handleToggleAvatar: any
   avatarNftBadgeId: string | null
   handleToggleAvatarBadge: any
+  theme: 'DARK' | 'LIGHT'
 }
 
 export default function NftContainer(props: INftContainerProps) {
@@ -25,6 +26,7 @@ export default function NftContainer(props: INftContainerProps) {
     handleToggleAvatar,
     avatarNftBadgeId,
     handleToggleAvatarBadge,
+    theme,
   } = props;
   return (
     <Card.Content style={{ padding: '1em 0' }}>
@@ -54,6 +56,7 @@ export default function NftContainer(props: INftContainerProps) {
                 handleToggleAvatar={handleToggleAvatar}
                 avatarNftBadgeId={avatarNftBadgeId}
                 handleToggleAvatarBadge={handleToggleAvatarBadge}
+                theme={theme}
               />
               <Divider />
             </React.Fragment>

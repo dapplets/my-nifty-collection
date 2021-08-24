@@ -28,7 +28,7 @@ const defaultNfts: INft[] = [
   {
     name: '',
     description: '',
-    image: { LIGHT: '' },
+    image: { LIGHT: '', DARK: '' },
     link: '',
     issued_at: '',
     program: '',
@@ -288,6 +288,7 @@ export default class App extends React.Component<Props, State> {
                 current={current}
                 avatarNftId={avatarNftId}
                 avatarNftBadgeId={avatarNftBadgeId}
+                theme={theme}
               />
             )
           }

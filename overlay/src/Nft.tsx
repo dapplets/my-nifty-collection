@@ -4,7 +4,7 @@ import { Feed, Ref, Checkbox } from 'semantic-ui-react';
 export interface INft {
   name: string
   description: string
-  image: { LIGHT: string }
+  image: { LIGHT: string, DARK: string }
   link: string
   issued_at: string
   program: string
@@ -25,6 +25,7 @@ interface INftProps {
   handleToggleAvatar: any
   avatarNftBadgeId: string | null
   handleToggleAvatarBadge: any
+  theme: 'DARK' | 'LIGHT'
 }
 
 export function Nft(props: INftProps) {
@@ -38,6 +39,7 @@ export function Nft(props: INftProps) {
     avatarNftId,
     avatarNftBadgeId,
     handleToggleAvatarBadge,
+    theme,
   } = props;
   const {
     name,
@@ -58,7 +60,7 @@ export function Nft(props: INftProps) {
           backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'inherit'}`,
         }}
       >
-        <Feed.Label image={image.LIGHT} />
+        <Feed.Label image={image[theme]} />
         <Feed.Content>
           <Feed.Summary>{name}</Feed.Summary>
           <Feed.Summary style={{ fontWeight: 'normal' }}>
