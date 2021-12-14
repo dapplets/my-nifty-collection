@@ -34,16 +34,15 @@ const fetchNftsByNearAcc_NCD = async (
   _nftContract: any,
 ): Promise<INftMetadata[]> => {
   let tokenIds: string[];
+  const nftContract = await _nftContract;
   try {
     if (typeof accounts === 'string') {
-      tokenIds = await _nftContract.nft_tokens_for_owner({ account_id: accounts });
+      tokenIds = await nftContract.nft_tokens_for_owner({ account_id: accounts });
     } else {
-      const accountsTokenIds = await Promise.all(
-        accounts.map(
-          (account: string): Promise<string[]> =>
-            _nftContract.nft_tokens_for_owner({ account_id: account }),
-        ),
-      );
+      const accountsTokenIds = await Promise.all(accounts.map(
+        (account: string): Promise<string[]> =>
+          nftContract.nft_tokens_for_owner({ account_id: account })
+      ));
       tokenIds = accountsTokenIds.flat();
     }
   } catch (err) {
@@ -59,9 +58,7 @@ const fetchNftsByNearAcc_NCD = async (
 
   let tokenMetadatas: ITokenMetadata[];
   try {
-    tokenMetadatas = await Promise.all(
-      tokenIds.map((x) => _nftContract.nft_token({ token_id: x })),
-    );
+    tokenMetadatas = await Promise.all(tokenIds.map((x) => nftContract.nft_token({ token_id: x })));
   } catch (err) {
     console.log('Cannot get tokenMetadatas from _nftContract by method nft_token().', err);
     tokenMetadatas = [];
@@ -69,7 +66,7 @@ const fetchNftsByNearAcc_NCD = async (
 
   let image: { DARK: string; LIGHT: string };
   try {
-    const { icon, reference } = await _nftContract.nft_metadata();
+    const { icon, reference } = await nftContract.nft_metadata();
     const res = await fetch(reference);
     const parsedImages = await res.json();
     image = {
@@ -202,7 +199,8 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
 
   let nearAccounts: string[];
   try {
-    nearAccounts = await contract.getNearAccounts({ account: authorUsername });
+    const contr = await contract;
+    nearAccounts = await contr.getNearAccounts({ account: authorUsername });
   } catch (err) {
     console.log(
       'Cannot get NEAR accounts by authorUsername:',
@@ -220,8 +218,9 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
   }
   if (nfts === undefined || !nfts.length) return;
 
-  const avatarNftId = await contractState.getNftId({ twitterAcc: authorUsername });
-  const avatarNftBadgeId = await contractState.getNftBadgeId({ twitterAcc: authorUsername });
+  const contr = await contractState
+  const avatarNftId = await contr.getNftId({ twitterAcc: authorUsername });
+  const avatarNftBadgeId = await contr.getNftBadgeId({ twitterAcc: authorUsername });
   nfts.forEach((nft) => {
     nft.isAvatar = nft.id === avatarNftId;
     nft.isAvatarBadge = nft.id === avatarNftBadgeId;

@@ -17,7 +17,7 @@ export default class TwitterFeature {
     this._nearWalletLink = await Core.storage.get('nearWalletLink');
     const overlayUrl = await Core.storage.get('overlayUrl');
     this._overlay = Core
-      .overlay({ url: overlayUrl, title: 'My Nifty Collection' })
+      .overlay({ name: 'my-nifty-collection-overlay', title: 'My Nifty Collection' })
       .listen({
         connectWallet: async () => {
           try {
@@ -47,55 +47,57 @@ export default class TwitterFeature {
         },
         getExternalAccounts: (op: any, { type, message }: any) =>
           contract
-            .getExternalAccounts({ near: message.near })
+            .then((x) => x.getExternalAccounts({ near: message.near }))
             // TODO: .then((x: any) => message.reply(),
             .then((x: any) => this._overlay.send('getExternalAccounts_done', x))
             .catch((err: any) => this._overlay.send('getExternalAccounts_undone', err)),
         getNearAccounts: (op: any, { type, message }: any) =>
           contract
-            .getNearAccounts({ account: message.account })
+            .then((x) => x.getNearAccounts({ account: message.account }))
             .then((x: any) => this._overlay.send('getNearAccounts_done', x))
             .catch((err: any) => this._overlay.send('getNearAccounts_undone', err)),
         addExternalAccount: (op: any, { type, message }: any) =>
           contract
-            .addExternalAccount({ account: message.account })
+          .then((x) => x.addExternalAccount({ account: message.account }))
+            
             .then((x: any) => this._overlay.send('addExternalAccount_done', x))
             .catch((err: any) => this._overlay.send('addExternalAccount_undone', err)),
         removeExternalAccount: (op: any, { type, message }: any) =>
           contract
-            .removeExternalAccount({ account: message.account })
+          .then((x) => x.removeExternalAccount({ account: message.account }))
+            
             .then((x: any) => this._overlay.send('removeExternalAccount_done', x))
             .catch((err: any) => this._overlay.send('removeExternalAccount_undone', err)),
 
         getNftId: (op: any, { type, message }: any) =>
           contractState
-            .getNftId({ twitterAcc: message.twitterAcc })
+          .then((x) => x.getNftId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('getNftId_done', x))
             .catch((err: any) => this._overlay.send('getNftId_undone', err)),
         setNftId: (op: any, { type, message }: any) =>
           contractState
-            .setNftId({ twitterAcc: message.twitterAcc, id: message.id })
+          .then((x) => x.setNftId({ twitterAcc: message.twitterAcc, id: message.id }))
             .then((x: any) => this._overlay.send('setNftId_done', x))
             .catch((err: any) => this._overlay.send('setNftId_undone', err)),
         removeNftId: (op: any, { type, message }: any) =>
           contractState
-            .removeNftId({ twitterAcc: message.twitterAcc })
+          .then((x) => x.removeNftId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('removeNftId_done', x))
             .catch((err: any) => this._overlay.send('removeNftId_undone', err)),
 
         getNftBadgeId: (op: any, { type, message }: any) =>
           contractState
-            .getNftBadgeId({ twitterAcc: message.twitterAcc })
+          .then((x) => x.getNftBadgeId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('getNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('getNftBadgeId_undone', err)),
         setNftBadgeId: (op: any, { type, message }: any) =>
           contractState
-            .setNftBadgeId({ twitterAcc: message.twitterAcc, id: message.id })
+          .then((x) => x.setNftBadgeId({ twitterAcc: message.twitterAcc, id: message.id }))
             .then((x: any) => this._overlay.send('setNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('setNftBadgeId_undone', err)),
         removeNftBadgeId: (op: any, { type, message }: any) =>
           contractState
-            .removeNftBadgeId({ twitterAcc: message.twitterAcc })
+          .then((x) => x.removeNftBadgeId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('removeNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('removeNftBadgeId_undone', err)),
 
