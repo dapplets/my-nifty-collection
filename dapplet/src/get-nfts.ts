@@ -117,29 +117,31 @@ const fetchNftsByNearAcc_Mintbase = async (
   const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
   const mainnetAccounts = accountsArray.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
 
-  const fetchMetadata = async (metaId: string) => {
-    const resp = await fetch(`https://arweave.net/${metaId}`);
-    return resp.json();
-  }
-
   const fetchTokens = async (account: string): Promise<any> => {
     const resp = await fetch("https://mintbase-mainnet.hasura.app/v1/graphql", {
-      "body": `{\"operationName\":\"token\",\"variables\":{\"account\":\"${account}\",\"limit\":10,\"lastDate\":\"now()\"},\"query\":\"query token($account: String!, $limit: Int!, $lastDate: timestamptz!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: $limit) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      store {\\n        id\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\"}`,
+      "body": `{
+        \"operationName\": \"GET_USER_OWNED_TOKENS\",
+        \"variables\": {
+          \"account\": \"${account}\",
+          \"lastDate\": \"now()\"
+        },
+        \"query\": \"query GET_USER_OWNED_TOKENS($account: String!, $lastDate: timestamptz!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: 50) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      metadata {\\n        title\\n        description\\n        media\\n        media_hash\\n        animation_hash\\n        animation_url\\n        youtube_url\\n        document\\n        document_hash\\n        extra\\n        external_url\\n        category\\n        type\\n        visibility\\n        media_type\\n        animation_type\\n        tags\\n        media_size\\n        animation_size\\n        __typename\\n      }\\n      store {\\n        id\\n        is_external_contract\\n        __typename\\n      }\\n      __typename\\n    }\\n    royaltys {\\n      percent\\n      account\\n      __typename\\n    }\\n    splits {\\n      percent\\n      account\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"
+      }`,
       "method": "POST"
     });
     const result = await resp.json();
-    return Promise.all(result.data.token.map(token => fetchMetadata(token.thing.metaId).then(metadata => ({ ...token, metadata }))));
+    return result.data.token;
   }
 
   const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
   const tokens = subArraysTokens.flat();
 
   return tokens.map(x => ({
-    name: x.metadata.title,
-    description: x.metadata.description,
+    name: x.thing.metadata.title,
+    description: x.thing.metadata.description,
     image: {
-      LIGHT: x.metadata.media,
-      DARK: x.metadata.media
+      LIGHT: x.thing.metadata.media,
+      DARK: x.thing.metadata.media
     },
     issued_at: x.lastTransferred,
     link: `https://www.mintbase.io/thing/${x.thing.id}`,
@@ -157,7 +159,7 @@ const fetchNftsByNearAcc_Paras = async (
   const mainnetAccounts = accountsArray.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
 
   const fetchTokens = async (account: string): Promise<any> => {
-    const resp = await fetch(`https://mainnet-api.paras.id/tokens?ownerId=${account}`);
+    const resp = await fetch(`https://api-v2-mainnet.paras.id/token?owner_id=${account}`);
     const result = await resp.json();
     return result.data.results.map(x => ({ ...x, ownerId: account }));
   }
@@ -165,20 +167,24 @@ const fetchNftsByNearAcc_Paras = async (
   const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
   const tokens = subArraysTokens.flat();
 
-  return tokens.map(x => ({
-    name: x.metadata.name,
-    description: x.metadata.description,
-    image: {
-      LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.image.replace('ipfs://', '')}`,
-      DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.image.replace('ipfs://', '')}`,
-    },
-    issued_at: new Date(x.createdAt).toISOString(),
-    link: `https://paras.id/token/${x.tokenId}`,
-    cohort: '',
-    owner: x.ownerId,
-    program: '',
-    id: x._id,
-  }));
+  return tokens.map((x) => {
+    const n = Number(x.metadata.issued_at);
+    const date = new Date(x.metadata.issued_at.length > 13 ? n / 1_000_000 : n);
+    return{
+      name: x.metadata.name,
+      description: x.metadata.description,
+      image: {
+        LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
+        DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
+      },
+      issued_at: isNaN(<any>date) ? '' : date.toISOString(),
+      link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
+      cohort: '',
+      owner: x.ownerId,
+      program: '',
+      id: x._id,
+    };
+  });
 }
 
 const fetchNftsByNearAcc = async (
