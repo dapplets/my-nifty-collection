@@ -1,5 +1,5 @@
 import {} from '@dapplets/dapplet-extension';
-import { overlayProps } from './types';
+import { IOverlayProps } from './types';
 import getNfts, { contract, contractState } from './get-nfts';
 
 @Injectable
@@ -151,9 +151,9 @@ export default class TwitterFeature {
       }
       const nfts = await this._cachedNfts[ctx.authorUsername];
       if (nfts === undefined || !nfts.length) return;
-      const widgets = [];
-      let avatarNftIndex = -1;
-      let avatarNftBadgeIndex = -1;
+      const widgets: any[] = [];
+      // let avatarNftIndex = -1;
+      // let avatarNftBadgeIndex = -1;
       for (let i = 0; i < nfts.length; i++) {
         if (nfts[i].isAvatar) {
           const avatar = this.adapter.exports.avatar({
@@ -169,7 +169,7 @@ export default class TwitterFeature {
             }
           })
           widgets.push(avatar);
-          avatarNftIndex = i;
+          // avatarNftIndex = i;
         }
         if (nfts[i].isAvatarBadge) {
           const avatarBadge = this.adapter.exports.avatarBadge({
@@ -187,7 +187,7 @@ export default class TwitterFeature {
             }
           })
           widgets.push(avatarBadge);
-          avatarNftBadgeIndex = i;
+          // avatarNftBadgeIndex = i;
         }
       }
       /*for (const widgetParams of widgetsParams) {
@@ -246,7 +246,7 @@ export default class TwitterFeature {
     this.adapter.attachConfig(this._setConfig());
   }
 
-  async openOverlay(props: overlayProps): Promise<void> {
+  async openOverlay(props: IOverlayProps): Promise<void> {
     this._overlay.send('data', { ...props, nearWalletLink: this._nearWalletLink });
   }
 }

@@ -1,4 +1,4 @@
-import { INftMetadata, ITokenMetadata } from './types';
+import { INftMetadata, ITokenMetadata, ParasResult, PResult } from './types';
 
 export const contract = Core.contract('near', 'dev-1618391705030-8760988', {
   viewMethods: ['getExternalAccounts', 'getNearAccounts'],
@@ -78,19 +78,15 @@ const fetchNftsByNearAcc_NCD = async (
   }
 
   return tokenMetadatas
-    .map(
-      (tokenMetadata: ITokenMetadata): INftMetadata => {
-        const { title, description, media, issued_at, extra } = tokenMetadata.metadata;
-        let parsedExtra: {
-          program: string;
-          cohort: string;
-          owner: string;
-        };
-        try {
-          parsedExtra = JSON.parse(extra);
-        } catch (e) {
-          console.error('Cannot parse tokenMetadatas in method _fetchNftsByNearAcc.', e);
-        }
+    .map((tokenMetadata: ITokenMetadata): INftMetadata  => {
+      const { title, description, media, issued_at, extra } = tokenMetadata.metadata;
+      let parsedExtra: {
+        program: string;
+        cohort: string;
+        owner: string;
+      };
+      try {
+        parsedExtra = JSON.parse(extra);
         return {
           name: title,
           description,
@@ -102,8 +98,18 @@ const fetchNftsByNearAcc_NCD = async (
           owner: parsedExtra?.owner,
           id: tokenMetadata.token_id,
         };
-      },
-    )
+      } catch (e) {
+        console.error('Cannot parse tokenMetadatas in method _fetchNftsByNearAcc.', e);
+        return {
+          name: title,
+          description,
+          image,
+          link: media,
+          issued_at,
+          id: tokenMetadata.token_id,
+        };
+      }
+    })
     .sort((a: { issued_at: string }, b: { issued_at: string }): number => {
       const x = new Date(a.issued_at);
       const y = new Date(b.issued_at);
@@ -158,10 +164,10 @@ const fetchNftsByNearAcc_Paras = async (
   const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
   const mainnetAccounts = accountsArray.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
 
-  const fetchTokens = async (account: string): Promise<any> => {
+  const fetchTokens = async (account: string): Promise<PResult[]> => {
     const resp = await fetch(`https://api-v2-mainnet.paras.id/token?owner_id=${account}`);
-    const result = await resp.json();
-    return result.data.results.map(x => ({ ...x, ownerId: account }));
+    const result: ParasResult = await resp.json();
+    return result.data.results;
   }
 
   const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
@@ -169,18 +175,18 @@ const fetchNftsByNearAcc_Paras = async (
 
   return tokens.map((x) => {
     const n = Number(x.metadata.issued_at);
-    const date = new Date(x.metadata.issued_at.length > 13 ? n / 1_000_000 : n);
+    const date = x.metadata.issued_at !== null ? new Date(x.metadata.issued_at.length > 13 ? n / 1_000_000 : n) : null;
     return{
-      name: x.metadata.name,
+      name: x.metadata.title,
       description: x.metadata.description,
       image: {
         LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
         DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
       },
-      issued_at: isNaN(<any>date) ? '' : date.toISOString(),
+      issued_at: date === null ? '' : date.toISOString(),
       link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
       cohort: '',
-      owner: x.ownerId,
+      owner: x.owner_id,
       program: '',
       id: x._id,
     };
@@ -200,10 +206,10 @@ const fetchNftsByNearAcc = async (
   return subArraysTokens.flat();
 };
 
-export default async (authorUsername?: string): Promise<INftMetadata[]> => {
+export default async (authorUsername?: string): Promise<INftMetadata[] | undefined> => {
   if (!authorUsername) return;
 
-  let nearAccounts: string[];
+  let nearAccounts: string[] | undefined;
   try {
     const contr = await contract;
     nearAccounts = await contr.getNearAccounts({ account: authorUsername });
@@ -216,7 +222,7 @@ export default async (authorUsername?: string): Promise<INftMetadata[]> => {
     );
   }
   if (nearAccounts === undefined || !nearAccounts.length) return;
-  let nfts: INftMetadata[];
+  let nfts: INftMetadata[] | undefined;
   try {
     nfts = await fetchNftsByNearAcc(nearAccounts, nftContract);
   } catch (err) {
