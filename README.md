@@ -23,12 +23,17 @@
    >
    > ![image](https://user-images.githubusercontent.com/43613968/118473927-2ea8ad00-b713-11eb-9bbf-f2b7cb33a6bf.png)
 
-6. Go to the **[Nikita Teremovskii's Twitter page](https://twitter.com/teremovskii)**. This is the first example. You will see some of his test certificates issued.
+6. Find the **My Nifty Collection** dapplet in the **Dapplets** list of the extension and **run** it.
+
+   ![image](https://user-images.githubusercontent.com/43613968/146558458-6f9b7965-d549-42b3-b29f-7cde1b6cb66e.png)
+
+
+7. Go to the **[Nikita Teremovskii's Twitter page](https://twitter.com/teremovskii)**. This is the first example. You will see some of his test certificates issued.
    The Dapplet is running.
 
    ![image](https://user-images.githubusercontent.com/43613968/130480746-107b6df9-a9fa-43a0-aaad-20f42feaad4f.png)
 
-7. By clicking on the icons an **overlay** with a list of certificates opens. **The certificate** or **NFT** on the icon of which you clicked is highlighted with a darker background. In the field of the NFT you will see its description and the link.
+8. By clicking on the icons an **overlay** with a list of certificates opens. **The certificate** or **NFT** on the icon of which you clicked is highlighted with a darker background. In the field of the NFT you will see its description and the link.
 
    ![image](https://user-images.githubusercontent.com/43613968/130484174-261db393-d2e1-40ed-8194-3fdf90a36e50.png)
 
