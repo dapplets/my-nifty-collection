@@ -45,8 +45,8 @@ With this dapplet installed user can see the other users avatars and NFT galleri
 
 # How to link the NEAR account to the Twitter account
 
-You will need a NEAR TESTNET account with the same name as your Mainnet account. This option is made for avoiding the gas payments during smart-contract usage.
-If you have no testnet account, yoг should create one on the [Testnet Wallet page](https://wallet.testnet.near.org/). Name it exactly like your main account!
+You will need a **NEAR TESTNET** account with the same name as your Mainnet account. This option is made for avoiding the gas payments during smart-contract usage.
+If you have no testnet account, you should create it on the [NEAR Testnet Wallet page](https://wallet.testnet.near.org/). Name it exactly like your main account!
 
 1. Open the **Dapplets Extension**. You see a list of dapplets with the **My Nifty Collection** dapplet. Click the **home** icon next to the dapplet name.
 
