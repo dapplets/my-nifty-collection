@@ -1,3 +1,5 @@
+![image](https://github.com/dapplets/my-nifty-collection/blob/main/My-nifty-collection.jpg)
+
 # My Nifty Collection
 
 **My Nifty Collection** is a dapplet (an augmentation module for [Dapplets browser extension](https://dapplets.org)) that can display user's NFTs from [Paras](https://paras.id/) and [Mintbase](https://www.mintbase.io/) right on Twitter page.
