@@ -6,7 +6,7 @@
 
 My Nifty Collection dapplet can change the Twitter avatar to selected user's NFT. Also it can use any owned NFT (or [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/)) as a badge for Twitter profile.
 
-With this dapplet installed user can see the other users avatars and NFT galleries just on their profile pages.
+With this dapplet installed user can see the other users avatars and NFT galleries just on their profile pages or tweets.
 
 # Browser extension installation guide
 
