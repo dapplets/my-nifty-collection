@@ -1,8 +1,14 @@
+![image](https://github.com/dapplets/my-nifty-collection/blob/main/My-nifty-collection.jpg)
+
 # My Nifty Collection
 
-**My Nifty Collection** is a [Dapplet](https://dapplets.org) (an Augmentation App) can inject user's [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/) into his Twitter account and also into his tweets as the sign of user's qualification. It can also display NFTs from [Paras](https://paras.id/) and [Mintbase](https://www.mintbase.io/).
+**My Nifty Collection** is a dapplet (an augmentation module for [Dapplets browser extension](https://dapplets.org)) that can display user's NFT from [Paras](https://paras.id/) and [Mintbase](https://www.mintbase.io/) right on Twitter page.
 
-# Installation guide
+My Nifty Collection dapplet can change the Twitter avatar to selected user's NFT. Also it can use any owned NFT (or [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/)) as a badge for Twitter profile.
+
+With this dapplet installed user can see the other users avatars and NFT galleries just on their profile pages or tweets.
+
+# Browser extension installation guide
 
 1. Open the **Google Chrome** browser.
 
@@ -38,6 +44,9 @@
    ![image](https://user-images.githubusercontent.com/43613968/130484174-261db393-d2e1-40ed-8194-3fdf90a36e50.png)
 
 # How to link the NEAR account to the Twitter account
+
+You will need a **NEAR TESTNET** account with the same name as your Mainnet account. This option is made for avoiding the gas payments during smart-contract usage.
+If you have no testnet account, you should create it on the [NEAR Testnet Wallet page](https://wallet.testnet.near.org/). Name it exactly like your main account!
 
 1. Open the **Dapplets Extension**. You see a list of dapplets with the **My Nifty Collection** dapplet. Click the **home** icon next to the dapplet name.
 
