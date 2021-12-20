@@ -134,14 +134,7 @@ export default class TwitterFeature {
       this.openOverlay({ user, current: true, nfts, index: -1, theme: this._theme });
     });
 
-    /*interface IWidgets {
-      widgetType: string;
-      indexFrom?: number;
-      indexTo: number;
-      params?: {};
-    }*/
-
-    const addWidgets = (updateNfts: boolean, /*...widgetsParams: IWidgets[]*/) => async (ctx: {
+    const addWidgets = (updateNfts: boolean) => async (ctx: {
       authorUsername: string;
       theme: 'DARK' | 'LIGHT'
     }) => {
@@ -152,8 +145,6 @@ export default class TwitterFeature {
       const nfts = await this._cachedNfts[ctx.authorUsername];
       if (nfts === undefined || !nfts.length) return;
       const widgets: any[] = [];
-      // let avatarNftIndex = -1;
-      // let avatarNftBadgeIndex = -1;
       for (let i = 0; i < nfts.length; i++) {
         if (nfts[i].isAvatar) {
           const avatar = this.adapter.exports.avatar({
@@ -169,13 +160,12 @@ export default class TwitterFeature {
             }
           })
           widgets.push(avatar);
-          // avatarNftIndex = i;
         }
         if (nfts[i].isAvatarBadge) {
           const avatarBadge = this.adapter.exports.avatarBadge({
             DEFAULT: {
               img: nfts[i].image,
-              vertical: 'bottom',
+              vertical: 'top',
               horizontal: 'right',
               exec: () => this.openOverlay({
                 user: ctx.authorUsername,
@@ -187,27 +177,8 @@ export default class TwitterFeature {
             }
           })
           widgets.push(avatarBadge);
-          // avatarNftBadgeIndex = i;
         }
       }
-      /*for (const widgetParams of widgetsParams) {
-        const { widgetType, indexFrom, indexTo, params } = widgetParams;
-        for (let i = indexFrom ?? 0; i < nfts.length && i < indexTo; i++) {
-          if (i === avatarNftIndex) continue;
-          const defParams = {
-            img: nfts[i].image,
-            exec: () => this.openOverlay({
-              user: ctx.authorUsername,
-              current: ctx.authorUsername === this.adapter.getCurrentUser().username,
-              nfts,
-              index: i,
-            }),
-            ...params,
-          };
-          const widget = this.adapter.exports[widgetType]({ DEFAULT: defParams });
-          widgets.push(widget);
-        }
-      }*/
       return widgets;
     };
 
@@ -215,30 +186,9 @@ export default class TwitterFeature {
       this._config = {
         POST: addWidgets(
            updateNfts,
-          /*{
-            widgetType: 'avatarBadge',
-            indexTo: 1,
-            params: { vertical: 'bottom', horizontal: 'right' },
-          },
-         {
-            widgetType: 'label',
-            indexFrom: 1,
-            indexTo: 7,
-            params: { basic: true },
-          },*/
         ),
         PROFILE: addWidgets(
           updateNfts,
-          /*{
-            widgetType: 'avatarBadge',
-            indexTo: 1,
-            params: { vertical: 'bottom', horizontal: 'right' },
-          },
-          {
-            widgetType: 'button',
-            indexFrom: 1,
-            indexTo: 4,
-          },*/
         ),
       };
       return this._config;
