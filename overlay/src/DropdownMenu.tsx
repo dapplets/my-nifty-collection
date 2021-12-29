@@ -3,7 +3,6 @@ import { Menu, Dropdown } from 'semantic-ui-react';
 
 interface IDropdownMenuProps {
   isConnected: boolean;
-  nearWalletLink: string;
   currentNearAccount: string;
   isLinked: boolean;
   user: string;
@@ -16,7 +15,6 @@ interface IDropdownMenuProps {
 export default function DropdownMenu(props: IDropdownMenuProps) {
   const {
     isConnected,
-    nearWalletLink,
     currentNearAccount,
     isLinked,
     user,
@@ -41,7 +39,7 @@ export default function DropdownMenu(props: IDropdownMenuProps) {
                 <>
                   <Dropdown.Item onClick={(e: any) => e.stopPropagation()}>
                     Connected to{' '}
-                    <a href={nearWalletLink} target="_blank" rel="noreferrer">
+                    <a href={`https://explorer.testnet.near.org/accounts/${currentNearAccount}`} target="_blank" rel="noreferrer">
                       {currentNearAccount}
                     </a>
                   </Dropdown.Item>

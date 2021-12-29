@@ -16,7 +16,6 @@ interface State {
   isLinked: boolean
   linkStateChanged: boolean
   currentNearAccount: string
-  nearWalletLink: string
   index: number
   isDataLoading: boolean
   avatarNftId: string | null
@@ -49,7 +48,6 @@ const defaultState: State = {
   isLinked: false,
   linkStateChanged: false,
   currentNearAccount: '',
-  nearWalletLink: '',
   index: -1,
   isDataLoading: true,
   avatarNftId: null,
@@ -207,7 +205,6 @@ export default class App extends React.Component<Props, State> {
       currentNearAccount,
       linkStateChanged,
       index,
-      nearWalletLink,
       isDataLoading,
       avatarNftId,
       avatarNftBadgeId,
@@ -232,7 +229,6 @@ export default class App extends React.Component<Props, State> {
           current && (
             <DropdownMenu
               isConnected={isConnected}
-              nearWalletLink={nearWalletLink}
               currentNearAccount={currentNearAccount}
               isLinked={isLinked}
               user={user}

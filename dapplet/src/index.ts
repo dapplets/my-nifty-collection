@@ -6,7 +6,7 @@ import getNfts, { contract, contractState } from './get-nfts';
 export default class TwitterFeature {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,  @typescript-eslint/explicit-module-boundary-types
   @Inject('twitter-adapter.dapplet-base.eth') public adapter: any;
-  private _nearWalletLink: string;
+
   private _overlay: any;
   private _setConfig: any;
   private _cachedNfts = {};
@@ -14,8 +14,6 @@ export default class TwitterFeature {
   private _theme: 'DARK' | 'LIGHT'
 
   async activate(): Promise<void> {
-    this._nearWalletLink = await Core.storage.get('nearWalletLink');
-    const overlayUrl = await Core.storage.get('overlayUrl');
     this._overlay = Core
       .overlay({ name: 'my-nifty-collection-overlay', title: 'My Nifty Collection' })
       .listen({
@@ -197,6 +195,6 @@ export default class TwitterFeature {
   }
 
   async openOverlay(props: IOverlayProps): Promise<void> {
-    this._overlay.send('data', { ...props, nearWalletLink: this._nearWalletLink });
+    this._overlay.send('data', { ...props });
   }
 }
