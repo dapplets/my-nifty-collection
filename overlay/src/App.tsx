@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Dimmer, Loader, Input, Card } from 'semantic-ui-react';
+import { Button, Header, Dimmer, Divider, Loader, Input, Card, Feed } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 import { INft } from './Nft';
 import NftContainer from './NftContainer';
@@ -10,7 +10,11 @@ interface Props {}
 interface State {
   user: string
   current: boolean
-  nfts: INft[]
+  parasNfts?: INft[]
+  mintbaseNfts?: INft[]
+  nCDCertificates?: INft[]
+  avatar?: INft,
+  badge?: INft,
   searchQuery: string
   isConnected: boolean
   isLinked: boolean
@@ -21,28 +25,15 @@ interface State {
   avatarNftId: string | null
   avatarNftBadgeId: string | null
   theme: 'DARK' | 'LIGHT'
+  avatarNft?: INft
+  badgeNft?: INft
+  parasPage: number
+  mintbasePage: number
 }
-
-const defaultNfts: INft[] = [
-  {
-    name: '',
-    description: '',
-    image: { LIGHT: '', DARK: '' },
-    link: '',
-    issued_at: '',
-    program: '',
-    cohort: '',
-    owner: '',
-    id: '',
-    isAvatar: false,
-    isAvatarBadge: false,
-  },
-];
 
 const defaultState: State = {
   user: '',
   current: true,
-  nfts: defaultNfts,
   searchQuery: '',
   isConnected: false,
   isLinked: false,
@@ -53,6 +44,8 @@ const defaultState: State = {
   avatarNftId: null,
   avatarNftBadgeId: null,
   theme: 'LIGHT',
+  parasPage: 1,
+  mintbasePage: 1,
 };
 
 export default class App extends React.Component<Props, State> {
@@ -119,7 +112,7 @@ export default class App extends React.Component<Props, State> {
     }
   }
 
-  handleToggleAvatar = (nftId: string) => async (e: any) => {
+  handleToggleAvatar = (nftId: string, source: string) => async (e: any) => {
     e.preventDefault();
     if (this.state.avatarNftId === nftId) {
       try {
@@ -129,13 +122,13 @@ export default class App extends React.Component<Props, State> {
       }
     } else if (this.state.avatarNftId === null) {
       try {
-        await bridge.setNftId(this.state.user, nftId);
+        await bridge.setNftId(this.state.user, nftId, source);
       } catch (err) {
         console.log('The error in setNftId(): ', err);
       }
     } else {
       try {
-        await bridge.setNftId(this.state.user, nftId);
+        await bridge.setNftId(this.state.user, nftId, source);
         this.setState({ avatarNftId: null });
       } catch (err) {
         console.log('The error in setNftId(): ', err);
@@ -144,7 +137,7 @@ export default class App extends React.Component<Props, State> {
     bridge.afterAvatarChanging();
   };
 
-  handleToggleAvatarBadge = (nftBadgeId: string) => async (e: any) => {
+  handleToggleAvatarBadge = (nftBadgeId: string, source: string) => async (e: any) => {
     e.preventDefault();
     if (this.state.avatarNftBadgeId === nftBadgeId) {
       try {
@@ -154,13 +147,13 @@ export default class App extends React.Component<Props, State> {
       }
     } else if (this.state.avatarNftBadgeId === null) {
       try {
-        await bridge.setNftBadgeId(this.state.user, nftBadgeId);
+        await bridge.setNftBadgeId(this.state.user, nftBadgeId, source);
       } catch (err) {
         console.log('The error in setNftBadgeId(): ', err);
       }
     } else {
       try {
-        await bridge.setNftBadgeId(this.state.user, nftBadgeId);
+        await bridge.setNftBadgeId(this.state.user, nftBadgeId, source);
         this.setState({ avatarNftBadgeId: null });
       } catch (err) {
         console.log('The error in setNftBadgeId(): ', err);
@@ -169,9 +162,31 @@ export default class App extends React.Component<Props, State> {
     bridge.afterAvatarChanging();
   };
 
+  addParasNfts = async (e: any) => {
+    e.preventDefault();
+    const nextPage = this.state.parasPage + 1;
+    const newNfts = await bridge.getParasNFTs(this.state.user, nextPage);
+    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id)
+    this.state.parasNfts
+      ? this.setState({ parasNfts: [...this.state.parasNfts, ...filteredNewNfts], parasPage: nextPage })
+      : this.setState({ parasNfts: filteredNewNfts, parasPage: nextPage });
+  };
+
+  addMintbaseNfts = async (e: any) => {
+    e.preventDefault();
+    const nextPage = this.state.mintbasePage + 1;
+    const newNfts = await bridge.getMintbaseNFTs(this.state.user, nextPage);
+    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id)
+    this.state.mintbaseNfts
+      ? this.setState({ mintbaseNfts: [...this.state.mintbaseNfts, ...filteredNewNfts], mintbasePage: nextPage })
+      : this.setState({ mintbaseNfts: filteredNewNfts, mintbasePage: nextPage });
+  };
+
   componentDidMount() {
-    bridge.onData((data) =>
-      this.setState({ ...defaultState, ...data, isDataLoading: false }, async () => {
+    bridge.onData(async (data) => {
+      this.setState({ ...data }, async () => {
+        const { avatarNft, badgeNft } = data;
+        this.setState({ avatarNftId: avatarNft?.id, avatarNftBadgeId: badgeNft?.id });
         const isConnected = await bridge.isWalletConnected();
         this.setState({ isConnected });
         if (isConnected) {
@@ -179,44 +194,82 @@ export default class App extends React.Component<Props, State> {
           this.setState({ currentNearAccount });
           this.tryIsLinked();
         }
-        if (this.state.index >= 0) {
-          this.refs[`nft_${this.state.index}`].current.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-          });
-        }
-        this.setState({ avatarNftId: null });
-        this.state.nfts.forEach((nft) => {
-          if (nft.isAvatar) this.setState({ avatarNftId: nft.id });
-          if (nft.isAvatarBadge) this.setState({ avatarNftBadgeId: nft.id });
+        const parasNfts = await bridge.getParasNFTs(data.user, 1);
+        const filteredParasNfts = parasNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
+
+        const nCDCertificates = await bridge.getNCDCertificates(data.user);
+        const filteredNCDCertificates = nCDCertificates?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
+
+        const mintbaseNfts = await bridge.getMintbaseNFTs(data.user, 1);
+        const filteredMintbaseNfts = mintbaseNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
+
+        this.setState({
+          parasNfts: filteredParasNfts,
+          nCDCertificates: filteredNCDCertificates,
+          mintbaseNfts: filteredMintbaseNfts,
+          isDataLoading: false,
         });
-      }),
-    );
+      });
+    });
   }
 
   render() {
     const {
       current,
       user,
-      nfts,
+      avatarNft,
+      badgeNft,
+      parasNfts,
+      mintbaseNfts,
+      nCDCertificates,
       isConnected,
       isLinked,
       searchQuery,
       currentNearAccount,
       linkStateChanged,
-      index,
       isDataLoading,
-      avatarNftId,
-      avatarNftBadgeId,
       theme,
     } = this.state;
 
     if (theme === 'DARK') document.body.style.background = '#15202B';
 
-    this.refs = nfts.reduce((acc: any, v, i) => {
-      acc[`nft_${i}`] = React.createRef();
-      return acc;
-    }, {});
+    const addNftsContainer = (nfts: INft[]) => <NftContainer
+      nfts={nfts}
+      searchQuery={searchQuery}
+      current={current}
+      theme={theme}
+      handleToggleAvatar={this.handleToggleAvatar}
+      handleToggleAvatarBadge={this.handleToggleAvatarBadge}
+      avatarNftId={this.state.avatarNftId}
+      avatarNftBadgeId={this.state.avatarNftBadgeId}
+    />;
+
+    const addNftsSection = (
+      sourseNfts: INft[] | undefined,
+      title: string,
+      addMethod?: any
+    ) => sourseNfts && !!sourseNfts.length && (<>
+      <h2
+        style={{
+          textAlign: 'center',
+          paddingTop: '1rem',
+        }}
+      >
+        {title}
+      </h2>
+      {addNftsContainer(sourseNfts)}
+      {addMethod && (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button
+            primary
+            className='button-more'
+            onClick={addMethod}
+            content={`More from ${title}`}
+          />
+        </div>
+      )}
+      <Divider />
+    </>);
 
     return (
       <div className={theme === 'DARK' ? 'overlay-container dpp-dark' : 'overlay-container'}>
@@ -242,9 +295,9 @@ export default class App extends React.Component<Props, State> {
 
         {
           // ------- SEARCH -------
-          nfts[0].name !== '' && (
+          (parasNfts || nCDCertificates || mintbaseNfts) && (
             <Input
-              icon="search"
+              icon={{ name: 'search', inverted: theme === 'DARK' }}
               placeholder="Search..."
               style={{ width: '-webkit-fill-available' }}
               onChange={(e: any) => this.setState({ searchQuery: e.target.value })}
@@ -265,28 +318,33 @@ export default class App extends React.Component<Props, State> {
           }
           {
             // ------- NFTs -------
-            isDataLoading ? (
-              <div style={{ display: 'block', height: '100px' }}>
-                <Dimmer active inverted>
-                  <Loader inverted content="Loading" />
-                </Dimmer>
-              </div>
-            ) : nfts[0].name === '' ? (
-              <Card.Content description="You don't have NFTs yet." />
-            ) : (
-              <NftContainer
-                nfts={nfts}
-                searchQuery={searchQuery}
-                index={index}
-                refs={this.refs}
-                handleToggleAvatar={this.handleToggleAvatar}
-                handleToggleAvatarBadge={this.handleToggleAvatarBadge}
-                current={current}
-                avatarNftId={avatarNftId}
-                avatarNftBadgeId={avatarNftBadgeId}
-                theme={theme}
-              />
-            )
+            isDataLoading
+              ? (
+                <div style={{ display: 'block', height: '100px' }}>
+                  <Dimmer active inverted={theme === 'LIGHT'} >
+                    <Loader inverted={theme === 'LIGHT'} content="Loading" />
+                  </Dimmer>
+                </div>
+              )
+              : !parasNfts && !nCDCertificates && !mintbaseNfts
+                ? <Card.Content description="You don't have NFTs yet." />
+                : (
+                  <Card.Content style={{ padding: '1em 0' }}>
+                    <Feed>
+                      {avatarNft && addNftsContainer([avatarNft])}
+                      {badgeNft && addNftsContainer([badgeNft])}
+                      {(avatarNft || badgeNft) && <Divider />}
+
+                      {/* NCD Certificates */
+                      addNftsSection(nCDCertificates, 'NCD Certificates')}
+
+                      {/* PARAS */
+                      addNftsSection(parasNfts, 'Paras', this.addParasNfts)}
+
+                      {/* MINTBASE */
+                      addNftsSection(mintbaseNfts, 'Mintbase', this.addMintbaseNfts)}
+                    </Feed>
+                  </Card.Content>)
           }
         </Card>
       </div>

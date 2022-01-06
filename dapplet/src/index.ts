@@ -1,6 +1,14 @@
 import {} from '@dapplets/dapplet-extension';
-import { IOverlayProps } from './types';
-import getNfts, { contract, contractState } from './get-nfts';
+import { INftMetadata, IOverlayProps } from './types';
+import {
+  contract,
+  contractState,
+  getAvatarNft,
+  getAvatarBadgeNft,
+  fetchNftsByNearAcc_NCD,
+  fetchNftsByNearAcc_Paras,
+  fetchNftsByNearAcc_Mintbase,
+} from './get-nfts';
 
 @Injectable
 export default class TwitterFeature {
@@ -9,7 +17,6 @@ export default class TwitterFeature {
 
   private _overlay: any;
   private _setConfig: any;
-  private _cachedNfts = {};
   private _config: any;
   private _theme: 'DARK' | 'LIGHT'
 
@@ -17,6 +24,8 @@ export default class TwitterFeature {
     this._overlay = Core
       .overlay({ name: 'my-nifty-collection-overlay', title: 'My Nifty Collection' })
       .listen({
+
+        // WALLET
         connectWallet: async () => {
           try {
             const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
@@ -43,10 +52,11 @@ export default class TwitterFeature {
             this._overlay.send('getCurrentNearAccount_undone', err);
           }
         },
+
+        // LINKING ACCOUNTS
         getExternalAccounts: (op: any, { type, message }: any) =>
           contract
             .then((x) => x.getExternalAccounts({ near: message.near }))
-            // TODO: .then((x: any) => message.reply(),
             .then((x: any) => this._overlay.send('getExternalAccounts_done', x))
             .catch((err: any) => this._overlay.send('getExternalAccounts_undone', err)),
         getNearAccounts: (op: any, { type, message }: any) =>
@@ -56,138 +66,164 @@ export default class TwitterFeature {
             .catch((err: any) => this._overlay.send('getNearAccounts_undone', err)),
         addExternalAccount: (op: any, { type, message }: any) =>
           contract
-          .then((x) => x.addExternalAccount({ account: message.account }))
-            
+            .then((x) => x.addExternalAccount({ account: message.account }))
             .then((x: any) => this._overlay.send('addExternalAccount_done', x))
             .catch((err: any) => this._overlay.send('addExternalAccount_undone', err)),
         removeExternalAccount: (op: any, { type, message }: any) =>
           contract
-          .then((x) => x.removeExternalAccount({ account: message.account }))
-            
+            .then((x) => x.removeExternalAccount({ account: message.account }))
             .then((x: any) => this._overlay.send('removeExternalAccount_done', x))
             .catch((err: any) => this._overlay.send('removeExternalAccount_undone', err)),
 
+        // AVATAR NFT
         getNftId: (op: any, { type, message }: any) =>
           contractState
-          .then((x) => x.getNftId({ twitterAcc: message.twitterAcc }))
+            .then((x) => x.getNftId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('getNftId_done', x))
             .catch((err: any) => this._overlay.send('getNftId_undone', err)),
-        setNftId: (op: any, { type, message }: any) =>
+        setNftId: (op: any, { type, message }: { type: any, message: { twitterAcc: string, id: string, source: string } }) =>
           contractState
-          .then((x) => x.setNftId({ twitterAcc: message.twitterAcc, id: message.id }))
+            .then((x) => x.setNftId({ twitterAcc: message.twitterAcc, id: message.id, source: message.source }))
             .then((x: any) => this._overlay.send('setNftId_done', x))
             .catch((err: any) => this._overlay.send('setNftId_undone', err)),
         removeNftId: (op: any, { type, message }: any) =>
           contractState
-          .then((x) => x.removeNftId({ twitterAcc: message.twitterAcc }))
+            .then((x) => x.removeNftId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('removeNftId_done', x))
             .catch((err: any) => this._overlay.send('removeNftId_undone', err)),
 
+        // BADGE NFT
         getNftBadgeId: (op: any, { type, message }: any) =>
           contractState
-          .then((x) => x.getNftBadgeId({ twitterAcc: message.twitterAcc }))
+            .then((x) => x.getNftBadgeId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('getNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('getNftBadgeId_undone', err)),
-        setNftBadgeId: (op: any, { type, message }: any) =>
+        setNftBadgeId: (op: any, { type, message }: { type: any, message: { twitterAcc: string, id: string, source: string } }) =>
           contractState
-          .then((x) => x.setNftBadgeId({ twitterAcc: message.twitterAcc, id: message.id }))
+            .then((x) => x.setNftBadgeId({ twitterAcc: message.twitterAcc, id: message.id, source: message.source }))
             .then((x: any) => this._overlay.send('setNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('setNftBadgeId_undone', err)),
         removeNftBadgeId: (op: any, { type, message }: any) =>
           contractState
-          .then((x) => x.removeNftBadgeId({ twitterAcc: message.twitterAcc }))
+            .then((x) => x.removeNftBadgeId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('removeNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('removeNftBadgeId_undone', err)),
 
+        // NFTS
+        getParasNFTs: (op: any, { type, message }: any) =>
+          fetchNftsByNearAcc_Paras(message.user, message.page)
+            .then((nfts: INftMetadata[]) => this._overlay.send('getParasNFTs_done', nfts))
+            .catch((err: any) => this._overlay.send('getParasNFTs_undone', err)),
+        getNCDCertificates: (op: any, { type, message }: any) =>
+          fetchNftsByNearAcc_NCD(message.user)
+            .then((nfts: INftMetadata[]) => this._overlay.send('getNCDCertificates_done', nfts))
+            .catch((err: any) => this._overlay.send('getNCDCertificates_undone', err)),
+        getMintbaseNFTs: (op: any, { type, message }: any) =>
+          fetchNftsByNearAcc_Mintbase(message.user, message.page)
+            .then((nfts: INftMetadata[]) => this._overlay.send('getMintbaseNFTs_done', nfts))
+            .catch((err: any) => this._overlay.send('getMintbaseNFTs_undone', err)),
+
+        // RELOAD - ToDo: delete this
         afterLinking: async () => {
-          this.adapter.resetConfig(this._config, this._setConfig(true));
+          this.adapter.resetConfig(this._config, this._setConfig());
           const user = this.adapter.getCurrentUser().username;
-          const nfts = await this._cachedNfts[user];
+          const avatarNft = await getAvatarNft(user);
+          const badgeNft = await getAvatarBadgeNft(user);
           this.openOverlay({
             user,
             current: user === this.adapter.getCurrentUser().username,
-            nfts,
+            avatarNft,
+            badgeNft,
             index: -1,
             linkStateChanged: true,
             theme: this._theme,
           });
         },
         afterAvatarChanging: async () => {
-          this.adapter.resetConfig(this._config, this._setConfig(true));
+          this.adapter.resetConfig(this._config, this._setConfig());
           const user = this.adapter.getCurrentUser().username;
-          const nfts = await this._cachedNfts[user];
+          const avatarNft = await getAvatarNft(user);
+          const badgeNft = await getAvatarBadgeNft(user);
           this.openOverlay({
             user,
             current: user === this.adapter.getCurrentUser().username,
-            nfts,
+            avatarNft,
+            badgeNft,
             index: -1,
             theme: this._theme,
           });
         },
+
+
       });
 
     Core.onAction(async () => {
       const user = this.adapter.getCurrentUser().username;
-      const nfts = await getNfts(user);
-      this.openOverlay({ user, current: true, nfts, index: -1, theme: this._theme });
+      const avatarNft = await getAvatarNft(user);
+      const badgeNft = await getAvatarBadgeNft(user);
+      this.openOverlay({
+        user,
+        current: true,
+        avatarNft,
+        badgeNft,
+        index: -1,
+        theme: this._theme
+      });
     });
 
-    const addWidgets = (updateNfts: boolean) => async (ctx: {
-      authorUsername: string;
-      theme: 'DARK' | 'LIGHT'
-    }) => {
+    const addWidgets = () => async (ctx: { authorUsername: string; theme: 'DARK' | 'LIGHT' }) => {
+      if (!ctx.authorUsername) return;
       this._theme = ctx.theme;
-      if (!this._cachedNfts[ctx.authorUsername] || updateNfts) {
-        this._cachedNfts[ctx.authorUsername] = getNfts(ctx.authorUsername);
-      }
-      const nfts = await this._cachedNfts[ctx.authorUsername];
-      if (nfts === undefined || !nfts.length) return;
+
+      const avatarNft = await getAvatarNft(ctx.authorUsername);
+      const badgeNft = await getAvatarBadgeNft(ctx.authorUsername);
+
       const widgets: any[] = [];
-      for (let i = 0; i < nfts.length; i++) {
-        if (nfts[i].isAvatar) {
-          const avatar = this.adapter.exports.avatar({
-            DEFAULT: {
-              img: nfts[i].image,
-              exec: () => this.openOverlay({
-                user: ctx.authorUsername,
-                current: ctx.authorUsername === this.adapter.getCurrentUser().username,
-                nfts,
-                index: i,
-                theme: ctx.theme,
-              }),
-            }
-          })
-          widgets.push(avatar);
-        }
-        if (nfts[i].isAvatarBadge) {
-          const avatarBadge = this.adapter.exports.avatarBadge({
-            DEFAULT: {
-              img: nfts[i].image,
-              vertical: 'top',
-              horizontal: 'right',
-              exec: () => this.openOverlay({
-                user: ctx.authorUsername,
-                current: ctx.authorUsername === this.adapter.getCurrentUser().username,
-                nfts,
-                index: i,
-                theme: ctx.theme,
-              }),
-            }
-          })
-          widgets.push(avatarBadge);
-        }
+
+      if (avatarNft !== null) {
+        const widget = this.adapter.exports.avatar({
+          DEFAULT: {
+            img: avatarNft.image,
+            exec: () => this.openOverlay({
+              user: ctx.authorUsername,
+              current: ctx.authorUsername === this.adapter.getCurrentUser().username,
+              index: 0,
+              theme: ctx.theme,
+              avatarNft,
+              badgeNft,
+            }),
+          }
+        })
+        widgets.push(widget);
       }
+
+      if (badgeNft !== null) {
+        const avatarBadge = this.adapter.exports.avatarBadge({
+          DEFAULT: {
+            img: badgeNft.image,
+            vertical: 'top',
+            horizontal: 'right',
+            exec: () => this.openOverlay({
+              user: ctx.authorUsername,
+              current: ctx.authorUsername === this.adapter.getCurrentUser().username,
+              index: 1,
+              theme: ctx.theme,
+              avatarNft,
+              badgeNft,
+            }),
+          }
+        })
+        widgets.push(avatarBadge);
+      }
+
       return widgets;
     };
 
-    this._setConfig = (updateNfts: boolean = false) => {
+    this._setConfig = () => {
+      const w = addWidgets();
       this._config = {
-        POST: addWidgets(
-           updateNfts,
-        ),
-        PROFILE: addWidgets(
-          updateNfts,
-        ),
+        POST: w,
+        PROFILE: w,
       };
       return this._config;
     };

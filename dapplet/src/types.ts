@@ -1,15 +1,16 @@
 export interface INftMetadata {
-  name: string;
-  description: string;
-  image: { DARK: string; LIGHT: string };
-  link: string;
-  issued_at: string;
-  program?: string;
-  cohort?: string;
-  owner?: string;
-  id: string;
-  isAvatar?: boolean;
-  isAvatarBadge?: boolean;
+  name: string
+  description: string
+  image: { DARK: string; LIGHT: string }
+  link: string
+  issued_at: string
+  program?: string
+  cohort?: string
+  owner?: string
+  id: string
+  isAvatar?: boolean
+  isAvatarBadge?: boolean
+  source: 'ncd' | 'paras' | 'mintbase'
 }
 
 export interface ITokenMetadata {
@@ -24,22 +25,23 @@ export interface ITokenMetadata {
 }
 
 export interface IOverlayProps {
-  user: string;
-  current?: boolean;
-  nfts?: INftMetadata[];
-  index: number;
-  linkStateChanged?: boolean;
+  user: string
+  current?: boolean
+  avatarNft: INftMetadata | null
+  badgeNft: INftMetadata | null
+  index: number
+  linkStateChanged?: boolean
   theme: 'DARK' | 'LIGHT'
 }
 
 export interface ParasResult {
-  data: ParasData;
+  data: ParasData
 }
 
 interface ParasData {
-  results: PResult[];
-  skip:    number;
-  limit:   number;
+  results: PResult[]
+  skip:    number
+  limit:   number
 }
 
 export interface PResult {

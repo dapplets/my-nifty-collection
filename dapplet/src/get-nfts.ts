@@ -5,50 +5,85 @@ export const contract = Core.contract('near', 'dev-1618391705030-8760988', {
   changeMethods: ['addExternalAccount', 'removeExternalAccount', 'clearAll'],
 });
 
+export const contractState = Core.contract('near', 'dev-1641816868648-11084182204053', {
+  viewMethods: ['getNftId', 'getNftBadgeId'],
+  changeMethods: ['setNftId', 'removeNftId', 'setNftBadgeId', 'removeNftBadgeId'],
+});
+
 // https://github.com/dapplets/core-contracts/tree/ncd/nft-simple
 const nftContract = Core.contract('near', 'dev-1619612403093-1786669', {
   viewMethods: ['nft_metadata', 'nft_tokens_for_owner', 'nft_token'],
   changeMethods: [],
 });
 
-export const contractState = Core.contract('near', 'dev-1629115076832-5517488', {
-  viewMethods: ['getNftId', 'getNftBadgeId'],
-  changeMethods: ['setNftId', 'removeNftId', 'setNftBadgeId', 'removeNftBadgeId'],
+const getNearAccByTwitterAcc = async (twitterId: string): Promise<string[] | undefined> => {
+  try {
+    const contr = await contract;
+    const nearAccounts = await contr.getNearAccounts({ account: twitterId });
+    if (nearAccounts === undefined || !nearAccounts.length) return;
+    return Array.isArray(nearAccounts) ? nearAccounts : [nearAccounts];
+  } catch (err) {
+    console.log(
+      'Cannot get NEAR accounts by authorUsername:',
+      twitterId,
+      'in method _getNfts.',
+      err,
+    );
+  }
+}
+
+const makeNftMetadata_Paras = (x: PResult): INftMetadata => {
+  const isNumeric = (a) => !isNaN(a);
+  const issued_at = x.metadata.issued_at;
+  const n = Number(issued_at);
+  const date = issued_at !== null ? ((isNumeric(issued_at)) ? new Date(issued_at.length > 13 ? n / 1_000_000 : n) : new Date(issued_at)) : null;
+  
+  return {
+    name: x.metadata.title,
+    description: x.metadata.description,
+    image: {
+      LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
+      DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
+    },
+    issued_at: date === null ? '' : date.toISOString(),
+    link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
+    cohort: '',
+    owner: x.owner_id,
+    program: '',
+    id: x.token_id,
+    source: 'paras',
+  };
+};
+
+const makeNftMetadata_Mintbase = (thing: any, ownerId?: string): INftMetadata => ({
+  name: thing.metadata.title,
+  description: thing.metadata.description,
+  image: {
+    LIGHT: thing.metadata.media,
+    DARK: thing.metadata.media
+  },
+  link: `https://www.mintbase.io/thing/${thing.id}`,
+  owner: ownerId || thing.tokens.map((token) => token.ownerId).join(', '),
+  issued_at: '',
+  cohort: '',
+  program: '',
+  id: thing.id,
+  source: 'mintbase',
 });
 
-// TESTING CONTRACT_STATE
-/*contractState.getNftId({ twitterAcc: 'twitter.com:tester1' }).then((res1) => {
-  console.log(res1);
-  contractState.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3' }).then(() => {
-    contractState.getNftId({ twitterAcc: 'twitter.com:tester1' }).then((res2) => {
-      console.log(res2);
-      contractState.removeNftId({ twitterAcc: 'twitter.com:tester1' }).then(() => {
-        contractState.getNftId({ twitterAcc: 'twitter.com:tester1' }).then((res3) => console.log(res3));
-      });
-    });
-  });
-});*/
-
-const fetchNftsByNearAcc_NCD = async (
-  accounts: string | string[],
-  _nftContract: any,
-): Promise<INftMetadata[]> => {
+const fetchNfts_NCD = async (authorUsername: string, nftId?: string): Promise<INftMetadata[] | INftMetadata | undefined | null> => {
+  const nearAccounts = await getNearAccByTwitterAcc(authorUsername);
+  if (nearAccounts === undefined) return;
+  const contr = await nftContract;
   let tokenIds: string[];
-  const nftContract = await _nftContract;
   try {
-    if (typeof accounts === 'string') {
-      tokenIds = await nftContract.nft_tokens_for_owner({ account_id: accounts });
-    } else {
-      const accountsTokenIds = await Promise.all(accounts.map(
-        (account: string): Promise<string[]> =>
-          nftContract.nft_tokens_for_owner({ account_id: account })
-      ));
-      tokenIds = accountsTokenIds.flat();
-    }
+    const a = nearAccounts.map((account: string): Promise<string[]> => contr.nft_tokens_for_owner({ account_id: account }));
+    const accountsTokenIds = await Promise.all(a);
+    tokenIds = accountsTokenIds.flat();
   } catch (err) {
     console.log(
       'Cannot get tokens of NEAR accounts:',
-      accounts,
+      nearAccounts,
       'in method _fetchNftsByNearAcc.',
       err,
     );
@@ -58,15 +93,15 @@ const fetchNftsByNearAcc_NCD = async (
 
   let tokenMetadatas: ITokenMetadata[];
   try {
-    tokenMetadatas = await Promise.all(tokenIds.map((x) => nftContract.nft_token({ token_id: x })));
+    tokenMetadatas = await Promise.all(tokenIds.map((x) => contr.nft_token({ token_id: x })));
   } catch (err) {
     console.log('Cannot get tokenMetadatas from _nftContract by method nft_token().', err);
     tokenMetadatas = [];
   }
 
-  let image: { DARK: string; LIGHT: string };
+  let image: { DARK: string; LIGHT: string } = { DARK: '', LIGHT: '' };
   try {
-    const { icon, reference } = await nftContract.nft_metadata();
+    const { icon, reference } = await contr.nft_metadata();
     const res = await fetch(reference);
     const parsedImages = await res.json();
     image = {
@@ -77,51 +112,81 @@ const fetchNftsByNearAcc_NCD = async (
     console.log('Cannot get icon from NFTMetadata of nftContract in method nft_metadata().', err);
   }
 
-  return tokenMetadatas
-    .map((tokenMetadata: ITokenMetadata): INftMetadata  => {
-      const { title, description, media, issued_at, extra } = tokenMetadata.metadata;
-      let parsedExtra: {
-        program: string;
-        cohort: string;
-        owner: string;
+  const makeNftMetadata_NCD = (tokenMetadata: ITokenMetadata, image: { DARK: string, LIGHT: string }): INftMetadata => {
+    const { title, description, media, issued_at, extra } = tokenMetadata.metadata;
+    let parsedExtra: {
+      program: string;
+      cohort: string;
+      owner: string;
+    };
+    try {
+      parsedExtra = JSON.parse(extra);
+      return {
+        name: title,
+        description,
+        image,
+        link: media,
+        issued_at,
+        program: parsedExtra?.program,
+        cohort: parsedExtra?.cohort,
+        owner: parsedExtra?.owner,
+        id: tokenMetadata.token_id,
+        source: 'ncd',
       };
-      try {
-        parsedExtra = JSON.parse(extra);
-        return {
-          name: title,
-          description,
-          image,
-          link: media,
-          issued_at,
-          program: parsedExtra?.program,
-          cohort: parsedExtra?.cohort,
-          owner: parsedExtra?.owner,
-          id: tokenMetadata.token_id,
-        };
-      } catch (e) {
-        console.error('Cannot parse tokenMetadatas in method _fetchNftsByNearAcc.', e);
-        return {
-          name: title,
-          description,
-          image,
-          link: media,
-          issued_at,
-          id: tokenMetadata.token_id,
-        };
-      }
-    })
-    .sort((a: { issued_at: string }, b: { issued_at: string }): number => {
-      const x = new Date(a.issued_at);
-      const y = new Date(b.issued_at);
-      return y.valueOf() - x.valueOf();
-    });
+    } catch (e) {
+      console.error('Cannot parse tokenMetadatas in method _fetchNftsByNearAcc.', e);
+      return {
+        name: title,
+        description,
+        image,
+        link: media,
+        issued_at,
+        id: tokenMetadata.token_id,
+        source: 'ncd',
+      };
+    }
+  };
+
+  if (nftId) {
+    const tokenMetadata = tokenMetadatas.find((metadata) => metadata.token_id === nftId[0]);
+    if (!tokenMetadata) return null;
+    return makeNftMetadata_NCD(tokenMetadata, image);
+  } else {
+    return tokenMetadatas
+      .map((tokenMetadata: ITokenMetadata): INftMetadata => makeNftMetadata_NCD(tokenMetadata, image))
+      .sort((a: { issued_at: string }, b: { issued_at: string }): number => {
+        const x = new Date(a.issued_at);
+        const y = new Date(b.issued_at);
+        return y.valueOf() - x.valueOf();
+      });
+  }
 }
 
-const fetchNftsByNearAcc_Mintbase = async (
-  accounts: string | string[]
-): Promise<INftMetadata[]> => {
-  const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
-  const mainnetAccounts = accountsArray.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
+export const fetchNftsByNearAcc_NCD = (authorUsername: string): Promise<INftMetadata[] | undefined | INftMetadata | null> => fetchNfts_NCD(authorUsername);
+
+export const fetchNftsByNearAcc_Paras = async (authorUsername: string, page = 1): Promise<INftMetadata[] | undefined> => {
+  const nearAccounts = await getNearAccByTwitterAcc(authorUsername);
+  if (nearAccounts === undefined) return;
+  const mainnetAccounts = nearAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
+  const limit = 7; // may customize
+
+  const fetchTokens = async (account: string): Promise<PResult[]> => {
+    const resp = await fetch(`https://api-v2-mainnet.paras.id/token?owner_id=${account}&__limit=${limit}&__skip=${(page - 1) * limit}`);
+    const result: ParasResult = await resp.json();
+    return result.data.results;
+  }
+
+  const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
+  const tokens = subArraysTokens.flat();
+
+  return tokens.map(makeNftMetadata_Paras);
+};
+
+export const fetchNftsByNearAcc_Mintbase = async (authorUsername: string, page = 1): Promise<INftMetadata[] | undefined> => {
+  const nearAccounts = await getNearAccByTwitterAcc(authorUsername);
+  if (nearAccounts === undefined) return;
+  const mainnetAccounts = nearAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
+  const limit = 7; // may customize
 
   const fetchTokens = async (account: string): Promise<any> => {
     const resp = await fetch("https://mintbase-mainnet.hasura.app/v1/graphql", {
@@ -129,9 +194,11 @@ const fetchNftsByNearAcc_Mintbase = async (
         \"operationName\": \"GET_USER_OWNED_TOKENS\",
         \"variables\": {
           \"account\": \"${account}\",
-          \"lastDate\": \"now()\"
+          \"lastDate\": \"now()\",
+          \"limit\": ${limit},
+          \"offset\": ${(page - 1) * limit}
         },
-        \"query\": \"query GET_USER_OWNED_TOKENS($account: String!, $lastDate: timestamptz!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: 50) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      metadata {\\n        title\\n        description\\n        media\\n        media_hash\\n        animation_hash\\n        animation_url\\n        youtube_url\\n        document\\n        document_hash\\n        extra\\n        external_url\\n        category\\n        type\\n        visibility\\n        media_type\\n        animation_type\\n        tags\\n        media_size\\n        animation_size\\n        __typename\\n      }\\n      store {\\n        id\\n        is_external_contract\\n        __typename\\n      }\\n      __typename\\n    }\\n    royaltys {\\n      percent\\n      account\\n      __typename\\n    }\\n    splits {\\n      percent\\n      account\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"
+        \"query\": \"query GET_USER_OWNED_TOKENS($account: String!, $lastDate: timestamptz!, $limit: Int!, $offset: Int!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: $limit, offset: $offset) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      metadata {\\n        title\\n        description\\n        media\\n        media_hash\\n        animation_hash\\n        animation_url\\n        youtube_url\\n        document\\n        document_hash\\n        extra\\n        external_url\\n        category\\n        type\\n        visibility\\n        media_type\\n        animation_type\\n        tags\\n        media_size\\n        animation_size\\n        __typename\\n      }\\n      store {\\n        id\\n        is_external_contract\\n        __typename\\n      }\\n      __typename\\n    }\\n    royaltys {\\n      percent\\n      account\\n      __typename\\n    }\\n    splits {\\n      percent\\n      account\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"
       }`,
       "method": "POST"
     });
@@ -141,114 +208,48 @@ const fetchNftsByNearAcc_Mintbase = async (
 
   const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
   const tokens = subArraysTokens.flat();
+  return tokens.map((x) => makeNftMetadata_Mintbase(x.thing, x.ownerId));
+}
 
-  return tokens.map(x => ({
-    name: x.thing.metadata.title,
-    description: x.thing.metadata.description,
-    image: {
-      LIGHT: x.thing.metadata.media,
-      DARK: x.thing.metadata.media
+const getWidgetNft = (twitterAcc: string, nftId: string): Promise<INftMetadata | null> => {
+  const getNftFromSource = {
+    'ncd': fetchNfts_NCD(twitterAcc, nftId),
+    'paras': async () => {
+      try {
+        const res = await fetch(`https://api-v2-mainnet.paras.id/token?token_id=${nftId[0]}`);
+        const nftData = await res.json();
+        const nft: PResult = nftData.data.results[0];
+        return makeNftMetadata_Paras(nft);
+      } catch (err) {
+        console.log('Cannot parse metadata of the NFT from Paras', err);
+        return null;
+      }
     },
-    issued_at: x.lastTransferred,
-    link: `https://www.mintbase.io/thing/${x.thing.id}`,
-    cohort: '',
-    owner: x.ownerId,
-    program: '',
-    id: x.id,
-  }));
-}
-
-const fetchNftsByNearAcc_Paras = async (
-  accounts: string | string[]
-): Promise<INftMetadata[]> => {
-  const accountsArray = Array.isArray(accounts) ? accounts : [accounts];
-  const mainnetAccounts = accountsArray.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
-
-  const fetchTokens = async (account: string): Promise<PResult[]> => {
-    const resp = await fetch(`https://api-v2-mainnet.paras.id/token?owner_id=${account}`);
-    const result: ParasResult = await resp.json();
-    return result.data.results;
-  }
-
-  const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
-  const tokens = subArraysTokens.flat();
-
-  const isNumeric = (x) => !isNaN(x);
-
-  const dtos: INftMetadata[] = [];
-
-  for (const x of tokens) {
-    try {
-      const issued_at = x.metadata.issued_at;
-      const n = Number(issued_at);
-      const date = issued_at !== null ? ((isNumeric(issued_at)) ? new Date(issued_at.length > 13 ? n / 1_000_000 : n) : new Date(issued_at)) : null;
-      
-      dtos.push({
-        name: x.metadata.title,
-        description: x.metadata.description,
-        image: {
-          LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
-          DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
-        },
-        issued_at: date === null ? '' : date.toISOString(),
-        link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
-        cohort: '',
-        owner: x.owner_id,
-        program: '',
-        id: x._id,
-      });
-    } catch (err) {
-      console.error('Cannot parse metadata of the NFT', err);
+    'mintbase': async () => {
+      try {
+        const res = await fetch(`https://mintbase-mainnet.hasura.app/api/rest/things/${nftId[0]}`);
+        const nftData = await res.json();
+        const thing = nftData.thing[0];
+        return makeNftMetadata_Mintbase(thing);
+      } catch (err) {
+        console.log('Cannot parse metadata of the NFT from Mintbase', err);
+        return null;
+      }
     }
-  }
-
-  return dtos;
-}
-
-const fetchNftsByNearAcc = async (
-  accounts: string | string[],
-  _nftContract: any,
-): Promise<INftMetadata[]> => {
-  const subArraysTokens = await Promise.all([
-    fetchNftsByNearAcc_NCD(accounts, _nftContract),
-    fetchNftsByNearAcc_Mintbase(accounts),
-    fetchNftsByNearAcc_Paras(accounts)
-  ]);
-
-  return subArraysTokens.flat();
+  };
+  return getNftFromSource[nftId[1]]();
 };
 
-export default async (authorUsername?: string): Promise<INftMetadata[] | undefined> => {
-  if (!authorUsername) return;
+export const getAvatarNft = async (twitterAcc?: string): Promise<INftMetadata | null> => {
+  if (!twitterAcc) return null;
+  const contr = await contractState;
+  const avatarNftId = await contr.getNftId({ twitterAcc });
+  return avatarNftId && getWidgetNft(twitterAcc, avatarNftId);
+};
 
-  let nearAccounts: string[] | undefined;
-  try {
-    const contr = await contract;
-    nearAccounts = await contr.getNearAccounts({ account: authorUsername });
-  } catch (err) {
-    console.log(
-      'Cannot get NEAR accounts by authorUsername:',
-      authorUsername,
-      'in method _getNfts.',
-      err,
-    );
-  }
-  if (nearAccounts === undefined || !nearAccounts.length) return;
-  let nfts: INftMetadata[] | undefined;
-  try {
-    nfts = await fetchNftsByNearAcc(nearAccounts, nftContract);
-  } catch (err) {
-    console.log('Cannot get NFTs of NEAR accounts:', nearAccounts, 'in method _getNfts.', err);
-  }
-  if (nfts === undefined || !nfts.length) return;
-
-  const contr = await contractState
-  const avatarNftId = await contr.getNftId({ twitterAcc: authorUsername });
-  const avatarNftBadgeId = await contr.getNftBadgeId({ twitterAcc: authorUsername });
-  nfts.forEach((nft) => {
-    nft.isAvatar = nft.id === avatarNftId;
-    nft.isAvatarBadge = nft.id === avatarNftBadgeId;
-  });
-
-  return nfts;
+export const getAvatarBadgeNft = async (twitterAcc?: string): Promise<INftMetadata | null> => {
+  if (!twitterAcc) return null;
+  const contr = await contractState;
+  const avatarBadgeNftId = await contr.getNftBadgeId({ twitterAcc });
+  return avatarBadgeNftId && getWidgetNft(twitterAcc, avatarBadgeNftId);
 };

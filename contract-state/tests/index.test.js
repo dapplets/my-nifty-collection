@@ -15,30 +15,30 @@ beforeAll(async function () {
 });
 
 it('Adds NFT ID for Twitter Account ID', async () => {
-  await contract.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3' });
-  await contract.setNftId({ twitterAcc: 'twitter.com:tester2', id: '5' });
+  await contract.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3', source: 'paras' });
+  await contract.setNftId({ twitterAcc: 'twitter.com:tester2', id: '5', source: 'mintbase' });
 
   const avaNftId1 = await contract.getNftId({ twitterAcc: 'twitter.com:tester1' });
   const avaNftId2 = await contract.getNftId({ twitterAcc: 'twitter.com:tester2' });
 
-  expect(avaNftId1).toBe('3');
-  expect(avaNftId2).toBe('5');
+  expect(avaNftId1).toEqual(['3', 'paras']);
+  expect(avaNftId2).toEqual(['5', 'mintbase']);
 });
 
 it('Adds Badge NFT ID for Twitter Account ID', async () => {
-  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester1', id: '3' });
-  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester2', id: '5' });
+  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester1', id: '3', source: 'paras' });
+  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester2', id: '5', source: 'mintbase' });
 
   const avaNftId1 = await contract.getNftBadgeId({ twitterAcc: 'twitter.com:tester1' });
   const avaNftId2 = await contract.getNftBadgeId({ twitterAcc: 'twitter.com:tester2' });
 
-  expect(avaNftId1).toBe('3');
-  expect(avaNftId2).toBe('5');
+  expect(avaNftId1).toEqual(['3', 'paras']);
+  expect(avaNftId2).toEqual(['5', 'mintbase']);
 });
 
 it('Removes NFT ID for Twitter Account ID', async () => {
-  await contract.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3' });
-  await contract.setNftId({ twitterAcc: 'twitter.com:tester2', id: '5' });
+  await contract.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3', source: 'paras' });
+  await contract.setNftId({ twitterAcc: 'twitter.com:tester2', id: '5', source: 'mintbase' });
 
   await contract.removeNftId({ twitterAcc: 'twitter.com:tester1' });
   await contract.removeNftId({ twitterAcc: 'twitter.com:tester2' });
@@ -51,8 +51,8 @@ it('Removes NFT ID for Twitter Account ID', async () => {
 });
 
 it('Removes Badge NFT ID for Twitter Account ID', async () => {
-  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester1', id: '3' });
-  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester2', id: '5' });
+  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester1', id: '3', source: 'paras' });
+  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester2', id: '5', source: 'paras' });
 
   await contract.removeNftBadgeId({ twitterAcc: 'twitter.com:tester1' });
   await contract.removeNftBadgeId({ twitterAcc: 'twitter.com:tester2' });
@@ -65,8 +65,8 @@ it('Removes Badge NFT ID for Twitter Account ID', async () => {
 });
 
 it('clears all', async () => {
-  await contract.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3' });
-  await contract.setNftId({ twitterAcc: 'twitter.com:tester2', id: '5' });
+  await contract.setNftId({ twitterAcc: 'twitter.com:tester1', id: '3', source: 'paras' });
+  await contract.setNftId({ twitterAcc: 'twitter.com:tester2', id: '5', source: 'paras' });
 
   await contract.clearAll();
 
@@ -78,8 +78,8 @@ it('clears all', async () => {
 });
 
 it('clears all Badges', async () => {
-  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester1', id: '3' });
-  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester2', id: '5' });
+  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester1', id: '3', source: 'paras' });
+  await contract.setNftBadgeId({ twitterAcc: 'twitter.com:tester2', id: '5', source: 'paras' });
 
   await contract.clearAllBadges();
 

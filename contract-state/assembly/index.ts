@@ -2,9 +2,9 @@ import { PersistentUnorderedMap } from 'near-sdk-core';
 
 // MODELS
 
-const twitterAvaNfts = new PersistentUnorderedMap<string, string>('a');
+const twitterAvaNfts = new PersistentUnorderedMap<string, string[]>('a');
 
-const twitterAvaBadgeNfts = new PersistentUnorderedMap<string, string>('b');
+const twitterAvaBadgeNfts = new PersistentUnorderedMap<string, string[]>('b');
 
 // READ
 
@@ -13,7 +13,7 @@ const twitterAvaBadgeNfts = new PersistentUnorderedMap<string, string>('b');
  * @param twitterAcc Twitter Account ID
  * @returns ID of NFT for Twitter avatar
  */
-export function getNftId(twitterAcc: string): string | null {
+export function getNftId(twitterAcc: string): string[] | null {
   return twitterAvaNfts.get(twitterAcc);
 }
 
@@ -22,7 +22,7 @@ export function getNftId(twitterAcc: string): string | null {
  * @param twitterAcc Twitter Account ID
  * @returns ID of NFT for Twitter avatar
  */
-export function getNftBadgeId(twitterAcc: string): string | null {
+export function getNftBadgeId(twitterAcc: string): string[] | null {
   return twitterAvaBadgeNfts.get(twitterAcc);
 }
 // WRITE
@@ -31,16 +31,16 @@ export function getNftBadgeId(twitterAcc: string): string | null {
  * Adds NFT ID for Twitter Account ID
  * @param id NFT ID
  */
-export function setNftId(twitterAcc: string, id: string): void {
-  twitterAvaNfts.set(twitterAcc, id);
+export function setNftId(twitterAcc: string, id: string, source: string): void {
+  twitterAvaNfts.set(twitterAcc, [id, source]);
 }
 
 /**
  * Adds NFT ID for Twitter Account ID
  * @param id NFT ID
  */
-export function setNftBadgeId(twitterAcc: string, id: string): void {
-  twitterAvaBadgeNfts.set(twitterAcc, id);
+export function setNftBadgeId(twitterAcc: string, id: string, source: string): void {
+  twitterAvaBadgeNfts.set(twitterAcc, [id, source]);
 }
 
 /**

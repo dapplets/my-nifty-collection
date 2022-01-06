@@ -1,5 +1,5 @@
 import React from 'react';
-import { Feed, Ref, Checkbox } from 'semantic-ui-react';
+import { Feed, Checkbox } from 'semantic-ui-react';
 
 export interface INft {
   name: string
@@ -7,19 +7,17 @@ export interface INft {
   image: { LIGHT: string, DARK: string }
   link: string
   issued_at: string
-  program: string
-  cohort: string
+  program?: string
+  cohort?: string
   owner: string
   id: string
   isAvatar: boolean
   isAvatarBadge: boolean
+  source: string;
 }
 
 interface INftProps {
   nft: INft
-  i: number
-  refs: any
-  index?: number
   current: boolean
   avatarNftId: string | null
   handleToggleAvatar: any
@@ -31,9 +29,6 @@ interface INftProps {
 export function Nft(props: INftProps) {
   const {
     nft,
-    i,
-    index,
-    refs,
     handleToggleAvatar,
     current,
     avatarNftId,
@@ -51,75 +46,64 @@ export function Nft(props: INftProps) {
     cohort,
     owner,
     id,
+    source,
   } = nft;
   return (
-    <Ref innerRef={refs[`nft_${i}`]}>
-      <Feed.Event
-        style={{
-          padding: '.6em 1em',
-          backgroundColor: `${i === index ? 'hsl(185deg 19% 43% / 10%)' : 'inherit'}`,
-        }}
-      >
-        <Feed.Label image={image[theme]} />
-        <Feed.Content>
-          <Feed.Summary>{name}</Feed.Summary>
-          <Feed.Summary style={{ fontWeight: 'normal' }}>
-            <b>Description: </b>
-            {description}
+    <Feed.Event style={{ padding: '.6em 1em' }} >
+      <Feed.Label image={image[theme]} />
+      <Feed.Content>
+        <Feed.Summary className='nft-title'>{name}</Feed.Summary>
+        <a href={link} target="_blank" rel="noreferrer" className={`nft-link ${source}-icon`} />
+        <Feed.Summary style={{ fontWeight: 'normal' }}>
+          <b>Description: </b>
+          {description}
+        </Feed.Summary>
+        {program && (<Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Issued at: </b>
+            {new Date(issued_at).toLocaleDateString()}
           </Feed.Summary>
-          <Feed.Summary style={{ fontWeight: 'normal' }}>
-            <b>Link: </b>
-            <a href={link} target="_blank" rel="noreferrer">
-              View NFT
-            </a>
+        )}
+        {program && (<Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Program: </b>
+            {program}
           </Feed.Summary>
-          {program && (<Feed.Summary style={{ fontWeight: 'normal' }}>
-              <b>Issued at: </b>
-              {new Date(issued_at).toLocaleDateString()}
-            </Feed.Summary>
-          )}
-          {program && (<Feed.Summary style={{ fontWeight: 'normal' }}>
-              <b>Program: </b>
-              {program}
-            </Feed.Summary>
-          )}
-          {cohort && (
+        )}
+        {cohort && (
+          <Feed.Summary style={{ fontWeight: 'normal' }}>
+            <b>Cohort: </b>
+            {cohort}
+          </Feed.Summary>
+        )}
+        <Feed.Summary style={{ fontWeight: 'normal' }}>
+          <b>Owner: </b>
+          {owner}
+        </Feed.Summary>
+        {current && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            position: 'relative',
+            marginTop: '1em',
+          }}>
             <Feed.Summary style={{ fontWeight: 'normal' }}>
-              <b>Cohort: </b>
-              {cohort}
+              <Checkbox
+                slider
+                label='Avatar'
+                checked={id === avatarNftId}
+                onChange={handleToggleAvatar(id, source)}
+              />
             </Feed.Summary>
-          )}
-          <Feed.Summary style={{ fontWeight: 'normal' }}>
-            <b>Owner: </b>
-            {owner}
-          </Feed.Summary>
-          {current && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-around',
-              position: 'relative',
-              marginTop: '1em',
-            }}>
-              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                <Checkbox
-                  slider
-                  label='Avatar'
-                  checked={id === avatarNftId}
-                  onChange={handleToggleAvatar(id)}
-                />
-              </Feed.Summary>
-              <Feed.Summary style={{ fontWeight: 'normal' }}>
-                <Checkbox
-                  slider
-                  label='Badge'
-                  checked={id === avatarNftBadgeId}
-                  onChange={handleToggleAvatarBadge(id)}
-                />
-              </Feed.Summary>
-            </div>
-          )}
-        </Feed.Content>
-      </Feed.Event>
-    </Ref>
+            <Feed.Summary style={{ fontWeight: 'normal' }}>
+              <Checkbox
+                slider
+                label='Badge'
+                checked={id === avatarNftBadgeId}
+                onChange={handleToggleAvatarBadge(id, source)}
+              />
+            </Feed.Summary>
+          </div>
+        )}
+      </Feed.Content>
+    </Feed.Event>
   );
 }

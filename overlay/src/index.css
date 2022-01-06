@@ -27,7 +27,7 @@ body {
 }
 
 .ui.feed > .event > .label {
-  margin-top: 0.5em;
+  margin-top: 0.6em;
 }
 
 .ui.feed > .event > .content > .summary {
@@ -36,6 +36,10 @@ body {
 
 .ui.feed > .event > .label img {
   border-radius: unset !important;
+}
+
+.ui.menu .item>i.icon {
+  margin: 0 !important;
 }
 
 .ui.menu .right.item::before,
@@ -105,10 +109,17 @@ body {
 .dpp-dark .content,
 .dpp-dark .ui.feed,
 .dpp-dark .ui.feed > .event,
-.dpp-dark .ui.feed>.event>.content .summary,
-.dpp-dark .ui.feed>.event>.content .summary > .ui.slider.checkbox > label {
+.dpp-dark .ui.feed>.event>.content .summary.nft-title,
+.dpp-dark .ui.feed>.event>.content .summary>b,
+.dpp-dark .ui.feed>.event>.content .summary > .ui.slider.checkbox > input:checked~label,
+.dpp-dark .ui.dimmer {
   color: #fff !important;
   background: #15202B !important;
+}
+
+.dpp-dark .ui.feed>.event>.content .summary,
+.dpp-dark .ui.feed>.event>.content .summary > .ui.slider.checkbox > label {
+  color: #bbcedc !important;
 }
 
 .dpp-dark .ui.menu .ui.dropdown .menu>.item:hover {
@@ -123,4 +134,54 @@ body {
 .dpp-dark .ui.slider.checkbox input:checked~.box:before,
 .dpp-dark .ui.slider.checkbox input:checked~label:before {
   background-color: rgb(255 255 255 / 80%) !important;
+}
+
+.dpp-dark .ui.slider.checkbox label:after {
+  background-color: #8da1b1 !important;
+}
+.dpp-dark .ui.slider.checkbox input:checked~label:after {
+  background-color: #ffffff !important;
+}
+
+.dpp-dark .ui.icon.input > input {
+  border: 1px solid rgb(242 244 246 / 80%) !important;
+}
+
+.button-more {
+  border-radius: 99em !important;
+  background-color: rgb(29, 155, 240) !important;
+  margin: 20px !important;
+}
+
+.button-more:hover {
+  background-color: rgb(26, 140, 216) !important;
+}
+
+.nft-title {
+  width: fit-content !important;
+  display: inline-block !important;
+}
+
+.nft-link {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  position: relative;
+  left: 8px;
+  top: 5px;
+  border: none;
+  border-radius: 99em;
+  cursor: pointer;
+}
+
+.nft-link.paras-icon {
+  background: 0 0 / 20px 20px no-repeat url("./images/paras_icon_20x20.png");
+}
+
+.nft-link.mintbase-icon {
+  background: 0 0 / 20px 20px no-repeat url("./images/mintbase_icon_20x20.jpg");
+}
+
+.nft-link.ncd-icon {
+  background: 0 0 / 20px 20px no-repeat url("./images/ncd_icon_20x20.jpg");
 }

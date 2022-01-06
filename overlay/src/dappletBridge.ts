@@ -57,8 +57,13 @@ class Bridge extends GeneralBridge {
     return this.call('getNftId', { twitterAcc }, 'getNftId_done', 'getNftId_undone');
   }
 
-  async setNftId(twitterAcc: string, id: string): Promise<void> {
-    return this.call('setNftId', { twitterAcc, id }, 'setNftId_done', 'setNftId_undone');
+  async setNftId(twitterAcc: string, id: string, source: string): Promise<void> {
+    return this.call(
+      'setNftId',
+      { twitterAcc, id, source },
+      'setNftId_done',
+      'setNftId_undone',
+    );
   }
 
   async removeNftId(twitterAcc: string): Promise<void> {
@@ -69,13 +74,46 @@ class Bridge extends GeneralBridge {
     return this.call('getNftBadgeId', { twitterAcc }, 'getNftBadgeId_done', 'getNftBadgeId_undone');
   }
 
-  async setNftBadgeId(twitterAcc: string, id: string): Promise<void> {
-    return this.call('setNftBadgeId', { twitterAcc, id }, 'setNftBadgeId_done', 'setNftBadgeId_undone');
+  async setNftBadgeId(twitterAcc: string, id: string, source: string): Promise<void> {
+    return this.call(
+      'setNftBadgeId',
+      { twitterAcc, id, source },
+      'setNftBadgeId_done',
+      'setNftBadgeId_undone',
+    );
   }
 
   async removeNftBadgeId(twitterAcc: string): Promise<void> {
     return this.call('removeNftBadgeId', { twitterAcc }, 'removeNftBadgeId_done', 'removeNftBadgeId_undone');
   }
+
+  async getParasNFTs(user: string, page: number): Promise<any> {
+    return this.call(
+      'getParasNFTs',
+      { user, page },
+      'getParasNFTs_done',
+      'getParasNFTs_undone'
+    );
+  }
+
+  async getNCDCertificates(user: string): Promise<any> {
+    return this.call(
+      'getNCDCertificates',
+      { user },
+      'getNCDCertificates_done',
+      'getNCDCertificates_undone'
+    );
+  }
+
+  async getMintbaseNFTs(user: string, page: number): Promise<any> {
+    return this.call(
+      'getMintbaseNFTs',
+      { user, page },
+      'getMintbaseNFTs_done',
+      'getMintbaseNFTs_undone'
+    );
+  }
+
 
   public async call(method: string, args: any, callbackEventDone: string, callbackEventUndone: string): Promise<any> {
     return new Promise((res, rej) => {
