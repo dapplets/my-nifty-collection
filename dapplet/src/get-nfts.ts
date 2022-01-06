@@ -173,24 +173,36 @@ const fetchNftsByNearAcc_Paras = async (
   const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
   const tokens = subArraysTokens.flat();
 
-  return tokens.map((x) => {
-    const n = Number(x.metadata.issued_at);
-    const date = x.metadata.issued_at !== null ? new Date(x.metadata.issued_at.length > 13 ? n / 1_000_000 : n) : null;
-    return{
-      name: x.metadata.title,
-      description: x.metadata.description,
-      image: {
-        LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
-        DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
-      },
-      issued_at: date === null ? '' : date.toISOString(),
-      link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
-      cohort: '',
-      owner: x.owner_id,
-      program: '',
-      id: x._id,
-    };
-  });
+  const isNumeric = (x) => !isNaN(x);
+
+  const dtos: INftMetadata[] = [];
+
+  for (const x of tokens) {
+    try {
+      const issued_at = x.metadata.issued_at;
+      const n = Number(issued_at);
+      const date = issued_at !== null ? ((isNumeric(issued_at)) ? new Date(issued_at.length > 13 ? n / 1_000_000 : n) : new Date(issued_at)) : null;
+      
+      dtos.push({
+        name: x.metadata.title,
+        description: x.metadata.description,
+        image: {
+          LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
+          DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
+        },
+        issued_at: date === null ? '' : date.toISOString(),
+        link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
+        cohort: '',
+        owner: x.owner_id,
+        program: '',
+        id: x._id,
+      });
+    } catch (err) {
+      console.error('Cannot parse metadata of the NFT', err);
+    }
+  }
+
+  return dtos;
 }
 
 const fetchNftsByNearAcc = async (
