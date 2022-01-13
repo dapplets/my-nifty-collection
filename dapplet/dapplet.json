@@ -6,7 +6,7 @@
   "title": "My Nifty Collection",
   "description": { "$ref": "package.json#/description" },
   "main": { "$ref": "package.json#/main" },
-  "icon": "src/icons/icon64.png",
+  "icon": "src/icons/myNifty_Logo_3_70x70.png",
   "contextIds": ["twitter-adapter.dapplet-base.eth"],
   "config": {
     "schema": "config/schema.json",
