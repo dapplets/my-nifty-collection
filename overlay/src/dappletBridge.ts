@@ -87,15 +87,6 @@ class Bridge extends GeneralBridge {
     return this.call('removeNftBadgeId', { twitterAcc }, 'removeNftBadgeId_done', 'removeNftBadgeId_undone');
   }
 
-  async getParasNFTs(user: string, page: number): Promise<any> {
-    return this.call(
-      'getParasNFTs',
-      { user, page },
-      'getParasNFTs_done',
-      'getParasNFTs_undone'
-    );
-  }
-
   async getNCDCertificates(user: string): Promise<any> {
     return this.call(
       'getNCDCertificates',
@@ -105,10 +96,19 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  async getMintbaseNFTs(user: string, page: number): Promise<any> {
+  async getParasNFTs(user: string, page: number, limit: number): Promise<any> {
+    return this.call(
+      'getParasNFTs',
+      { user, page, limit },
+      'getParasNFTs_done',
+      'getParasNFTs_undone'
+    );
+  }
+
+  async getMintbaseNFTs(user: string, page: number, limit: number): Promise<any> {
     return this.call(
       'getMintbaseNFTs',
-      { user, page },
+      { user, page, limit },
       'getMintbaseNFTs_done',
       'getMintbaseNFTs_undone'
     );

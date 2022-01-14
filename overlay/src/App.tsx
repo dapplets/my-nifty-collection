@@ -29,6 +29,8 @@ interface State {
   badgeNft?: INft
   parasPage: number
   mintbasePage: number
+  hasMoreOnParas: boolean
+  hasMoreOnMintbase: boolean
 }
 
 const defaultState: State = {
@@ -46,7 +48,11 @@ const defaultState: State = {
   theme: 'LIGHT',
   parasPage: 1,
   mintbasePage: 1,
+  hasMoreOnParas: false,
+  hasMoreOnMintbase: false,
 };
+
+const limit = 7; // may customize
 
 export default class App extends React.Component<Props, State> {
   refs: any;
@@ -165,21 +171,25 @@ export default class App extends React.Component<Props, State> {
   addParasNfts = async (e: any) => {
     e.preventDefault();
     const nextPage = this.state.parasPage + 1;
-    const newNfts = await bridge.getParasNFTs(this.state.user, nextPage);
-    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id)
+    const newNfts: INft[] = await bridge.getParasNFTs(this.state.user, nextPage, limit);
+    const hasMoreOnParas = !!newNfts && newNfts.length === limit + 1;
+    if (hasMoreOnParas) newNfts.pop();
+    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id);
     this.state.parasNfts
-      ? this.setState({ parasNfts: [...this.state.parasNfts, ...filteredNewNfts], parasPage: nextPage })
-      : this.setState({ parasNfts: filteredNewNfts, parasPage: nextPage });
+      ? this.setState({ parasNfts: [...this.state.parasNfts, ...filteredNewNfts], parasPage: nextPage, hasMoreOnParas })
+      : this.setState({ parasNfts: filteredNewNfts, parasPage: nextPage, hasMoreOnParas });
   };
 
   addMintbaseNfts = async (e: any) => {
     e.preventDefault();
     const nextPage = this.state.mintbasePage + 1;
-    const newNfts = await bridge.getMintbaseNFTs(this.state.user, nextPage);
-    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id)
+    const newNfts: INft[] = await bridge.getMintbaseNFTs(this.state.user, nextPage, limit);
+    const hasMoreOnMintbase = !!newNfts && newNfts.length === limit + 1;
+    if (hasMoreOnMintbase) newNfts.pop();
+    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id);
     this.state.mintbaseNfts
-      ? this.setState({ mintbaseNfts: [...this.state.mintbaseNfts, ...filteredNewNfts], mintbasePage: nextPage })
-      : this.setState({ mintbaseNfts: filteredNewNfts, mintbasePage: nextPage });
+      ? this.setState({ mintbaseNfts: [...this.state.mintbaseNfts, ...filteredNewNfts], mintbasePage: nextPage, hasMoreOnMintbase })
+      : this.setState({ mintbaseNfts: filteredNewNfts, mintbasePage: nextPage, hasMoreOnMintbase });
   };
 
   componentDidMount() {
@@ -194,13 +204,17 @@ export default class App extends React.Component<Props, State> {
           this.setState({ currentNearAccount });
           this.tryIsLinked();
         }
-        const parasNfts = await bridge.getParasNFTs(data.user, 1);
-        const filteredParasNfts = parasNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
-
-        const nCDCertificates = await bridge.getNCDCertificates(data.user);
+        const nCDCertificates: INft[] | undefined = await bridge.getNCDCertificates(data.user);
         const filteredNCDCertificates = nCDCertificates?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
 
-        const mintbaseNfts = await bridge.getMintbaseNFTs(data.user, 1);
+        const parasNfts: INft[] | undefined = await bridge.getParasNFTs(data.user, 1, limit);
+        const hasMoreOnParas = !!parasNfts && parasNfts.length === limit + 1;
+        if (hasMoreOnParas) parasNfts.pop();
+        const filteredParasNfts = parasNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
+
+        const mintbaseNfts: INft[] | undefined = await bridge.getMintbaseNFTs(data.user, 1, limit);
+        const hasMoreOnMintbase = !!mintbaseNfts && mintbaseNfts.length === limit + 1;
+        if (hasMoreOnMintbase) mintbaseNfts.pop();
         const filteredMintbaseNfts = mintbaseNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
 
         this.setState({
@@ -208,6 +222,8 @@ export default class App extends React.Component<Props, State> {
           nCDCertificates: filteredNCDCertificates,
           mintbaseNfts: filteredMintbaseNfts,
           isDataLoading: false,
+          hasMoreOnParas,
+          hasMoreOnMintbase,
         });
       });
     });
@@ -262,6 +278,7 @@ export default class App extends React.Component<Props, State> {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Button
             primary
+            disabled={title === 'Paras' ? !this.state.hasMoreOnParas : !this.state.hasMoreOnMintbase}
             className='button-more'
             onClick={addMethod}
             content={`More from ${title}`}

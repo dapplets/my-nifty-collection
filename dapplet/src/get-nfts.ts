@@ -164,14 +164,13 @@ const fetchNfts_NCD = async (authorUsername: string, nftId?: string): Promise<IN
 
 export const fetchNftsByNearAcc_NCD = (authorUsername: string): Promise<INftMetadata[] | undefined | INftMetadata | null> => fetchNfts_NCD(authorUsername);
 
-export const fetchNftsByNearAcc_Paras = async (authorUsername: string, page = 1): Promise<INftMetadata[] | undefined> => {
+export const fetchNftsByNearAcc_Paras = async (authorUsername: string, page = 1, limit: number): Promise<INftMetadata[] | undefined> => {
   const nearAccounts = await getNearAccByTwitterAcc(authorUsername);
   if (nearAccounts === undefined) return;
   const mainnetAccounts = nearAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
-  const limit = 7; // may customize
 
   const fetchTokens = async (account: string): Promise<PResult[]> => {
-    const resp = await fetch(`https://api-v2-mainnet.paras.id/token?owner_id=${account}&__limit=${limit}&__skip=${(page - 1) * limit}`);
+    const resp = await fetch(`https://api-v2-mainnet.paras.id/token?owner_id=${account}&__limit=${limit + 1}&__skip=${(page - 1) * limit}`);
     const result: ParasResult = await resp.json();
     return result.data.results;
   }
@@ -182,11 +181,10 @@ export const fetchNftsByNearAcc_Paras = async (authorUsername: string, page = 1)
   return tokens.map(makeNftMetadata_Paras);
 };
 
-export const fetchNftsByNearAcc_Mintbase = async (authorUsername: string, page = 1): Promise<INftMetadata[] | undefined> => {
+export const fetchNftsByNearAcc_Mintbase = async (authorUsername: string, page = 1, limit: number): Promise<INftMetadata[] | undefined> => {
   const nearAccounts = await getNearAccByTwitterAcc(authorUsername);
   if (nearAccounts === undefined) return;
   const mainnetAccounts = nearAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
-  const limit = 7; // may customize
 
   const fetchTokens = async (account: string): Promise<any> => {
     const resp = await fetch("https://mintbase-mainnet.hasura.app/v1/graphql", {
@@ -195,7 +193,7 @@ export const fetchNftsByNearAcc_Mintbase = async (authorUsername: string, page =
         \"variables\": {
           \"account\": \"${account}\",
           \"lastDate\": \"now()\",
-          \"limit\": ${limit},
+          \"limit\": ${limit + 1},
           \"offset\": ${(page - 1) * limit}
         },
         \"query\": \"query GET_USER_OWNED_TOKENS($account: String!, $lastDate: timestamptz!, $limit: Int!, $offset: Int!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: $limit, offset: $offset) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      metadata {\\n        title\\n        description\\n        media\\n        media_hash\\n        animation_hash\\n        animation_url\\n        youtube_url\\n        document\\n        document_hash\\n        extra\\n        external_url\\n        category\\n        type\\n        visibility\\n        media_type\\n        animation_type\\n        tags\\n        media_size\\n        animation_size\\n        __typename\\n      }\\n      store {\\n        id\\n        is_external_contract\\n        __typename\\n      }\\n      __typename\\n    }\\n    royaltys {\\n      percent\\n      account\\n      __typename\\n    }\\n    splits {\\n      percent\\n      account\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"

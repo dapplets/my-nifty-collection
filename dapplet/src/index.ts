@@ -110,16 +110,16 @@ export default class TwitterFeature {
             .catch((err: any) => this._overlay.send('removeNftBadgeId_undone', err)),
 
         // NFTS
-        getParasNFTs: (op: any, { type, message }: any) =>
-          fetchNftsByNearAcc_Paras(message.user, message.page)
-            .then((nfts: INftMetadata[]) => this._overlay.send('getParasNFTs_done', nfts))
-            .catch((err: any) => this._overlay.send('getParasNFTs_undone', err)),
-        getNCDCertificates: (op: any, { type, message }: any) =>
+        getNCDCertificates: (op: any, { type, message }: { type: any, message: { user: string } }) =>
           fetchNftsByNearAcc_NCD(message.user)
             .then((nfts: INftMetadata[]) => this._overlay.send('getNCDCertificates_done', nfts))
             .catch((err: any) => this._overlay.send('getNCDCertificates_undone', err)),
-        getMintbaseNFTs: (op: any, { type, message }: any) =>
-          fetchNftsByNearAcc_Mintbase(message.user, message.page)
+        getParasNFTs: (op: any, { type, message }: { type: any, message: { user: string, page: number, limit: number } }) =>
+          fetchNftsByNearAcc_Paras(message.user, message.page, message.limit)
+            .then((nfts: INftMetadata[]) => this._overlay.send('getParasNFTs_done', nfts))
+            .catch((err: any) => this._overlay.send('getParasNFTs_undone', err)),
+        getMintbaseNFTs: (op: any, { type, message }: { type: any, message: { user: string, page: number, limit: number } }) =>
+          fetchNftsByNearAcc_Mintbase(message.user, message.page, message.limit)
             .then((nfts: INftMetadata[]) => this._overlay.send('getMintbaseNFTs_done', nfts))
             .catch((err: any) => this._overlay.send('getMintbaseNFTs_undone', err)),
 
