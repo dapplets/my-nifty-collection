@@ -1,5 +1,7 @@
 import React from 'react';
-import { Button, Header, Dimmer, Divider, Loader, Input, Card, Feed } from 'semantic-ui-react';
+import { Button, Card, Dimmer, Divider, Feed, Header, Icon, Input, Loader } from 'semantic-ui-react';
+import { CSSTransition, Transition, TransitionGroup } from 'react-transition-group';
+import cn from 'classnames';
 import { bridge } from './dappletBridge';
 import { INft } from './Nft';
 import NftContainer from './NftContainer';
@@ -31,6 +33,8 @@ interface State {
   mintbasePage: number
   hasMoreOnParas: boolean
   hasMoreOnMintbase: boolean
+  prevUser: string[]
+  inProp: boolean
 }
 
 const defaultState: State = {
@@ -50,27 +54,18 @@ const defaultState: State = {
   mintbasePage: 1,
   hasMoreOnParas: false,
   hasMoreOnMintbase: false,
+  prevUser: [],
+  inProp: true,
 };
 
 const limit = 7; // may customize
 
 export default class App extends React.Component<Props, State> {
-  refs: any;
 
   constructor(props: Props) {
     super(props);
     this.state = { ...defaultState };
   }
-
-  tryIsLinked = async () => {
-    const { user, currentNearAccount } = this.state;
-    try {
-      const currentExternalAccounts = await bridge.getExternalAccounts(currentNearAccount);
-      this.setState({ isLinked: currentExternalAccounts.includes(user) });
-    } catch (err) {
-      console.log('The error in getExternalAccounts(): ', err);
-    }
-  };
 
   handleConnect = async (e: any) => {
     e.preventDefault();
@@ -81,7 +76,13 @@ export default class App extends React.Component<Props, State> {
     } catch (err) {
       console.log('The error in connectWallet(): ', err);
     }
-    this.tryIsLinked();
+    const { user, currentNearAccount } = this.state;
+    try {
+      const currentExternalAccounts = await bridge.getExternalAccounts(currentNearAccount);
+      this.setState({ isLinked: currentExternalAccounts.includes(user) });
+    } catch (err) {
+      console.log('The error in getExternalAccounts(): ', err);
+    }
   };
 
   handleLink = async (e: any) => {
@@ -118,7 +119,7 @@ export default class App extends React.Component<Props, State> {
     }
   }
 
-  handleToggleAvatar = (nftId: string, source: string) => async (e: any) => {
+  handleToggleAvatar = (nftId: string, source: string, contract: string) => async (e: any) => {
     e.preventDefault();
     if (this.state.avatarNftId === nftId) {
       try {
@@ -128,13 +129,13 @@ export default class App extends React.Component<Props, State> {
       }
     } else if (this.state.avatarNftId === null) {
       try {
-        await bridge.setNftId(this.state.user, nftId, source);
+        await bridge.setNftId(this.state.user, nftId, source, contract);
       } catch (err) {
         console.log('The error in setNftId(): ', err);
       }
     } else {
       try {
-        await bridge.setNftId(this.state.user, nftId, source);
+        await bridge.setNftId(this.state.user, nftId, source, contract);
         this.setState({ avatarNftId: null });
       } catch (err) {
         console.log('The error in setNftId(): ', err);
@@ -143,7 +144,7 @@ export default class App extends React.Component<Props, State> {
     bridge.afterAvatarChanging();
   };
 
-  handleToggleAvatarBadge = (nftBadgeId: string, source: string) => async (e: any) => {
+  handleToggleAvatarBadge = (nftBadgeId: string, source: string, contract: string) => async (e: any) => {
     e.preventDefault();
     if (this.state.avatarNftBadgeId === nftBadgeId) {
       try {
@@ -153,13 +154,13 @@ export default class App extends React.Component<Props, State> {
       }
     } else if (this.state.avatarNftBadgeId === null) {
       try {
-        await bridge.setNftBadgeId(this.state.user, nftBadgeId, source);
+        await bridge.setNftBadgeId(this.state.user, nftBadgeId, source, contract);
       } catch (err) {
         console.log('The error in setNftBadgeId(): ', err);
       }
     } else {
       try {
-        await bridge.setNftBadgeId(this.state.user, nftBadgeId, source);
+        await bridge.setNftBadgeId(this.state.user, nftBadgeId, source, contract);
         this.setState({ avatarNftBadgeId: null });
       } catch (err) {
         console.log('The error in setNftBadgeId(): ', err);
@@ -194,37 +195,45 @@ export default class App extends React.Component<Props, State> {
 
   componentDidMount() {
     bridge.onData(async (data) => {
-      this.setState({ ...data }, async () => {
-        const { avatarNft, badgeNft } = data;
-        this.setState({ avatarNftId: avatarNft?.id, avatarNftBadgeId: badgeNft?.id });
-        const isConnected = await bridge.isWalletConnected();
-        this.setState({ isConnected });
-        if (isConnected) {
-          const currentNearAccount = await bridge.getCurrentNearAccount();
-          this.setState({ currentNearAccount });
-          this.tryIsLinked();
+      const { avatarNft, badgeNft } = data;
+      const isConnected = await bridge.isWalletConnected();
+      let currentNearAccount: string = '';
+      let isLinked: boolean = false;
+      if (isConnected) {
+        currentNearAccount = await bridge.getCurrentNearAccount();
+        const { user } = this.state;
+        try {
+          const currentExternalAccounts = await bridge.getExternalAccounts(currentNearAccount);
+          isLinked = currentExternalAccounts.includes(user);
+        } catch (err) {
+          console.log('The error in getExternalAccounts(): ', err);
         }
-        const nCDCertificates: INft[] | undefined = await bridge.getNCDCertificates(data.user);
-        const filteredNCDCertificates = nCDCertificates?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
+      }
+      const nCDCertificates: INft[] | undefined = await bridge.getNCDCertificates(data.user);
+      const filteredNCDCertificates = nCDCertificates?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
 
-        const parasNfts: INft[] | undefined = await bridge.getParasNFTs(data.user, 1, limit);
-        const hasMoreOnParas = !!parasNfts && parasNfts.length === limit + 1;
-        if (hasMoreOnParas) parasNfts.pop();
-        const filteredParasNfts = parasNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
+      const parasNfts: INft[] | undefined = await bridge.getParasNFTs(data.user, 1, limit);
+      const hasMoreOnParas = !!parasNfts && parasNfts.length === limit + 1;
+      if (hasMoreOnParas) parasNfts.pop();
+      const filteredParasNfts = parasNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
 
-        const mintbaseNfts: INft[] | undefined = await bridge.getMintbaseNFTs(data.user, 1, limit);
-        const hasMoreOnMintbase = !!mintbaseNfts && mintbaseNfts.length === limit + 1;
-        if (hasMoreOnMintbase) mintbaseNfts.pop();
-        const filteredMintbaseNfts = mintbaseNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
+      const mintbaseNfts: INft[] | undefined = await bridge.getMintbaseNFTs(data.user, 1, limit);
+      const hasMoreOnMintbase = !!mintbaseNfts && mintbaseNfts.length === limit + 1;
+      if (hasMoreOnMintbase) mintbaseNfts.pop();
+      const filteredMintbaseNfts = mintbaseNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
 
-        this.setState({
-          parasNfts: filteredParasNfts,
-          nCDCertificates: filteredNCDCertificates,
-          mintbaseNfts: filteredMintbaseNfts,
-          isDataLoading: false,
-          hasMoreOnParas,
-          hasMoreOnMintbase,
-        });
+      this.setState({
+        ...data,
+        avatarNftId: avatarNft?.id,
+        avatarNftBadgeId: badgeNft?.id,
+        isConnected,
+        parasNfts: filteredParasNfts,
+        nCDCertificates: filteredNCDCertificates,
+        mintbaseNfts: filteredMintbaseNfts,
+        isDataLoading: false,
+        hasMoreOnParas,
+        hasMoreOnMintbase,
+        currentNearAccount,
       });
     });
   }
@@ -245,6 +254,8 @@ export default class App extends React.Component<Props, State> {
       linkStateChanged,
       isDataLoading,
       theme,
+      prevUser,
+      inProp,
     } = this.state;
 
     if (theme === 'DARK') document.body.style.background = '#15202B';
@@ -278,8 +289,7 @@ export default class App extends React.Component<Props, State> {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Button
             primary
-            disabled={title === 'Paras' ? !this.state.hasMoreOnParas : !this.state.hasMoreOnMintbase}
-            className='button-more'
+            className={cn('button-more', { none: title === 'Paras' ? !this.state.hasMoreOnParas : !this.state.hasMoreOnMintbase })}
             onClick={addMethod}
             content={`More from ${title}`}
           />
@@ -288,15 +298,63 @@ export default class App extends React.Component<Props, State> {
       <Divider />
     </>);
 
+    const duration = 200;
+    const defaultStyle = {
+      transition: `opacity ${duration}ms ease-in-out`,
+      opacity: '0 !important',
+    };
+    const transitionStyles = {
+      entering: { opacity: '1 !important' },
+      entered:  { opacity: '1 !important' },
+      exiting:  { opacity: '0 !important' },
+      exited:  { opacity: '0 !important' },
+    };
+
     return (
       <div className={theme === 'DARK' ? 'overlay-container dpp-dark' : 'overlay-container'}>
-        <Header as="h2" style={{ display: 'inline-block', marginTop: '20px' }}>
-          {current ? 'My' : user} Nifty Collection
-        </Header>
-
-        {
-          // ------- MENU -------
-          current && (
+        {/* ------- MENU ------- */}
+        <TransitionGroup className="todo-list">
+          <Transition
+            timeout={duration}
+            in={inProp}
+          >
+            {(state: 'entering' | 'entered' | 'exiting' | 'exited') => (
+              <Header as="h2" style={{ display: 'inline-block', marginTop: '20px', marginBottom: '14px', ...defaultStyle, ...transitionStyles[state] }}>
+                {current ? 'My' : user} Nifty Collection
+              </Header>
+            )}
+          </Transition>
+          {((current && prevUser.length !== 0) || (!current && prevUser.length === 0)) && (
+          <CSSTransition
+            key='title-button'
+            timeout={duration}
+            classNames="item"
+          ><button
+              className={!current ? 'title-button' : 'title-button prev'}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (current) {
+                  const lastUser = prevUser.pop();
+                  await bridge.showNfts(lastUser);
+                } else {
+                  await bridge.showNfts();
+                  prevUser.push(user);
+                }
+                this.setState({ prevUser, isDataLoading: true, inProp: !inProp })
+              }}
+            >
+              <Icon
+                size='large'
+                inverted={theme === 'DARK'}
+                name={current ? 'arrow left' : 'home'}
+              />
+            </button>
+          </CSSTransition>)}
+          {current && !isDataLoading && (<CSSTransition
+            key='menu-button'
+            timeout={duration}
+            classNames="item"
+          >
             <DropdownMenu
               isConnected={isConnected}
               currentNearAccount={currentNearAccount}
@@ -307,9 +365,8 @@ export default class App extends React.Component<Props, State> {
               handleConnect={this.handleConnect}
               updateNearAccount={this.updateNearAccount}
             />
-          )
-        }
-
+          </CSSTransition>)}
+        </TransitionGroup>
         {
           // ------- SEARCH -------
           (parasNfts || nCDCertificates || mintbaseNfts) && (

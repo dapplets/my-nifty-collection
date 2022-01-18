@@ -42,6 +42,10 @@ body {
   margin: 0 !important;
 }
 
+.ui.menu .dropdown.item:hover {
+  background: none !important;
+}
+
 .ui.menu .right.item::before,
 .ui.menu .right.menu > .item::before {
   content: none !important;
@@ -58,7 +62,7 @@ body {
 }
 
 .ui.menu > .right.menu > .item > .menu > div:nth-child(1):hover {
-  background: none;
+  background: none !important;
 }
 
 .ui.menu > .right.menu > .item > .menu > div:nth-child(2) {
@@ -148,6 +152,7 @@ body {
 }
 
 .button-more {
+  display: block;
   border-radius: 99em !important;
   background-color: rgb(29, 155, 240) !important;
   margin: 20px !important;
@@ -157,9 +162,76 @@ body {
   background-color: rgb(26, 140, 216) !important;
 }
 
+.button-more.none {
+  display: none !important;
+}
+
 .nft-title {
   width: fit-content !important;
   display: inline-block !important;
+}
+
+.title-button {
+  float: right;
+  margin: 21px 6px 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  opacity: 1;
+  /* transition: all 1s ease 0s !important; */
+}
+
+/* .title-button.prev {
+  opacity: 1;
+  transform: rotate(0.5turn);
+} */
+
+.title-button.none {
+  display: none;
+}
+
+
+
+.item-enter {
+  opacity: 0;
+}
+.item-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+.item-exit {
+  opacity: 1;
+}
+.item-exit-active {
+  opacity: 0;
+  transition: opacity 500ms ease-in;
+}
+
+
+/* .fade-enter{
+  opacity: 0.2;
+}
+.fade-exit{
+  opacity: 1;
+}
+.fade-enter-active{
+  opacity: 1;
+}
+.fade-exit-active{
+  opacity: 0.2;
+}
+.fade-enter-active,
+.fade-exit-active{
+  transition: opacity 180ms;
+} */
+
+
+
+
+
+.title-button > i {
+  margin: 3px !important;
 }
 
 .nft-link {

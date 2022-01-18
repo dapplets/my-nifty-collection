@@ -11,7 +11,7 @@ const twitterAvaBadgeNfts = new PersistentUnorderedMap<string, string[]>('b');
 /**
  * Retrieves an ID of NFT for given Twitter Account ID
  * @param twitterAcc Twitter Account ID
- * @returns ID of NFT for Twitter avatar
+ * @returns ID of NFT for Twitter avatar, Marketplace and Smart Contract on which the NFT was minted
  */
 export function getNftId(twitterAcc: string): string[] | null {
   return twitterAvaNfts.get(twitterAcc);
@@ -20,7 +20,7 @@ export function getNftId(twitterAcc: string): string[] | null {
 /**
  * Retrieves an ID of NFT for given Twitter Account ID
  * @param twitterAcc Twitter Account ID
- * @returns ID of NFT for Twitter avatar
+ * @returns ID of NFT for Twitter avatar, Marketplace and Smart Contract on which the NFT was minted
  */
 export function getNftBadgeId(twitterAcc: string): string[] | null {
   return twitterAvaBadgeNfts.get(twitterAcc);
@@ -29,23 +29,29 @@ export function getNftBadgeId(twitterAcc: string): string[] | null {
 
 /**
  * Adds NFT ID for Twitter Account ID
+ * @param twitterAcc Twitter Account ID
  * @param id NFT ID
+ * @param source Marketplace
+ * @param contract Smart Contract on which the NFT was minted
  */
-export function setNftId(twitterAcc: string, id: string, source: string): void {
-  twitterAvaNfts.set(twitterAcc, [id, source]);
+export function setNftId(twitterAcc: string, id: string, source: string, contract: string): void {
+  twitterAvaNfts.set(twitterAcc, [id, source, contract]);
 }
 
 /**
  * Adds NFT ID for Twitter Account ID
+ * @param twitterAcc Twitter Account ID
  * @param id NFT ID
+ * @param source Marketplace
+ * @param contract Smart Contract on which the NFT was minted
  */
-export function setNftBadgeId(twitterAcc: string, id: string, source: string): void {
-  twitterAvaBadgeNfts.set(twitterAcc, [id, source]);
+export function setNftBadgeId(twitterAcc: string, id: string, source: string, contract: string): void {
+  twitterAvaBadgeNfts.set(twitterAcc, [id, source, contract]);
 }
 
 /**
  * Removes NFT ID for Twitter Account ID
- * @param id NFT ID
+ * @param twitterAcc Twitter Account ID
  */
 export function removeNftId(twitterAcc: string): void {
   twitterAvaNfts.delete(twitterAcc);
@@ -53,7 +59,7 @@ export function removeNftId(twitterAcc: string): void {
 
 /**
  * Removes NFT ID for Twitter Account ID
- * @param id NFT ID
+ * @param twitterAcc Twitter Account ID
  */
 export function removeNftBadgeId(twitterAcc: string): void {
   twitterAvaBadgeNfts.delete(twitterAcc);

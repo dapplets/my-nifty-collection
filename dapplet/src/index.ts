@@ -9,6 +9,7 @@ import {
   fetchNftsByNearAcc_Paras,
   fetchNftsByNearAcc_Mintbase,
 } from './get-nfts';
+import LOGO from './icons/myNifty_Logo_3_70x70.png';
 
 @Injectable
 export default class TwitterFeature {
@@ -81,9 +82,9 @@ export default class TwitterFeature {
             .then((x) => x.getNftId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('getNftId_done', x))
             .catch((err: any) => this._overlay.send('getNftId_undone', err)),
-        setNftId: (op: any, { type, message }: { type: any, message: { twitterAcc: string, id: string, source: string } }) =>
+        setNftId: (op: any, { type, message }: { type: any, message: { twitterAcc: string, id: string, source: string, contract: string  } }) =>
           contractState
-            .then((x) => x.setNftId({ twitterAcc: message.twitterAcc, id: message.id, source: message.source }))
+            .then((x) => x.setNftId({ twitterAcc: message.twitterAcc, id: message.id, source: message.source, contract: message.contract }))
             .then((x: any) => this._overlay.send('setNftId_done', x))
             .catch((err: any) => this._overlay.send('setNftId_undone', err)),
         removeNftId: (op: any, { type, message }: any) =>
@@ -98,9 +99,9 @@ export default class TwitterFeature {
             .then((x) => x.getNftBadgeId({ twitterAcc: message.twitterAcc }))
             .then((x: any) => this._overlay.send('getNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('getNftBadgeId_undone', err)),
-        setNftBadgeId: (op: any, { type, message }: { type: any, message: { twitterAcc: string, id: string, source: string } }) =>
+        setNftBadgeId: (op: any, { type, message }: { type: any, message: { twitterAcc: string, id: string, source: string, contract: string } }) =>
           contractState
-            .then((x) => x.setNftBadgeId({ twitterAcc: message.twitterAcc, id: message.id, source: message.source }))
+            .then((x) => x.setNftBadgeId({ twitterAcc: message.twitterAcc, id: message.id, source: message.source, contract: message.contract }))
             .then((x: any) => this._overlay.send('setNftBadgeId_done', x))
             .catch((err: any) => this._overlay.send('setNftBadgeId_undone', err)),
         removeNftBadgeId: (op: any, { type, message }: any) =>
@@ -122,6 +123,10 @@ export default class TwitterFeature {
           fetchNftsByNearAcc_Mintbase(message.user, message.page, message.limit)
             .then((nfts: INftMetadata[]) => this._overlay.send('getMintbaseNFTs_done', nfts))
             .catch((err: any) => this._overlay.send('getMintbaseNFTs_undone', err)),
+        showNfts: (op: any, { type, message }: { type: any, message: { prevUser?: string } }) =>
+          this.showNfts(message.prevUser)
+            .then(() => this._overlay.send('showNfts_done'))
+            .catch((err: any) => this._overlay.send('showNfts_undone', err)),
 
         // RELOAD - ToDo: delete this
         afterLinking: async () => {
@@ -157,28 +162,30 @@ export default class TwitterFeature {
 
       });
 
-    Core.onAction(async () => {
-      const user = this.adapter.getCurrentUser().username;
-      const avatarNft = await getAvatarNft(user);
-      const badgeNft = await getAvatarBadgeNft(user);
-      this.openOverlay({
-        user,
-        current: true,
-        avatarNft,
-        badgeNft,
-        index: -1,
-        theme: this._theme
-      });
-    });
+    Core.onAction(this.showNfts);
 
-    const addWidgets = () => async (ctx: { authorUsername: string; theme: 'DARK' | 'LIGHT' }) => {
+    const addWidgets = (insertTo: 'POST' | 'PROFILE') => async (ctx: { authorUsername: string; theme: 'DARK' | 'LIGHT' }) => {
       if (!ctx.authorUsername) return;
       this._theme = ctx.theme;
+
+      const contr = await contract;
+      const nearAccounts = await contr.getNearAccounts({ account: ctx.authorUsername });
 
       const avatarNft = await getAvatarNft(ctx.authorUsername);
       const badgeNft = await getAvatarBadgeNft(ctx.authorUsername);
 
       const widgets: any[] = [];
+
+      if (insertTo === 'PROFILE' && nearAccounts.length !== 0) {
+        const current = ctx.authorUsername === this.adapter.getCurrentUser().username;
+        const widget = this.adapter.exports.button({
+          DEFAULT: {
+            img: LOGO,
+            exec: () => this.showNfts(current ? undefined : ctx.authorUsername),
+          }
+        })
+        widgets.push(widget);
+      }
 
       if (avatarNft !== null) {
         const widget = this.adapter.exports.avatar({
@@ -220,10 +227,9 @@ export default class TwitterFeature {
     };
 
     this._setConfig = () => {
-      const w = addWidgets();
       this._config = {
-        POST: w,
-        PROFILE: w,
+        POST: addWidgets('POST'),
+        PROFILE: addWidgets('PROFILE'),
       };
       return this._config;
     };
@@ -232,5 +238,19 @@ export default class TwitterFeature {
 
   async openOverlay(props: IOverlayProps): Promise<void> {
     this._overlay.send('data', { ...props });
+  }
+
+  showNfts = async (prevUser?: string) => {
+    const user = prevUser || this.adapter.getCurrentUser().username;
+    const avatarNft = await getAvatarNft(user);
+    const badgeNft = await getAvatarBadgeNft(user);
+    this.openOverlay({
+      user,
+      current: !prevUser,
+      avatarNft,
+      badgeNft,
+      index: -1,
+      theme: this._theme
+    });
   }
 }

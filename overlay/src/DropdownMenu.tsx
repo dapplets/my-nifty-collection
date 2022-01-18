@@ -24,14 +24,14 @@ export default function DropdownMenu(props: IDropdownMenuProps) {
     updateNearAccount,
   } = props;
   return (
-    <div style={{ display: 'inline-block', float: 'right', marginTop: '10px' }}>
+    <div style={{ display: 'inline-block', float: 'right', marginTop: '15px' }}>
       <Menu style={{ border: 'none', boxShadow: 'none' }} onMouseOver={updateNearAccount}>
         <Menu.Menu position="right">
           <Dropdown
             item
             simple
             icon="ellipsis vertical"
-            style={{ fontSize: '1.2em' }}
+            style={{ fontSize: '1.2em', padding: '1px 5.1px' }}
             direction="right"
           >
             <Dropdown.Menu>

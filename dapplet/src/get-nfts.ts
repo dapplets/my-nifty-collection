@@ -5,7 +5,7 @@ export const contract = Core.contract('near', 'dev-1618391705030-8760988', {
   changeMethods: ['addExternalAccount', 'removeExternalAccount', 'clearAll'],
 });
 
-export const contractState = Core.contract('near', 'dev-1641816868648-11084182204053', {
+export const contractState = Core.contract('near', 'dev-1642431481837-36721367716677', {
   viewMethods: ['getNftId', 'getNftBadgeId'],
   changeMethods: ['setNftId', 'removeNftId', 'setNftBadgeId', 'removeNftBadgeId'],
 });
@@ -42,8 +42,12 @@ const makeNftMetadata_Paras = (x: PResult): INftMetadata => {
     name: x.metadata.title,
     description: x.metadata.description,
     image: {
-      LIGHT: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
-      DARK: `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`,
+      LIGHT: x.contract_id === 'x.paras.near'
+        ? `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`
+        : x.metadata.media,
+      DARK: x.contract_id === 'x.paras.near'
+        ? `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`
+        : x.metadata.media,
     },
     issued_at: date === null ? '' : date.toISOString(),
     link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
@@ -52,6 +56,7 @@ const makeNftMetadata_Paras = (x: PResult): INftMetadata => {
     program: '',
     id: x.token_id,
     source: 'paras',
+    contract: x.contract_id,
   };
 };
 
@@ -69,6 +74,7 @@ const makeNftMetadata_Mintbase = (thing: any, ownerId?: string): INftMetadata =>
   program: '',
   id: thing.id,
   source: 'mintbase',
+  contract: '',
 });
 
 const fetchNfts_NCD = async (authorUsername: string, nftId?: string): Promise<INftMetadata[] | INftMetadata | undefined | null> => {
@@ -132,6 +138,7 @@ const fetchNfts_NCD = async (authorUsername: string, nftId?: string): Promise<IN
         owner: parsedExtra?.owner,
         id: tokenMetadata.token_id,
         source: 'ncd',
+        contract: '',
       };
     } catch (e) {
       console.error('Cannot parse tokenMetadatas in method _fetchNftsByNearAcc.', e);
@@ -143,6 +150,7 @@ const fetchNfts_NCD = async (authorUsername: string, nftId?: string): Promise<IN
         issued_at,
         id: tokenMetadata.token_id,
         source: 'ncd',
+        contract: '',
       };
     }
   };
@@ -214,7 +222,7 @@ const getWidgetNft = (twitterAcc: string, nftId: string): Promise<INftMetadata |
     'ncd': fetchNfts_NCD(twitterAcc, nftId),
     'paras': async () => {
       try {
-        const res = await fetch(`https://api-v2-mainnet.paras.id/token?token_id=${nftId[0]}`);
+        const res = await fetch(`https://api-v2-mainnet.paras.id/token?contract_id=${nftId[2]}&token_id=${nftId[0]}`);
         const nftData = await res.json();
         const nft: PResult = nftData.data.results[0];
         return makeNftMetadata_Paras(nft);

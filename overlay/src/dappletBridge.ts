@@ -57,10 +57,10 @@ class Bridge extends GeneralBridge {
     return this.call('getNftId', { twitterAcc }, 'getNftId_done', 'getNftId_undone');
   }
 
-  async setNftId(twitterAcc: string, id: string, source: string): Promise<void> {
+  async setNftId(twitterAcc: string, id: string, source: string, contract: string): Promise<void> {
     return this.call(
       'setNftId',
-      { twitterAcc, id, source },
+      { twitterAcc, id, source, contract },
       'setNftId_done',
       'setNftId_undone',
     );
@@ -74,10 +74,10 @@ class Bridge extends GeneralBridge {
     return this.call('getNftBadgeId', { twitterAcc }, 'getNftBadgeId_done', 'getNftBadgeId_undone');
   }
 
-  async setNftBadgeId(twitterAcc: string, id: string, source: string): Promise<void> {
+  async setNftBadgeId(twitterAcc: string, id: string, source: string, contract: string): Promise<void> {
     return this.call(
       'setNftBadgeId',
-      { twitterAcc, id, source },
+      { twitterAcc, id, source, contract },
       'setNftBadgeId_done',
       'setNftBadgeId_undone',
     );
@@ -111,6 +111,15 @@ class Bridge extends GeneralBridge {
       { user, page, limit },
       'getMintbaseNFTs_done',
       'getMintbaseNFTs_undone'
+    );
+  }
+
+  async showNfts(prevUser?: string): Promise<void> {
+    return this.call(
+      'showNfts',
+      { prevUser },
+      'showNfts_done',
+      'showNfts_undone'
     );
   }
 

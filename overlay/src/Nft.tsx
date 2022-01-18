@@ -13,7 +13,8 @@ export interface INft {
   id: string
   isAvatar: boolean
   isAvatarBadge: boolean
-  source: string;
+  source: string
+  contract: string
 }
 
 interface INftProps {
@@ -47,6 +48,7 @@ export function Nft(props: INftProps) {
     owner,
     id,
     source,
+    contract,
   } = nft;
   return (
     <Feed.Event style={{ padding: '.6em 1em' }} >
@@ -90,7 +92,7 @@ export function Nft(props: INftProps) {
                 slider
                 label='Avatar'
                 checked={id === avatarNftId}
-                onChange={handleToggleAvatar(id, source)}
+                onChange={handleToggleAvatar(id, source, contract)}
               />
             </Feed.Summary>
             <Feed.Summary style={{ fontWeight: 'normal' }}>
@@ -98,7 +100,7 @@ export function Nft(props: INftProps) {
                 slider
                 label='Badge'
                 checked={id === avatarNftBadgeId}
-                onChange={handleToggleAvatarBadge(id, source)}
+                onChange={handleToggleAvatarBadge(id, source, contract)}
               />
             </Feed.Summary>
           </div>

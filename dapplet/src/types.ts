@@ -11,6 +11,7 @@ export interface INftMetadata {
   isAvatar?: boolean
   isAvatarBadge?: boolean
   source: 'ncd' | 'paras' | 'mintbase'
+  contract: string
 }
 
 export interface ITokenMetadata {
