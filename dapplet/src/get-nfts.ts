@@ -36,18 +36,21 @@ const makeNftMetadata_Paras = (x: PResult): INftMetadata => {
   const isNumeric = (a) => !isNaN(a);
   const issued_at = x.metadata.issued_at;
   const n = Number(issued_at);
-  const date = issued_at !== null ? ((isNumeric(issued_at)) ? new Date(issued_at.length > 13 ? n / 1_000_000 : n) : new Date(issued_at)) : null;
+  const date = issued_at !== null
+    ? isNumeric(issued_at)
+      ? new Date(issued_at.length > 13 ? n / 1_000_000 : n)
+      : new Date(issued_at)
+    : null;
+  const media = x.contract_id === 'x.paras.near'
+    ? `https://paras-cdn.imgix.net/${x.metadata.media}?w=600?`
+    : x.metadata.media;
   
   return {
     name: x.metadata.title,
     description: x.metadata.description,
     image: {
-      LIGHT: x.contract_id === 'x.paras.near'
-        ? `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`
-        : x.metadata.media,
-      DARK: x.contract_id === 'x.paras.near'
-        ? `https://ipfs.fleek.co/ipfs/${x.metadata.media.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')}`
-        : x.metadata.media,
+      LIGHT: media,
+      DARK: media,
     },
     issued_at: date === null ? '' : date.toISOString(),
     link: `https://paras.id/token/${x.contract_id}::${x.token_series_id}/${x.token_id}`,
@@ -156,7 +159,7 @@ const fetchNfts_NCD = async (authorUsername: string, nftId?: string): Promise<IN
   };
 
   if (nftId) {
-    const tokenMetadata = tokenMetadatas.find((metadata) => metadata.token_id === nftId[0]);
+    const tokenMetadata = tokenMetadatas.find((metadata) => metadata.token_id === nftId);
     if (!tokenMetadata) return null;
     return makeNftMetadata_NCD(tokenMetadata, image);
   } else {
@@ -217,9 +220,9 @@ export const fetchNftsByNearAcc_Mintbase = async (authorUsername: string, page =
   return tokens.map((x) => makeNftMetadata_Mintbase(x.thing, x.ownerId));
 }
 
-const getWidgetNft = (twitterAcc: string, nftId: string): Promise<INftMetadata | null> => {
+const getWidgetNft = (twitterAcc: string, nftId: string[]): Promise<INftMetadata | null> => {
   const getNftFromSource = {
-    'ncd': fetchNfts_NCD(twitterAcc, nftId),
+    'ncd': async () => fetchNfts_NCD(twitterAcc, nftId[0]),
     'paras': async () => {
       try {
         const res = await fetch(`https://api-v2-mainnet.paras.id/token?contract_id=${nftId[2]}&token_id=${nftId[0]}`);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Feed, Checkbox } from 'semantic-ui-react';
 
 export interface INft {
@@ -50,9 +50,23 @@ export function Nft(props: INftProps) {
     source,
     contract,
   } = nft;
+
+  const [mediaType, changeMediaType] = useState<string>('image/png');
+
+  useEffect(() => {
+    fetch(image[theme], { method: 'HEAD' }).then(resp => {
+      const type = resp.headers.get('Content-Type');
+      type && changeMediaType(type);
+    });
+  }, []);
+
   return (
     <Feed.Event style={{ padding: '.6em 1em' }} >
-      <Feed.Label image={image[theme]} />
+      <Feed.Label>
+        {mediaType === 'application/octet-stream'
+          ? <video src={image[theme]} autoPlay muted loop style={{ width: '100%' }} />
+          : <img src={image[theme]} />}
+      </Feed.Label>
       <Feed.Content>
         <Feed.Summary className='nft-title'>{name}</Feed.Summary>
         <a href={link} target="_blank" rel="noreferrer" className={`nft-link ${source}-icon`} />
@@ -89,7 +103,7 @@ export function Nft(props: INftProps) {
           }}>
             <Feed.Summary style={{ fontWeight: 'normal' }}>
               <Checkbox
-                slider
+                toggle
                 label='Avatar'
                 checked={id === avatarNftId}
                 onChange={handleToggleAvatar(id, source, contract)}
@@ -97,7 +111,7 @@ export function Nft(props: INftProps) {
             </Feed.Summary>
             <Feed.Summary style={{ fontWeight: 'normal' }}>
               <Checkbox
-                slider
+                toggle
                 label='Badge'
                 checked={id === avatarNftBadgeId}
                 onChange={handleToggleAvatarBadge(id, source, contract)}

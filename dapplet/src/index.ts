@@ -1,5 +1,5 @@
 import {} from '@dapplets/dapplet-extension';
-import { INftMetadata, IOverlayProps } from './types';
+import { INftMetadata, IOverlayProps, ICashedNft } from './types';
 import {
   contract,
   contractState,
@@ -20,6 +20,7 @@ export default class TwitterFeature {
   private _setConfig: any;
   private _config: any;
   private _theme: 'DARK' | 'LIGHT'
+  private _cachedNfts: { [name: string]: ICashedNft } = {};
 
   async activate(): Promise<void> {
     this._overlay = Core
@@ -145,8 +146,30 @@ export default class TwitterFeature {
           });
         },
         afterAvatarChanging: async () => {
-          this.adapter.resetConfig(this._config, this._setConfig());
           const user = this.adapter.getCurrentUser().username;
+          if (this._cachedNfts[user] === undefined) {
+            this._cachedNfts[user] = {};
+          }
+          this._cachedNfts[user].avatar = undefined;
+          this.adapter.resetConfig(this._config, this._setConfig());
+          const avatarNft = await getAvatarNft(user);
+          const badgeNft = await getAvatarBadgeNft(user);
+          this.openOverlay({
+            user,
+            current: user === this.adapter.getCurrentUser().username,
+            avatarNft,
+            badgeNft,
+            index: -1,
+            theme: this._theme,
+          });
+        },
+        afterAvatarBadgeChanging: async () => {
+          const user = this.adapter.getCurrentUser().username;
+          if (this._cachedNfts[user] === undefined) {
+            this._cachedNfts[user] = {};
+          }
+          this._cachedNfts[user].badge = undefined;
+          this.adapter.resetConfig(this._config, this._setConfig());
           const avatarNft = await getAvatarNft(user);
           const badgeNft = await getAvatarBadgeNft(user);
           this.openOverlay({
@@ -165,35 +188,52 @@ export default class TwitterFeature {
     Core.onAction(this.showNfts);
 
     const addWidgets = (insertTo: 'POST' | 'PROFILE') => async (ctx: { authorUsername: string; theme: 'DARK' | 'LIGHT' }) => {
-      if (!ctx.authorUsername) return;
+      const { authorUsername } = ctx;
+      if (!authorUsername) return;
       this._theme = ctx.theme;
 
       const contr = await contract;
-      const nearAccounts = await contr.getNearAccounts({ account: ctx.authorUsername });
-
-      const avatarNft = await getAvatarNft(ctx.authorUsername);
-      const badgeNft = await getAvatarBadgeNft(ctx.authorUsername);
+      const nearAccounts = await contr.getNearAccounts({ account: authorUsername });
 
       const widgets: any[] = [];
 
       if (insertTo === 'PROFILE' && nearAccounts.length !== 0) {
-        const current = ctx.authorUsername === this.adapter.getCurrentUser().username;
+        const current = authorUsername === this.adapter.getCurrentUser().username;
         const widget = this.adapter.exports.button({
           DEFAULT: {
             img: LOGO,
-            exec: () => this.showNfts(current ? undefined : ctx.authorUsername),
+            exec: () => this.showNfts(current ? undefined : authorUsername),
           }
         })
         widgets.push(widget);
       }
 
+      const avatarNft = await getAvatarNft(authorUsername);
+      const badgeNft = await getAvatarBadgeNft(authorUsername);
+
       if (avatarNft !== null) {
+        let mediaUrl: string | undefined;
+        let mediaType: string | null | undefined;
+        if (this._cachedNfts[authorUsername] === undefined) {
+          this._cachedNfts[authorUsername] = {};
+        }
+        if (this._cachedNfts[authorUsername].avatar === undefined) {
+          const resp = await fetch(avatarNft.image.LIGHT);
+          mediaType = resp.headers.get('Content-Type');
+          const mediaBlob = await resp.blob();
+          mediaUrl = URL.createObjectURL(mediaBlob);
+          this._cachedNfts[authorUsername].avatar = { mediaType, mediaUrl };
+        } else {
+          mediaType = this._cachedNfts[authorUsername].avatar?.mediaType;
+          mediaUrl = this._cachedNfts[authorUsername].avatar?.mediaUrl;
+        }
         const widget = this.adapter.exports.avatar({
           DEFAULT: {
-            img: avatarNft.image,
+            img: mediaType !== 'application/octet-stream' && mediaUrl,
+            video: mediaType === 'application/octet-stream' && mediaUrl,
             exec: () => this.openOverlay({
-              user: ctx.authorUsername,
-              current: ctx.authorUsername === this.adapter.getCurrentUser().username,
+              user: authorUsername,
+              current: authorUsername === this.adapter.getCurrentUser().username,
               index: 0,
               theme: ctx.theme,
               avatarNft,
@@ -205,14 +245,30 @@ export default class TwitterFeature {
       }
 
       if (badgeNft !== null) {
+        let mediaUrl: string | undefined;
+        let mediaType: string | null | undefined;
+        if (this._cachedNfts[authorUsername] === undefined) {
+          this._cachedNfts[authorUsername] = {};
+        }
+        if (this._cachedNfts[authorUsername].badge === undefined) {
+          const resp = await fetch(badgeNft.image.LIGHT);
+          mediaType = resp.headers.get('Content-Type');
+          const mediaBlob = await resp.blob();
+          mediaUrl = URL.createObjectURL(mediaBlob);
+          this._cachedNfts[authorUsername].badge = { mediaType, mediaUrl };
+        } else {
+          mediaType = this._cachedNfts[authorUsername].badge?.mediaType;
+          mediaUrl = this._cachedNfts[authorUsername].badge?.mediaUrl;
+        }
         const avatarBadge = this.adapter.exports.avatarBadge({
           DEFAULT: {
-            img: badgeNft.image,
+            img: mediaType !== 'application/octet-stream' && mediaUrl,
+            video: mediaType === 'application/octet-stream' && mediaUrl,
             vertical: 'top',
             horizontal: 'right',
             exec: () => this.openOverlay({
-              user: ctx.authorUsername,
-              current: ctx.authorUsername === this.adapter.getCurrentUser().username,
+              user: authorUsername,
+              current: authorUsername === this.adapter.getCurrentUser().username,
               index: 1,
               theme: ctx.theme,
               avatarNft,

@@ -166,7 +166,7 @@ export default class App extends React.Component<Props, State> {
         console.log('The error in setNftBadgeId(): ', err);
       }
     }
-    bridge.afterAvatarChanging();
+    bridge.afterAvatarBadgeChanging();
   };
 
   addParasNfts = async (e: any) => {
@@ -406,7 +406,7 @@ export default class App extends React.Component<Props, State> {
                   <Card.Content style={{ padding: '1em 0' }}>
                     <Feed>
                       {avatarNft && addNftsContainer([avatarNft])}
-                      {badgeNft && addNftsContainer([badgeNft])}
+                      {badgeNft && avatarNft?.link !== badgeNft.link && addNftsContainer([badgeNft])}
                       {(avatarNft || badgeNft) && <Divider />}
 
                       {/* NCD Certificates */

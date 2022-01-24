@@ -115,14 +115,18 @@ body {
 .dpp-dark .ui.feed > .event,
 .dpp-dark .ui.feed>.event>.content .summary.nft-title,
 .dpp-dark .ui.feed>.event>.content .summary>b,
-.dpp-dark .ui.feed>.event>.content .summary > .ui.slider.checkbox > input:checked~label,
+.dpp-dark .ui.feed>.event>.content .summary > .ui.toggle.checkbox > input:checked~label,
 .dpp-dark .ui.dimmer {
   color: #fff !important;
   background: #15202B !important;
 }
 
+.dpp-dark .ui.toggle.checkbox input:focus:checked~label:before {
+  background-color: #bbcedc !important;
+}
+
 .dpp-dark .ui.feed>.event>.content .summary,
-.dpp-dark .ui.feed>.event>.content .summary > .ui.slider.checkbox > label {
+.dpp-dark .ui.feed>.event>.content .summary > .ui.toggle.checkbox > label {
   color: #bbcedc !important;
 }
 
@@ -131,19 +135,19 @@ body {
   background: #1f2a35 !important;
 }
 
-.dpp-dark .ui.slider.checkbox .box:before,
-.dpp-dark .ui.slider.checkbox label:before {
+.dpp-dark .ui.toggle.checkbox .box:before,
+.dpp-dark .ui.toggle.checkbox label:before {
   background-color: rgb(255 255 255 / 30%) !important;
 }
-.dpp-dark .ui.slider.checkbox input:checked~.box:before,
-.dpp-dark .ui.slider.checkbox input:checked~label:before {
+.dpp-dark .ui.toggle.checkbox input:checked~.box:before,
+.dpp-dark .ui.toggle.checkbox input:checked~label:before {
   background-color: rgb(255 255 255 / 80%) !important;
 }
 
-.dpp-dark .ui.slider.checkbox label:after {
+.dpp-dark .ui.toggle.checkbox label:after {
   background-color: #8da1b1 !important;
 }
-.dpp-dark .ui.slider.checkbox input:checked~label:after {
+.dpp-dark .ui.toggle.checkbox input:checked~label:after {
   background-color: #ffffff !important;
 }
 

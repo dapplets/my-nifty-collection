@@ -1,3 +1,13 @@
+interface INftMedia {
+  mediaType: string | null
+  mediaUrl: string
+}
+
+export interface ICashedNft {
+  avatar?: INftMedia
+  badge?: INftMedia
+}
+
 export interface INftMetadata {
   name: string
   description: string
