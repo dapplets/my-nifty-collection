@@ -45,7 +45,7 @@ module.exports = {
     ],
     devServer: {
         contentBase: path.join(__dirname, "build"),
-        port: 3000,
+        port: 3007,
         https: true,
         hot: false,
         inline: false,

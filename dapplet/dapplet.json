@@ -16,6 +16,6 @@
     "twitter-adapter.dapplet-base.eth": "0.9.0"
   },
   "overlays": {
-    "my-nifty-collection-overlay": "https://localhost:3000"
+    "my-nifty-collection-overlay": "https://localhost:3007"
   }
 }

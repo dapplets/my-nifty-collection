@@ -1,11 +1,13 @@
 import React from 'react';
-import { Button, Card, Dimmer, Divider, Feed, Header, Icon, Input, Loader } from 'semantic-ui-react';
+import { Card, Dimmer, Feed, Header, Icon, Input, Loader, Menu, MenuItemProps } from 'semantic-ui-react';
 import { CSSTransition, Transition, TransitionGroup } from 'react-transition-group';
-import cn from 'classnames';
 import { bridge } from './dappletBridge';
 import { INft } from './Nft';
 import NftContainer from './NftContainer';
 import DropdownMenu from './DropdownMenu';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
+type Nums = 0 | 1 | 2 | 3;
 
 interface Props {}
 
@@ -35,6 +37,8 @@ interface State {
   hasMoreOnMintbase: boolean
   prevUser: string[]
   inProp: boolean
+  selectedSource?: string
+  nftsLoading: boolean
 }
 
 const defaultState: State = {
@@ -56,15 +60,23 @@ const defaultState: State = {
   hasMoreOnMintbase: false,
   prevUser: [],
   inProp: true,
+  selectedSource: '',
+  nftsLoading: false,
 };
 
-const limit = 7; // may customize
+const limit = 10; // customized
 
 export default class App extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
     this.state = { ...defaultState };
+  }
+
+  handleSourceSelect = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, data: MenuItemProps): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState({ selectedSource: data.name });
   }
 
   handleConnect = async (e: any) => {
@@ -93,7 +105,7 @@ export default class App extends React.Component<Props, State> {
     } catch (err) {
       console.log('The error in addExternalAccount(): ', err);
     }
-    await this.setState({ isConnected: true, linkStateChanged: true });
+    await this.setState({ isConnected: true, linkStateChanged: true, isDataLoading: true });
     bridge.afterLinking();
   };
 
@@ -105,7 +117,7 @@ export default class App extends React.Component<Props, State> {
     } catch (err) {
       console.log('The error in removeExternalAccount(): ', err);
     }
-    await this.setState({ isConnected: false, linkStateChanged: true });
+    await this.setState({ isConnected: false, linkStateChanged: true, isDataLoading: true });
     bridge.afterLinking();
   };
 
@@ -121,6 +133,7 @@ export default class App extends React.Component<Props, State> {
 
   handleToggleAvatar = (nftId: string, source: string, contract: string) => async (e: any) => {
     e.preventDefault();
+    e.stopPropagation();
     if (this.state.avatarNftId === nftId) {
       try {
         await bridge.removeNftId(this.state.user);
@@ -146,6 +159,7 @@ export default class App extends React.Component<Props, State> {
 
   handleToggleAvatarBadge = (nftBadgeId: string, source: string, contract: string) => async (e: any) => {
     e.preventDefault();
+    e.stopPropagation();
     if (this.state.avatarNftBadgeId === nftBadgeId) {
       try {
         await bridge.removeNftBadgeId(this.state.user);
@@ -169,29 +183,57 @@ export default class App extends React.Component<Props, State> {
     bridge.afterAvatarBadgeChanging();
   };
 
-  addParasNfts = async (e: any) => {
-    e.preventDefault();
-    const nextPage = this.state.parasPage + 1;
-    const newNfts: INft[] = await bridge.getParasNFTs(this.state.user, nextPage, limit);
-    const hasMoreOnParas = !!newNfts && newNfts.length === limit + 1;
-    if (hasMoreOnParas) newNfts.pop();
+  addNfts = async (source: 'Paras' | 'Mintbase') => {
+    const nextPage = this.state[source === 'Paras' ? 'parasPage' : 'mintbasePage'] + 1;
+    const newNfts: INft[] = await bridge[source === 'Paras' ? 'getParasNFTs' : 'getMintbaseNFTs'](this.state.user, nextPage, limit);
+    const hasMore = !!newNfts && newNfts.length === limit + 1;
+    if (hasMore) newNfts.pop();
     const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id);
-    this.state.parasNfts
-      ? this.setState({ parasNfts: [...this.state.parasNfts, ...filteredNewNfts], parasPage: nextPage, hasMoreOnParas })
-      : this.setState({ parasNfts: filteredNewNfts, parasPage: nextPage, hasMoreOnParas });
+    return { newNfts: filteredNewNfts, hasMore, nextPage };
   };
 
-  addMintbaseNfts = async (e: any) => {
-    e.preventDefault();
-    const nextPage = this.state.mintbasePage + 1;
-    const newNfts: INft[] = await bridge.getMintbaseNFTs(this.state.user, nextPage, limit);
-    const hasMoreOnMintbase = !!newNfts && newNfts.length === limit + 1;
-    if (hasMoreOnMintbase) newNfts.pop();
-    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.state.avatar?.id && nft.id !== this.state.badge?.id);
-    this.state.mintbaseNfts
-      ? this.setState({ mintbaseNfts: [...this.state.mintbaseNfts, ...filteredNewNfts], mintbasePage: nextPage, hasMoreOnMintbase })
-      : this.setState({ mintbaseNfts: filteredNewNfts, mintbasePage: nextPage, hasMoreOnMintbase });
+  addParasNfts = async () => {
+    this.setState({ nftsLoading: true });
+    const { newNfts, hasMore, nextPage } = await this.addNfts('Paras');
+    this.setState({
+        parasNfts: this.state.parasNfts ? [...this.state.parasNfts, ...newNfts]: newNfts,
+        parasPage: nextPage,
+        hasMoreOnParas: hasMore,
+        nftsLoading: false,
+    });
   };
+
+  addMintbaseNfts = async () => {
+    this.setState({ nftsLoading: true });
+    const { newNfts, hasMore, nextPage } = await this.addNfts('Paras');
+    this.setState({
+        mintbaseNfts: this.state.mintbaseNfts ? [...this.state.mintbaseNfts, ...newNfts]: newNfts,
+        mintbasePage: nextPage,
+        hasMoreOnMintbase: hasMore,
+        nftsLoading: false,
+    });
+  };
+
+  async componentDidUpdate() {
+    if (!this.state.nftsLoading && this.state.searchQuery !== '' && (this.state.hasMoreOnParas ||  this.state.hasMoreOnMintbase)) {
+        this.setState({ nftsLoading: true });
+        const a = this.state.hasMoreOnParas
+          ? await this.addNfts('Paras')
+          : { newNfts: this.state.parasNfts, hasMore: this.state.hasMoreOnParas, nextPage: this.state.parasPage };
+        const b = this.state.hasMoreOnMintbase
+          ? await this.addNfts('Mintbase')
+          : { newNfts: this.state.mintbaseNfts, hasMore: this.state.hasMoreOnMintbase, nextPage: this.state.mintbasePage };
+        this.setState({
+            parasNfts: this.state.hasMoreOnParas ? [...this.state.parasNfts!, ...a.newNfts!] : a.newNfts,
+            parasPage: a.nextPage,
+            hasMoreOnParas: a.hasMore,
+            mintbaseNfts: this.state.hasMoreOnMintbase ? [...this.state.mintbaseNfts!, ...b.newNfts!] : b.newNfts,
+            mintbasePage: b.nextPage,
+            hasMoreOnMintbase: b.hasMore,
+            nftsLoading: false,
+        });
+    }
+  }
 
   componentDidMount() {
     bridge.onData(async (data) => {
@@ -201,7 +243,7 @@ export default class App extends React.Component<Props, State> {
       let isLinked: boolean = false;
       if (isConnected) {
         currentNearAccount = await bridge.getCurrentNearAccount();
-        const { user } = this.state;
+        const { user } = data;
         try {
           const currentExternalAccounts = await bridge.getExternalAccounts(currentNearAccount);
           isLinked = currentExternalAccounts.includes(user);
@@ -222,6 +264,14 @@ export default class App extends React.Component<Props, State> {
       if (hasMoreOnMintbase) mintbaseNfts.pop();
       const filteredMintbaseNfts = mintbaseNfts?.filter((nft: any) => nft.id !== avatarNft?.id && nft.id !== badgeNft?.id);
 
+      const selectedSource = parasNfts?.length
+        ? 'Paras'
+        : mintbaseNfts?.length
+          ? 'Mintbase'
+          : nCDCertificates?.length
+            ? 'NCD'
+            : '';
+
       this.setState({
         ...data,
         avatarNftId: avatarNft?.id,
@@ -234,6 +284,8 @@ export default class App extends React.Component<Props, State> {
         hasMoreOnParas,
         hasMoreOnMintbase,
         currentNearAccount,
+        isLinked,
+        selectedSource,
       });
     });
   }
@@ -256,7 +308,16 @@ export default class App extends React.Component<Props, State> {
       theme,
       prevUser,
       inProp,
+      nftsLoading,
+      hasMoreOnParas,
+      hasMoreOnMintbase,
+      selectedSource,
     } = this.state;
+
+    const usedSources = [parasNfts, mintbaseNfts, nCDCertificates]
+      .filter((s) => s?.length !== 0);
+    let usedSourcesNumber: Nums = 0;
+    if (usedSources.length === 1 || usedSources.length === 2 || usedSources.length === 3) usedSourcesNumber = usedSources.length;
 
     if (theme === 'DARK') document.body.style.background = '#15202B';
 
@@ -273,30 +334,29 @@ export default class App extends React.Component<Props, State> {
 
     const addNftsSection = (
       sourseNfts: INft[] | undefined,
-      title: string,
-      addMethod?: any
-    ) => sourseNfts && !!sourseNfts.length && (<>
-      <h2
-        style={{
-          textAlign: 'center',
-          paddingTop: '1rem',
-        }}
-      >
-        {title}
-      </h2>
-      {addNftsContainer(sourseNfts)}
-      {addMethod && (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button
-            primary
-            className={cn('button-more', { none: title === 'Paras' ? !this.state.hasMoreOnParas : !this.state.hasMoreOnMintbase })}
-            onClick={addMethod}
-            content={`More from ${title}`}
-          />
-        </div>
-      )}
-      <Divider />
-    </>);
+      addMethod?: any,
+      hasMore?: boolean
+    ) => {
+      if (sourseNfts && !!sourseNfts.length) {
+        return (<>
+          {addMethod !== undefined && hasMore !== undefined ? (
+            <>
+              <InfiniteScroll
+                dataLength={sourseNfts.length}
+                next={addMethod}
+                hasMore={!nftsLoading && hasMore}
+                loader=''
+                scrollableTarget="nft-list"
+                className='ui feed'
+              >
+                {addNftsContainer(sourseNfts)}
+              </InfiniteScroll>
+              {hasMore && <Loader style={{ display: 'block', position: 'relative', marginTop: '40px' }} inverted={theme === 'DARK'} />}
+            </>
+          ) : <Feed>{addNftsContainer(sourseNfts)}</Feed>}
+        </>);
+      }
+    };
 
     const duration = 200;
     const defaultStyle = {
@@ -380,10 +440,10 @@ export default class App extends React.Component<Props, State> {
           )
         }
 
-        <Card className="overlay-card">
+        <Card className="overlay-card" id='nft-list'>
           {
             // ------- Notifications -------
-            linkStateChanged && current && (
+            linkStateChanged && current && !isDataLoading && (
               <Card.Content className="notification">
                 Twitter account <b>@{user}</b> has been {isLinked ? 'linked to' : 'unlinked from'}{' '}
                 <b>{currentNearAccount}</b>
@@ -400,24 +460,38 @@ export default class App extends React.Component<Props, State> {
                   </Dimmer>
                 </div>
               )
-              : !parasNfts && !nCDCertificates && !mintbaseNfts
+              : usedSourcesNumber === 0 && !avatarNft && !badgeNft
                 ? <Card.Content description="You don't have NFTs yet." />
                 : (
                   <Card.Content style={{ padding: '1em 0' }}>
                     <Feed>
                       {avatarNft && addNftsContainer([avatarNft])}
                       {badgeNft && avatarNft?.link !== badgeNft.link && addNftsContainer([badgeNft])}
-                      {(avatarNft || badgeNft) && <Divider />}
-
-                      {/* NCD Certificates */
-                      addNftsSection(nCDCertificates, 'NCD Certificates')}
-
-                      {/* PARAS */
-                      addNftsSection(parasNfts, 'Paras', this.addParasNfts)}
-
-                      {/* MINTBASE */
-                      addNftsSection(mintbaseNfts, 'Mintbase', this.addMintbaseNfts)}
                     </Feed>
+
+                      {usedSourcesNumber !== 0
+                        && (<Menu widths={usedSourcesNumber}>
+                          {!!parasNfts?.length && <Menu.Item
+                            name='Paras'
+                            active={selectedSource === 'Paras'}
+                            onClick={this.handleSourceSelect}
+                          />}
+                          {!!mintbaseNfts?.length && <Menu.Item
+                            name='Mintbase'
+                            active={selectedSource === 'Mintbase'}
+                            onClick={this.handleSourceSelect}
+                          />}
+                          {!!nCDCertificates?.length && <Menu.Item
+                            name='NCD'
+                            active={selectedSource === 'NCD'}
+                            onClick={this.handleSourceSelect}
+                          />}
+                        </Menu>)}
+
+                       <div style={{ display: this.state.selectedSource === 'Paras' ? 'block' : 'none' }}>{addNftsSection(parasNfts, this.addParasNfts, hasMoreOnParas)}</div>
+                       <div style={{ display: this.state.selectedSource === 'Mintbase' ? 'block' : 'none' }}>{addNftsSection(mintbaseNfts, this.addMintbaseNfts, hasMoreOnMintbase)}</div>
+                       <div style={{ display: this.state.selectedSource === 'NCD' ? 'block' : 'none' }}>{addNftsSection(nCDCertificates)}</div>
+
                   </Card.Content>)
           }
         </Card>

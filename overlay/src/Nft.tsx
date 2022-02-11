@@ -19,6 +19,7 @@ export interface INft {
 
 interface INftProps {
   nft: INft
+  isShow: boolean
   current: boolean
   avatarNftId: string | null
   handleToggleAvatar: any
@@ -30,6 +31,7 @@ interface INftProps {
 export function Nft(props: INftProps) {
   const {
     nft,
+    isShow,
     handleToggleAvatar,
     current,
     avatarNftId,
@@ -51,25 +53,39 @@ export function Nft(props: INftProps) {
     contract,
   } = nft;
 
+  const [show, showOn] = useState<boolean>(false);
   const [mediaType, changeMediaType] = useState<string>('image/png');
+  const [showInfo, toggleInfo] = useState<boolean>(source === 'ncd');
 
   useEffect(() => {
-    fetch(image[theme], { method: 'HEAD' }).then(resp => {
-      const type = resp.headers.get('Content-Type');
-      type && changeMediaType(type);
-    });
+    fetch(image[theme], { method: 'HEAD' })
+      .then(resp => {
+        const type = resp.headers.get('Content-Type');
+        type && changeMediaType(type);
+        showOn(true);
+      })
+      .catch(err => console.log('Error fetching image.', err));
   }, []);
 
-  return (
-    <Feed.Event style={{ padding: '.6em 1em' }} >
-      <Feed.Label>
+  return !show ? <></> : (
+    <Feed.Event style={{ padding: '.6em 1em', display: isShow ? 'flex' : 'none' }} >
+      <Feed.Label style={{ cursor: 'pointer', padding: '0.1rem' }} onClick={() => toggleInfo(!showInfo)}>
         {mediaType === 'application/octet-stream'
           ? <video src={image[theme]} autoPlay muted loop style={{ width: '100%' }} />
           : <img src={image[theme]} />}
       </Feed.Label>
-      <Feed.Content>
-        <Feed.Summary className='nft-title'>{name}</Feed.Summary>
-        <a href={link} target="_blank" rel="noreferrer" className={`nft-link ${source}-icon`} />
+      <Feed.Content style={{ cursor: 'pointer', opacity: showInfo ? '1' : '0' }} onClick={() => toggleInfo(!showInfo)}>
+        <Feed.Summary className='nft-title'>
+            <div style={{ display: 'inline-block' }}>{name}</div>
+            <button
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                window.open(link, '_blank');
+              }}
+              className={`nft-link ${source}-icon`}
+            />
+        </Feed.Summary>
         <Feed.Summary style={{ fontWeight: 'normal' }}>
           <b>Description: </b>
           {description}

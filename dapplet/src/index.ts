@@ -135,14 +135,22 @@ export default class TwitterFeature {
           const user = this.adapter.getCurrentUser().username;
           const avatarNft = await getAvatarNft(user);
           const badgeNft = await getAvatarBadgeNft(user);
+          let currentExternalAccounts: string[] = [];
+          try {
+            const c = await contract;
+            currentExternalAccounts = await c.getNearAccounts({ account: user });
+          } catch (err) {
+            console.log('The error in getExternalAccounts(): ', err);
+          }
+          const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
           this.openOverlay({
             user,
             current: user === this.adapter.getCurrentUser().username,
-            avatarNft,
-            badgeNft,
+            avatarNft: avatarNft !== null && mainnetAccounts.includes(avatarNft.owner!) ? avatarNft : null,
+            badgeNft: badgeNft !== null && mainnetAccounts.includes(badgeNft.owner!) ? badgeNft : null,
             index: -1,
-            linkStateChanged: true,
             theme: this._theme,
+            linkStateChanged: true,
           });
         },
         afterAvatarChanging: async () => {
@@ -154,13 +162,21 @@ export default class TwitterFeature {
           this.adapter.resetConfig(this._config, this._setConfig());
           const avatarNft = await getAvatarNft(user);
           const badgeNft = await getAvatarBadgeNft(user);
+          let currentExternalAccounts: string[] = [];
+          try {
+            const c = await contract;
+            currentExternalAccounts = await c.getNearAccounts({ account: user });
+          } catch (err) {
+            console.log('The error in getExternalAccounts(): ', err);
+          }
+          const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
           this.openOverlay({
             user,
             current: user === this.adapter.getCurrentUser().username,
-            avatarNft,
-            badgeNft,
+            avatarNft: avatarNft !== null && mainnetAccounts.includes(avatarNft.owner!) ? avatarNft : null,
+            badgeNft: badgeNft !== null && mainnetAccounts.includes(badgeNft.owner!) ? badgeNft : null,
             index: -1,
-            theme: this._theme,
+            theme: this._theme
           });
         },
         afterAvatarBadgeChanging: async () => {
@@ -172,13 +188,21 @@ export default class TwitterFeature {
           this.adapter.resetConfig(this._config, this._setConfig());
           const avatarNft = await getAvatarNft(user);
           const badgeNft = await getAvatarBadgeNft(user);
+          let currentExternalAccounts: string[] = [];
+          try {
+            const c = await contract;
+            currentExternalAccounts = await c.getNearAccounts({ account: user });
+          } catch (err) {
+            console.log('The error in getExternalAccounts(): ', err);
+          }
+          const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
           this.openOverlay({
             user,
             current: user === this.adapter.getCurrentUser().username,
-            avatarNft,
-            badgeNft,
+            avatarNft: avatarNft !== null && mainnetAccounts.includes(avatarNft.owner!) ? avatarNft : null,
+            badgeNft: badgeNft !== null && mainnetAccounts.includes(badgeNft.owner!) ? badgeNft : null,
             index: -1,
-            theme: this._theme,
+            theme: this._theme
           });
         },
 
@@ -210,8 +234,16 @@ export default class TwitterFeature {
 
       const avatarNft = await getAvatarNft(authorUsername);
       const badgeNft = await getAvatarBadgeNft(authorUsername);
+      let currentExternalAccounts: string[] = [];
+      try {
+        const c = await contract;
+        currentExternalAccounts = await c.getNearAccounts({ account: ctx.authorUsername });
+      } catch (err) {
+        console.log('The error in getExternalAccounts(): ', err);
+      }
+      const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
 
-      if (avatarNft !== null) {
+      if (avatarNft !== null && mainnetAccounts.includes(avatarNft.owner!)) {
         let mediaUrl: string | undefined;
         let mediaType: string | null | undefined;
         if (this._cachedNfts[authorUsername] === undefined) {
@@ -231,6 +263,7 @@ export default class TwitterFeature {
           DEFAULT: {
             img: mediaType !== 'application/octet-stream' && mediaUrl,
             video: mediaType === 'application/octet-stream' && mediaUrl,
+            shape: 'hexagon',
             exec: () => this.openOverlay({
               user: authorUsername,
               current: authorUsername === this.adapter.getCurrentUser().username,
@@ -244,7 +277,7 @@ export default class TwitterFeature {
         widgets.push(widget);
       }
 
-      if (badgeNft !== null) {
+      if (badgeNft !== null && mainnetAccounts.includes(badgeNft.owner!)) {
         let mediaUrl: string | undefined;
         let mediaType: string | null | undefined;
         if (this._cachedNfts[authorUsername] === undefined) {
@@ -264,6 +297,7 @@ export default class TwitterFeature {
           DEFAULT: {
             img: mediaType !== 'application/octet-stream' && mediaUrl,
             video: mediaType === 'application/octet-stream' && mediaUrl,
+            shape: 'hexagon',
             vertical: 'top',
             horizontal: 'right',
             exec: () => this.openOverlay({
@@ -300,11 +334,19 @@ export default class TwitterFeature {
     const user = prevUser || this.adapter.getCurrentUser().username;
     const avatarNft = await getAvatarNft(user);
     const badgeNft = await getAvatarBadgeNft(user);
+    let currentExternalAccounts: string[] = [];
+    try {
+      const c = await contract;
+      currentExternalAccounts = await c.getNearAccounts({ account: user });
+    } catch (err) {
+      console.log('The error in getExternalAccounts(): ', err);
+    }
+    const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
     this.openOverlay({
       user,
       current: !prevUser,
-      avatarNft,
-      badgeNft,
+      avatarNft: avatarNft !== null && mainnetAccounts.includes(avatarNft.owner!) ? avatarNft : null,
+      badgeNft: badgeNft !== null && mainnetAccounts.includes(badgeNft.owner!) ? badgeNft : null,
       index: -1,
       theme: this._theme
     });
