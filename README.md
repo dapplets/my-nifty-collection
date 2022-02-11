@@ -2,7 +2,7 @@
 
 # My Nifty Collection
 
-**My Nifty Collection** is a dapplet (an augmentation module for [Dapplets browser extension](https://dapplets.org)) that can display user's NFT from [Paras](https://paras.id/) and [Mintbase](https://www.mintbase.io/) right on Twitter page.
+**My Nifty Collection** is a dapplet (an augmentation module for [Dapplets browser extension](https://github.com/dapplets/dapplet-extension/releases/latest)) that can display user's NFT from [Paras](https://paras.id/) and [Mintbase](https://www.mintbase.io/) right on Twitter page.
 
 My Nifty Collection dapplet can change the Twitter avatar to selected user's NFT. Also it can use any owned NFT (or [Near Certificates](https://learnnear.club/near-certified-developer-program-ncd/)) as a badge for Twitter profile.
 
