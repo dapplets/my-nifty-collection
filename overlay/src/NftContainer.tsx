@@ -1,8 +1,9 @@
 import React from 'react';
-import { Nft, INft } from './Nft';
+import { INftMetadata } from './types';
+import { Nft } from './Nft';
 
 interface INftContainerProps {
-  nfts: INft[]
+  nfts: INftMetadata | INftMetadata[]
   searchQuery: string
   current: boolean
   avatarNftId: string | null
@@ -26,18 +27,19 @@ export default function NftContainer(props: INftContainerProps) {
   
   const reg = new RegExp(`${searchQuery.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}`, 'gi');
   
+  const isShow = (nft: INftMetadata) => reg.test(nft.name) ||
+    reg.test(nft.description) ||
+    (nft.program && reg.test(nft.program)) ||
+    (nft.cohort && reg.test(nft.cohort)) ||
+    (nft.owner && reg.test(nft.owner)) ||
+    reg.test(new Date(nft.issued_at).toLocaleDateString());
+  
   return (
     <>
-      {nfts.map((nft, i) => {
-        const isShow = reg.test(nft.name) ||
-          reg.test(nft.description) ||
-          reg.test(new Date(nft.issued_at).toLocaleDateString()) ||
-          (nft.program && reg.test(nft.program)) ||
-          (nft.cohort && reg.test(nft.cohort)) ||
-          reg.test(nft.owner);
+      {Array.isArray(nfts) ? nfts.map((nft, i) => {
         return <Nft
           key={`${nft.source}_nft_${i}`}
-          isShow={isShow}
+          isShow={isShow(nft)}
           nft={nft}
           current={current}
           avatarNftId={avatarNftId}
@@ -46,7 +48,16 @@ export default function NftContainer(props: INftContainerProps) {
           handleToggleAvatarBadge={handleToggleAvatarBadge}
           theme={theme}
         />
-      })}
+      }) : <Nft
+        isShow={isShow(nfts)}
+        nft={nfts}
+        current={current}
+        avatarNftId={avatarNftId}
+        handleToggleAvatar={handleToggleAvatar}
+        avatarNftBadgeId={avatarNftBadgeId}
+        handleToggleAvatarBadge={handleToggleAvatarBadge}
+        theme={theme}
+      />}
     </>
   );
 }

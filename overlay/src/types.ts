@@ -21,86 +21,6 @@ export interface INftMetadata {
 
 export interface INftMetaMedia extends INftMetadata, INftMedia { }
 
-export interface ITokenMetadata {
-  metadata: {
-    title: string;
-    description: string;
-    media: string;
-    issued_at: string;
-    extra: string;
-  };
-  token_id: string;
-}
-
-export interface ParasResult {
-  data: ParasData
-}
-
-interface ParasData {
-  results: PResult[]
-  skip:    number
-  limit:   number
-}
-
-export interface PResult {
-  _id:             string;
-  contract_id:     string;
-  token_id:        string;
-  owner_id:        string;
-  token_series_id: string;
-  edition_id:      string;
-  metadata:        Metadata;
-  royalty:         Royalty;
-  price:           null | string;
-  categories:      Category[];
-  approval_id?:    number;
-  ft_token_id?:    string;
-}
-
-interface Category {
-  name:        string;
-  isPinned:    boolean;
-  category_id: string;
-}
-
-interface Metadata {
-  title:          string;
-  description:    string;
-  media:          string;
-  media_hash:     null;
-  copies:         number;
-  issued_at:      string | null;
-  expires_at:     null;
-  starts_at:      null;
-  updated_at:     null;
-  extra:          null;
-  reference:      string;
-  reference_hash: null;
-  collection:     string;
-  collection_id:  string;
-  creator_id:     string;
-  blurhash:       string;
-  attributes?:    Attribute[];
-}
-
-interface Attribute {
-  trait_type: string;
-  value:      string;
-}
-
-interface Royalty {
-  [name: string]:    number;
-}
-
-export interface IDappState {
-  username: string | null
-  current: boolean
-  theme: 'DARK' | 'LIGHT'
-  avatarNft: INftMetaMedia | null
-  avatarNftBadge: INftMetaMedia | null
-  linkStateChanged: boolean
-}
-
 export interface IDappletApi {
   connectWallet: () => Promise<string>
   isWalletConnected: () => Promise<boolean>
@@ -127,4 +47,34 @@ export interface IDappletApi {
   afterLinking: () => Promise<void>
   afterAvatarChanging: () => Promise<void>
   afterAvatarBadgeChanging: () => Promise<void>
+}
+
+export type Nums = 0 | 1 | 2 | 3;
+
+export interface IDappState {
+  username: string | null
+  current: boolean
+  theme: 'DARK' | 'LIGHT'
+  avatarNft: INftMetaMedia | null
+  avatarNftBadge: INftMetaMedia | null
+  linkStateChanged: boolean
+}
+
+export interface IOverlayState {
+  parasNfts?: INftMetadata[]
+  mintbaseNfts?: INftMetadata[]
+  nCDCertificates?: INftMetadata[] | INftMetadata | null
+  searchQuery: string
+  isConnected: boolean
+  isLinked: boolean
+  currentNearAccount: string
+  isDataLoading: boolean
+  parasPage: number
+  mintbasePage: number
+  hasMoreOnParas: boolean
+  hasMoreOnMintbase: boolean
+  prevUser: string[]
+  inProp: boolean
+  selectedSource?: string
+  nftsLoading: boolean
 }

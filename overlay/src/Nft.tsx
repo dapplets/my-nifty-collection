@@ -1,24 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Feed, Checkbox } from 'semantic-ui-react';
-
-export interface INft {
-  name: string
-  description: string
-  image: { LIGHT: string, DARK: string }
-  link: string
-  issued_at: string
-  program?: string
-  cohort?: string
-  owner: string
-  id: string
-  isAvatar: boolean
-  isAvatarBadge: boolean
-  source: string
-  contract: string
-}
+import { INftMetadata} from './types';
 
 interface INftProps {
-  nft: INft
+  nft: INftMetadata
   isShow: boolean
   current: boolean
   avatarNftId: string | null
@@ -58,14 +43,18 @@ export function Nft(props: INftProps) {
   const [showInfo, toggleInfo] = useState<boolean>(source === 'ncd');
 
   useEffect(() => {
-    fetch(image[theme], { method: 'HEAD' })
-      .then(resp => {
-        const type = resp.headers.get('Content-Type');
-        type && changeMediaType(type);
-        showOn(true);
-      })
-      .catch(err => console.log('Error fetching image.', err));
-  }, []);
+    if (image) {
+      fetch(image[theme], { method: 'HEAD' })
+        .then(resp => {
+          const type = resp.headers.get('Content-Type');
+          type && changeMediaType(type);
+          showOn(true);
+        })
+        .catch(err => console.log('Error fetching image.', err));
+      toggleInfo(source === 'ncd');
+    }
+    return () => showOn(false);
+  }, [nft.id]);
 
   return !show ? <></> : (
     <Feed.Event style={{ padding: '.6em 1em', display: isShow ? 'flex' : 'none' }} >
@@ -74,7 +63,7 @@ export function Nft(props: INftProps) {
           ? <video src={image[theme]} autoPlay muted loop style={{ width: '100%' }} />
           : <img src={image[theme]} />}
       </Feed.Label>
-      <Feed.Content style={{ cursor: 'pointer', opacity: showInfo ? '1' : '0' }} onClick={() => toggleInfo(!showInfo)}>
+      <Feed.Content style={{ cursor: 'pointer', display: showInfo ? 'flex' : 'none' }} onClick={() => toggleInfo(!showInfo)}>
         <Feed.Summary className='nft-title'>
             <div style={{ display: 'inline-block' }}>{name}</div>
             <button

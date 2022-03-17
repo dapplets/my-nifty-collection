@@ -5,7 +5,7 @@ interface IDropdownMenuProps {
   isConnected: boolean;
   currentNearAccount: string;
   isLinked: boolean;
-  user: string;
+  username: string;
   handleLink: (e: any) => {};
   handleUnlink: (e: any) => {};
   handleConnect: (e: any) => {};
@@ -17,7 +17,7 @@ export default function DropdownMenu(props: IDropdownMenuProps) {
     isConnected,
     currentNearAccount,
     isLinked,
-    user,
+    username,
     handleUnlink,
     handleLink,
     handleConnect,
@@ -45,11 +45,11 @@ export default function DropdownMenu(props: IDropdownMenuProps) {
                   </Dropdown.Item>
                   {isLinked ? (
                     <Dropdown.Item onClick={handleUnlink} className="red">
-                      Unlink account @{user}
+                      Unlink account @{username}
                     </Dropdown.Item>
                   ) : (
                     <Dropdown.Item onClick={handleLink} className="green">
-                      Link account @{user}
+                      Link account @{username}
                     </Dropdown.Item>
                   )}
                 </>

@@ -5,6 +5,8 @@ body {
 }
 
 .overlay-container {
+  color: #000;
+  background: #fff;
   margin: 5px 10px;
 }
 
@@ -44,7 +46,6 @@ body {
 }
 
 .ui.feed .event>.label+.content {
-    display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     position: relative !important;
