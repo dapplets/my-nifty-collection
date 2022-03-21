@@ -70,7 +70,6 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
       console.log('The error in addExternalAccount(): ', err);
     }
     await this.setState({ isConnected: true, isDataLoading: true });
-    // this.props.changeState!({ linkStateChanged: true });
     dapplet.afterLinking();
   };
 
@@ -83,7 +82,6 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
       console.log('The error in removeExternalAccount(): ', err);
     }
     await this.setState({ isConnected: false, isDataLoading: true });
-    // this.props.changeState!({ linkStateChanged: true });
     dapplet.afterLinking();
   };
 
@@ -152,9 +150,14 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
   addNfts = async (source: 'Paras' | 'Mintbase') => {
     const username = this.props.commonState.all!.username!;
     const nextPage = this.state[source === 'Paras' ? 'parasPage' : 'mintbasePage'] + 1;
-    const newNfts = await dapplet[source === 'Paras' ? 'getParasNFTs' : 'getMintbaseNFTs'](username, nextPage, limit);
+    let newNfts: INftMetadata[] | undefined
+    try {
+      newNfts = await dapplet[source === 'Paras' ? 'getParasNFTs' : 'getMintbaseNFTs'](username, nextPage, limit);
+    } catch (err: any) {
+      console.log(`The error in dapplet.${[source === 'Paras' ? 'getParasNFTs' : 'getMintbaseNFTs']}():`, err);
+    }
     const hasMore = !!newNfts && newNfts.length === limit + 1;
-    if (hasMore) newNfts.pop();
+    if (newNfts && hasMore) newNfts.pop();
     const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.props.commonState[username]?.avatarNft?.id && nft.id !== this.props.commonState[username]?.avatarNftBadge?.id);
     return { newNfts: filteredNewNfts, hasMore, nextPage };
   };
@@ -172,7 +175,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
 
   addMintbaseNfts = async () => {
     this.setState({ nftsLoading: true });
-    const { newNfts, hasMore, nextPage } = await this.addNfts('Paras');
+    const { newNfts, hasMore, nextPage } = await this.addNfts('Mintbase');
     if (newNfts !== undefined) this.setState({
         mintbaseNfts: this.state.mintbaseNfts ? [...this.state.mintbaseNfts, ...newNfts]: newNfts,
         mintbasePage: nextPage,
@@ -217,7 +220,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
       ? 'Paras'
       : mintbaseNfts?.length
         ? 'Mintbase'
-        : (Array.isArray(nCDCertificates) && nCDCertificates.length) || (nCDCertificates !== undefined && nCDCertificates !== null)
+        : nCDCertificates && !(Array.isArray(nCDCertificates) && nCDCertificates.length === 0)
           ? 'NCD'
           : '';
 
@@ -315,7 +318,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
     } = this.state;
 
     const usedSources = [parasNfts, mintbaseNfts, nCDCertificates]
-      .filter((s) => (Array.isArray(s) && s.length !== 0 || s !== undefined && s !== null));
+      .filter((s) => (s && !(Array.isArray(s) && s.length === 0)));
     let usedSourcesNumber: Nums = 0;
     if (usedSources.length === 1 || usedSources.length === 2 || usedSources.length === 3) usedSourcesNumber = usedSources.length;
 
@@ -481,7 +484,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
                             active={selectedSource === 'Mintbase'}
                             onClick={this.handleSourceSelect}
                           />}
-                          {(Array.isArray(nCDCertificates) && nCDCertificates.length !== 0 || nCDCertificates !== undefined && nCDCertificates !== null) && <Menu.Item
+                          {(nCDCertificates && !(Array.isArray(nCDCertificates) && nCDCertificates.length === 0)) && <Menu.Item
                             name='NCD'
                             active={selectedSource === 'NCD'}
                             onClick={this.handleSourceSelect}

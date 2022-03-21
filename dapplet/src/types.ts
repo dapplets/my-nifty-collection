@@ -92,6 +92,11 @@ interface Royalty {
   [name: string]:    number;
 }
 
+interface IAccounts {
+  testnetAccounts: string[]
+  mainnetAccounts: string[]
+}
+
 export interface IDappState {
   username: string | null
   current: boolean
@@ -99,6 +104,7 @@ export interface IDappState {
   avatarNft: INftMetaMedia | null
   avatarNftBadge: INftMetaMedia | null
   linkStateChanged: boolean
+  accounts: IAccounts | null
 }
 
 export interface IDappletApi {

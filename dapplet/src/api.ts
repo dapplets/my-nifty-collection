@@ -1,5 +1,5 @@
 import { ISharedState } from '@dapplets/dapplet-extension';
-import { IDappState, IDappletApi } from './types';
+import { IDappState, IDappletApi, INftMetadata } from './types';
 import {
   contract,
   contractState,
@@ -10,7 +10,7 @@ import {
   fetchNftsByNearAcc_Mintbase,
 } from './get-nfts';
 
-export default class implements IDappletApi {
+export default class DappletApi implements IDappletApi {
 
   private adapter: any
   private state: ISharedState<IDappState>
@@ -103,111 +103,57 @@ export default class implements IDappletApi {
     this.state.all.current.next(!prevUser);
   }
 
-  async afterLinking() {
-    const username = this.adapter.getCurrentUser().username;
-    const avatarNft = await getAvatarNft(username);
-    const badgeNft = await getAvatarBadgeNft(username);
-    let currentExternalAccounts: string[] = [];
+  static getTestAndMainNearAccounts = async (username: string) => {
+    let testnetAccounts: string[] = [];
     try {
       const c = await contract;
-      currentExternalAccounts = await c.getNearAccounts({ account: username });
+      testnetAccounts = await c.getNearAccounts({ account: username });
     } catch (err) {
       console.log('The error in getExternalAccounts(): ', err);
     }
-    const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
+    const mainnetAccounts = testnetAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
+    return { testnetAccounts, mainnetAccounts };
+  };
 
-    if (avatarNft !== null && (
-      mainnetAccounts.includes(avatarNft.owner!)|| 
-      avatarNft.owner!.split(', ').map(k => mainnetAccounts.includes(k)).includes(true) ||
-      currentExternalAccounts.includes(avatarNft.owner!)|| 
-      avatarNft.owner!.split(', ').map(k => currentExternalAccounts.includes(k)).includes(true)
+  static changeWidgetNft = async (accounts: { testnetAccounts: string[], mainnetAccounts: string[] }, newNft: INftMetadata | null, prevNft: any) => {
+    const { testnetAccounts, mainnetAccounts } = accounts;
+    if (newNft !== null && (
+      mainnetAccounts.includes(newNft.owner!)
+      || newNft.owner!.split(', ').map(k => mainnetAccounts.includes(k)).includes(true)
+      || testnetAccounts.includes(newNft.owner!)
+      || newNft.owner!.split(', ').map(k => testnetAccounts.includes(k)).includes(true)
     )) {
-      this.state[username].avatarNft.next(avatarNft);
-      const resp = await fetch(avatarNft.image.LIGHT);
+      const resp = await fetch(newNft.image.LIGHT);
       const mediaType = resp.headers.get('Content-Type');
       const mediaBlob = await resp.blob();
       const mediaUrl = URL.createObjectURL(mediaBlob);
-      this.state[username].avatarNft.mediaType.next(mediaType);
-      this.state[username].avatarNft.mediaUrl.next(mediaUrl);
+      prevNft.next({ ...newNft, mediaType, mediaUrl });
     } else {
-      this.state[username].avatarNft.next(null);
+      prevNft.next(null);
     }
+  };
 
-    if (badgeNft !== null && (
-      mainnetAccounts.includes(badgeNft.owner!) ||
-      badgeNft.owner!.split(', ').map(k => mainnetAccounts.includes(k)).includes(true) ||
-      currentExternalAccounts.includes(badgeNft.owner!) ||
-      badgeNft.owner!.split(', ').map(k => currentExternalAccounts.includes(k)).includes(true)
-    )) {
-      this.state[username].avatarNftBadge.next(badgeNft);
-      const resp = await fetch(badgeNft.image.LIGHT);
-      const mediaType = resp.headers.get('Content-Type');
-      const mediaBlob = await resp.blob();
-      const mediaUrl = URL.createObjectURL(mediaBlob);
-      this.state[username].avatarNftBadge.mediaType.next(mediaType);
-      this.state[username].avatarNftBadge.mediaUrl.next(mediaUrl);
-    } else {
-      this.state[username].avatarNftBadge.next(null);
+  async afterLinking() {
+    const { username } = this.adapter.getCurrentUser();
+    const avatarNft = await getAvatarNft(username);
+    const badgeNft = await getAvatarBadgeNft(username);
+    this.state[username].accounts.next(await DappletApi.getTestAndMainNearAccounts(username));
+    if (this.state[username].accounts.value) {
+      await DappletApi.changeWidgetNft(this.state[username].accounts.value, avatarNft, this.state[username].avatarNft);
+      await DappletApi.changeWidgetNft(this.state[username].accounts.value, badgeNft, this.state[username].avatarNftBadge);
     }
-
     this.state.all.linkStateChanged.next(true);
   }
 
   async afterAvatarChanging() {
-    const username = this.adapter.getCurrentUser().username;
+    const { username } = this.adapter.getCurrentUser();
     const avatarNft = await getAvatarNft(username);
-    let currentExternalAccounts: string[] = [];
-    try {
-      const c = await contract;
-      currentExternalAccounts = await c.getNearAccounts({ account: username });
-    } catch (err) {
-      console.log('The error in getExternalAccounts(): ', err);
-    }
-    const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
-    if (avatarNft !== null && (
-      mainnetAccounts.includes(avatarNft.owner!)|| 
-      avatarNft.owner!.split(', ').map(k => mainnetAccounts.includes(k)).includes(true) ||
-      currentExternalAccounts.includes(avatarNft.owner!)|| 
-      avatarNft.owner!.split(', ').map(k => currentExternalAccounts.includes(k)).includes(true)
-    )) {
-      this.state[username].avatarNft.next(avatarNft);
-      const resp = await fetch(avatarNft.image.LIGHT);
-      const mediaType = resp.headers.get('Content-Type');
-      const mediaBlob = await resp.blob();
-      const mediaUrl = URL.createObjectURL(mediaBlob);
-      this.state[username].avatarNft.mediaType.next(mediaType);
-      this.state[username].avatarNft.mediaUrl.next(mediaUrl);
-    } else {
-      this.state[username].avatarNft.next(null);
-    }
+    DappletApi.changeWidgetNft(this.state[username].accounts.value, avatarNft, this.state[username].avatarNft);
   }
 
   async afterAvatarBadgeChanging() {
-    const username = this.adapter.getCurrentUser().username;
+    const { username } = this.adapter.getCurrentUser();
     const badgeNft = await getAvatarBadgeNft(username);
-    let currentExternalAccounts: string[] = [];
-    try {
-      const c = await contract;
-      currentExternalAccounts = await c.getNearAccounts({ account: username });
-    } catch (err) {
-      console.log('The error in getExternalAccounts(): ', err);
-    }
-    const mainnetAccounts = currentExternalAccounts.map(x => x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x);
-    if (badgeNft !== null && (
-      mainnetAccounts.includes(badgeNft.owner!) ||
-      badgeNft.owner!.split(', ').map(k => mainnetAccounts.includes(k)).includes(true) ||
-      currentExternalAccounts.includes(badgeNft.owner!) ||
-      badgeNft.owner!.split(', ').map(k => currentExternalAccounts.includes(k)).includes(true)
-    )) {
-      this.state[username].avatarNftBadge.next(badgeNft);
-      const resp = await fetch(badgeNft.image.LIGHT);
-      const mediaType = resp.headers.get('Content-Type');
-      const mediaBlob = await resp.blob();
-      const mediaUrl = URL.createObjectURL(mediaBlob);
-      this.state[username].avatarNftBadge.mediaType.next(mediaType);
-      this.state[username].avatarNftBadge.mediaUrl.next(mediaUrl);
-    } else {
-      this.state[username].avatarNftBadge.next(null);
-    }
+    DappletApi.changeWidgetNft(this.state[username].accounts.value, badgeNft, this.state[username].avatarNftBadge);
   }
 }
