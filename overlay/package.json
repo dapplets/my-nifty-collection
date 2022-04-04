@@ -3,7 +3,7 @@
   "version": "0.10.0",
   "private": true,
   "dependencies": {
-    "@dapplets/dapplet-overlay-bridge": "^0.1.0",
+    "@dapplets/dapplet-overlay-bridge": "^0.1.2",
     "@types/node": "^12.19.15",
     "@types/react": "^16.14.2",
     "@types/react-dom": "^16.9.10",

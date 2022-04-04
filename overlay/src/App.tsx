@@ -99,7 +99,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
     e.preventDefault();
     e.stopPropagation();
     const username = this.props.commonState.all!.username!;
-    if (this.props.commonState[username]?.avatarNft === null) {
+    if (!this.props.commonState[username]?.avatarNft) {
       try {
         await dapplet.setNftId(username, nftId, source, contract);
       } catch (err) {
@@ -125,7 +125,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
     e.preventDefault();
     e.stopPropagation();
     const username = this.props.commonState.all!.username!;
-    if (this.props.commonState[username]?.avatarNftBadge === null) {
+    if (!this.props.commonState[username]?.avatarNftBadge) {
       try {
         await dapplet.setNftBadgeId(username, nftBadgeId, source, contract);
       } catch (err) {
@@ -331,8 +331,8 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
       theme={theme}
       handleToggleAvatar={this.handleToggleAvatar}
       handleToggleAvatarBadge={this.handleToggleAvatarBadge}
-      avatarNftId={avatarNft ? avatarNft.id : null}
-      avatarNftBadgeId={avatarNftBadge ? avatarNftBadge.id : null}
+      avatarNftId={avatarNft ? avatarNft.id : undefined}
+      avatarNftBadgeId={avatarNftBadge ? avatarNftBadge.id : undefined}
     />;
 
     const addNftsSection = (

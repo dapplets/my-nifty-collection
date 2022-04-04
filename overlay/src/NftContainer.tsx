@@ -6,9 +6,9 @@ interface INftContainerProps {
   nfts: INftMetadata | INftMetadata[]
   searchQuery: string
   current: boolean
-  avatarNftId: string | null
+  avatarNftId?: string
   handleToggleAvatar: any
-  avatarNftBadgeId: string | null
+  avatarNftBadgeId?: string
   handleToggleAvatarBadge: any
   theme: 'DARK' | 'LIGHT'
 }

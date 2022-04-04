@@ -99,7 +99,7 @@ export default class DappletApi implements IDappletApi {
 
   async showNfts(prevUser?: string) {
     const user = prevUser ?? this.adapter.getCurrentUser().username;
-    this.state.all.username.next(user);
+    this.state.all.username?.next(user);
     this.state.all.current.next(!prevUser);
   }
 

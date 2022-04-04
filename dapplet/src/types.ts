@@ -98,13 +98,13 @@ interface IAccounts {
 }
 
 export interface IDappState {
-  username: string | null
+  username?: string
   current: boolean
   theme: 'DARK' | 'LIGHT'
-  avatarNft: INftMetaMedia | null
-  avatarNftBadge: INftMetaMedia | null
+  avatarNft?: INftMetaMedia
+  avatarNftBadge?: INftMetaMedia
   linkStateChanged: boolean
-  accounts: IAccounts | null
+  accounts?: IAccounts
 }
 
 export interface IDappletApi {

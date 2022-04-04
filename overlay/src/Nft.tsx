@@ -6,9 +6,9 @@ interface INftProps {
   nft: INftMetadata
   isShow: boolean
   current: boolean
-  avatarNftId: string | null
+  avatarNftId?: String
   handleToggleAvatar: any
-  avatarNftBadgeId: string | null
+  avatarNftBadgeId?: string
   handleToggleAvatarBadge: any
   theme: 'DARK' | 'LIGHT'
 }

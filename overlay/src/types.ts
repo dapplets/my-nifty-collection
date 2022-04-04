@@ -52,11 +52,11 @@ export interface IDappletApi {
 export type Nums = 0 | 1 | 2 | 3;
 
 export interface IDappState {
-  username: string | null
+  username?: string
   current: boolean
   theme: 'DARK' | 'LIGHT'
-  avatarNft: INftMetaMedia | null
-  avatarNftBadge: INftMetaMedia | null
+  avatarNft?: INftMetaMedia
+  avatarNftBadge?: INftMetaMedia
   linkStateChanged: boolean
 }
 

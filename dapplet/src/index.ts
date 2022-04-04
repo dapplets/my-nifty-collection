@@ -11,33 +11,29 @@ export default class TwitterFeature {
 
   async activate(): Promise<void> {
     const defaultState: IDappState = {
-      username: null,
       current: false,
       theme: 'LIGHT',
-      avatarNft: null,
-      avatarNftBadge: null,
       linkStateChanged: false,
-      accounts: null,
     };
     const state = Core.state<IDappState>(defaultState);
     const dappletApi = new DappletApi(this.adapter, state);
-    const overlay = Core.overlay<any, IDappState>({ name: 'my-nifty-collection-overlay', title: 'My Nifty Collection' })
+    const overlay = Core.overlay<IDappState>({ name: 'my-nifty-collection-overlay', title: 'My Nifty Collection' })
       .useState(state)
       .declare(dappletApi);
 
     const addAvatarAndBadgeToState = async (username: string) => {
-      if (!state[username].username.value) state[username].username.next(username);
-      const avatarNft = state[username].avatarNft.value || await getAvatarNft(username);
-      const badgeNft = state[username].avatarNftBadge.value || await getAvatarBadgeNft(username);
-      if (!state[username].accounts.value) {
+      if (!state[username].username?.value) state[username].username?.next(username);
+      const avatarNft = state[username].avatarNft?.value || await getAvatarNft(username);
+      const badgeNft = state[username].avatarNftBadge?.value || await getAvatarBadgeNft(username);
+      if (!state[username].accounts?.value) {
         const acc = await DappletApi.getTestAndMainNearAccounts(username)
-        state[username].accounts.next(acc);
+        state[username].accounts?.next(acc);
       }
-      if (state[username].accounts.value && state[username].avatarNft?.id.value !== avatarNft?.id) {
-        await DappletApi.changeWidgetNft(state[username].accounts.value, avatarNft, state[username].avatarNft);
+      if (state[username].accounts?.value && state[username]?.avatarNft?.id.value !== avatarNft?.id) {
+        await DappletApi.changeWidgetNft(state[username].accounts?.value!, avatarNft, state[username].avatarNft);
       }
-      if (state[username].accounts.value && state[username].avatarNftBadge?.id.value !== badgeNft?.id) {
-        await DappletApi.changeWidgetNft(state[username].accounts.value, badgeNft, state[username].avatarNftBadge);
+      if (state[username].accounts?.value && state[username].avatarNftBadge?.id.value !== badgeNft?.id) {
+        await DappletApi.changeWidgetNft(state[username].accounts?.value!, badgeNft, state[username].avatarNftBadge);
       }
     };
 
@@ -45,7 +41,7 @@ export default class TwitterFeature {
       const { username } = this.adapter.getCurrentUser();
       await addAvatarAndBadgeToState(username);
 
-      state.all.username.next(username);
+      state.all.username?.next(username);
       state.all.current.next(true);
       if (!overlay.isOpen()) overlay.open();
     });
@@ -61,11 +57,11 @@ export default class TwitterFeature {
       const widgets = [
         avatar({
           DEFAULT: {
-            img: state[authorUsername].avatarNft.mediaUrl,
-            mediaType: state[authorUsername].avatarNft.mediaType,
+            img: state[authorUsername].avatarNft?.mediaUrl,
+            mediaType: state[authorUsername].avatarNft?.mediaType,
             shape: 'hexagon',
             exec: () => {
-              state.all.username.next(authorUsername);
+              state.all.username?.next(authorUsername);
               state.all.current.next(authorUsername === this.adapter.getCurrentUser().username);
               if (!overlay.isOpen()) overlay.open();
             },
@@ -73,13 +69,13 @@ export default class TwitterFeature {
         }),
         avatarBadge({
           DEFAULT: {
-            img: state[authorUsername].avatarNftBadge.mediaUrl,
-            mediaType: state[authorUsername].avatarNftBadge.mediaType,
+            img: state[authorUsername].avatarNftBadge?.mediaUrl,
+            mediaType: state[authorUsername].avatarNftBadge?.mediaType,
             shape: 'hexagon',
             vertical: 'top',
             horizontal: 'right',
             exec: () => {
-              state.all.username.next(authorUsername);
+              state.all.username?.next(authorUsername);
               state.all.current.next(authorUsername === this.adapter.getCurrentUser().username);
               if (!overlay.isOpen()) overlay.open();
             },
@@ -95,7 +91,7 @@ export default class TwitterFeature {
               img: LOGO,
               basic: true,
               exec: () => {
-                state.all.username.next(authorUsername);
+                state.all.username?.next(authorUsername);
                 state.all.current.next(authorUsername === username);
                 if (!overlay.isOpen()) overlay.open();
               },
