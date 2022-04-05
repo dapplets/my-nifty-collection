@@ -15,6 +15,16 @@ export default class TwitterFeature {
       theme: 'LIGHT',
       linkStateChanged: false,
     };
+    if (Core.state === undefined) {
+      alert(`
+MY NIFTY COLLECTION DAPPLET
+
+Download the latest version of Dapplets Extension here:
+
+https://github.com/dapplets/dapplet-extension/releases/latest
+      `);
+      return;
+    }
     const state = Core.state<IDappState>(defaultState);
     const dappletApi = new DappletApi(this.adapter, state);
     const overlay = Core.overlay<IDappState>({ name: 'my-nifty-collection-overlay', title: 'My Nifty Collection' })
