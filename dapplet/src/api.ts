@@ -99,8 +99,8 @@ export default class DappletApi implements IDappletApi {
 
   async showNfts(prevUser?: string) {
     const user = prevUser ?? this.adapter.getCurrentUser().username;
-    this.state.all.username?.next(user);
-    this.state.all.current.next(!prevUser);
+    this.state.global.username?.next(user);
+    this.state.global.current.next(!prevUser);
   }
 
   static getTestAndMainNearAccounts = async (username: string) => {
@@ -142,7 +142,7 @@ export default class DappletApi implements IDappletApi {
       await DappletApi.changeWidgetNft(this.state[username].accounts.value, avatarNft, this.state[username].avatarNft);
       await DappletApi.changeWidgetNft(this.state[username].accounts.value, badgeNft, this.state[username].avatarNftBadge);
     }
-    this.state.all.linkStateChanged.next(true);
+    this.state.global.linkStateChanged.next(true);
   }
 
   async afterAvatarChanging() {

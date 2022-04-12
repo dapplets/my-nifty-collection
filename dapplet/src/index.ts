@@ -51,15 +51,15 @@ https://github.com/dapplets/dapplet-extension/releases/latest
       const { username } = this.adapter.getCurrentUser();
       await addAvatarAndBadgeToState(username);
 
-      state.all.username?.next(username);
-      state.all.current.next(true);
+      state.global.username?.next(username);
+      state.global.current.next(true);
       if (!overlay.isOpen()) overlay.open();
     });
 
     const addWidgets = (insertTo: 'POST' | 'PROFILE') => async (ctx: { authorUsername: string; theme: 'DARK' | 'LIGHT' }) => {
       const { authorUsername, theme } = ctx;
       if (!authorUsername) return;
-      state.all.theme.next(theme);
+      state.global.theme.next(theme);
 
       await addAvatarAndBadgeToState(authorUsername);
 
@@ -71,8 +71,8 @@ https://github.com/dapplets/dapplet-extension/releases/latest
             mediaType: state[authorUsername].avatarNft?.mediaType,
             shape: 'hexagon',
             exec: () => {
-              state.all.username?.next(authorUsername);
-              state.all.current.next(authorUsername === this.adapter.getCurrentUser().username);
+              state.global.username?.next(authorUsername);
+              state.global.current.next(authorUsername === this.adapter.getCurrentUser().username);
               if (!overlay.isOpen()) overlay.open();
             },
           }
@@ -85,8 +85,8 @@ https://github.com/dapplets/dapplet-extension/releases/latest
             vertical: 'top',
             horizontal: 'right',
             exec: () => {
-              state.all.username?.next(authorUsername);
-              state.all.current.next(authorUsername === this.adapter.getCurrentUser().username);
+              state.global.username?.next(authorUsername);
+              state.global.current.next(authorUsername === this.adapter.getCurrentUser().username);
               if (!overlay.isOpen()) overlay.open();
             },
           }
@@ -101,8 +101,8 @@ https://github.com/dapplets/dapplet-extension/releases/latest
               img: LOGO,
               basic: true,
               exec: () => {
-                state.all.username?.next(authorUsername);
-                state.all.current.next(authorUsername === username);
+                state.global.username?.next(authorUsername);
+                state.global.current.next(authorUsername === username);
                 if (!overlay.isOpen()) overlay.open();
               },
             }

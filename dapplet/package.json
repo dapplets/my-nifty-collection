@@ -34,7 +34,7 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "@dapplets/dapplet-overlay-bridge": "^0.1.0"
+    "@dapplets/dapplet-overlay-bridge": "^0.1.3"
   },
   "bugs": {
     "url": "https://github.com/dapplets/my-nifty-collection/issues"

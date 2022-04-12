@@ -55,7 +55,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
     const { currentNearAccount } = this.state;
     try {
       const currentExternalAccounts = await dapplet.getExternalAccounts(currentNearAccount);
-      this.setState({ isLinked: currentExternalAccounts.includes(this.props.commonState.all!.username!) });
+      this.setState({ isLinked: currentExternalAccounts.includes(this.props.sharedState.global!.username!) });
     } catch (err) {
       console.log('The error in getExternalAccounts(): ', err);
     }
@@ -65,7 +65,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
     e.preventDefault();
     e.stopPropagation();
     try {
-      await dapplet.addExternalAccount(this.props.commonState.all!.username!);
+      await dapplet.addExternalAccount(this.props.sharedState.global!.username!);
     } catch (err) {
       console.log('The error in addExternalAccount(): ', err);
     }
@@ -77,7 +77,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
     e.preventDefault();
     e.stopPropagation();
     try {
-      await dapplet.removeExternalAccount(this.props.commonState.all!.username!);
+      await dapplet.removeExternalAccount(this.props.sharedState.global!.username!);
     } catch (err) {
       console.log('The error in removeExternalAccount(): ', err);
     }
@@ -98,14 +98,14 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
   handleToggleAvatar = (nftId: string, source: string, contract: string) => async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    const username = this.props.commonState.all!.username!;
-    if (!this.props.commonState[username]?.avatarNft) {
+    const username = this.props.sharedState.global!.username!;
+    if (!this.props.sharedState[username]?.avatarNft) {
       try {
         await dapplet.setNftId(username, nftId, source, contract);
       } catch (err) {
         console.log('The error in setNftId(): ', err);
       }
-    } else if (this.props.commonState[username]?.avatarNft!.id === nftId) {
+    } else if (this.props.sharedState[username]?.avatarNft!.id === nftId) {
       try {
         await dapplet.removeNftId(username);
       } catch (err) {
@@ -124,14 +124,14 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
   handleToggleAvatarBadge = (nftBadgeId: string, source: string, contract: string) => async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    const username = this.props.commonState.all!.username!;
-    if (!this.props.commonState[username]?.avatarNftBadge) {
+    const username = this.props.sharedState.global!.username!;
+    if (!this.props.sharedState[username]?.avatarNftBadge) {
       try {
         await dapplet.setNftBadgeId(username, nftBadgeId, source, contract);
       } catch (err) {
         console.log('The error in setNftBadgeId(): ', err);
       }
-    } else if (this.props.commonState[username]?.avatarNftBadge!.id === nftBadgeId) {
+    } else if (this.props.sharedState[username]?.avatarNftBadge!.id === nftBadgeId) {
       try {
         await dapplet.removeNftBadgeId(username);
       } catch (err) {
@@ -148,7 +148,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
   };
 
   addNfts = async (source: 'Paras' | 'Mintbase') => {
-    const username = this.props.commonState.all!.username!;
+    const username = this.props.sharedState.global!.username!;
     const nextPage = this.state[source === 'Paras' ? 'parasPage' : 'mintbasePage'] + 1;
     let newNfts: INftMetadata[] | undefined
     try {
@@ -158,7 +158,7 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
     }
     const hasMore = !!newNfts && newNfts.length === limit + 1;
     if (newNfts && hasMore) newNfts.pop();
-    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.props.commonState[username]?.avatarNft?.id && nft.id !== this.props.commonState[username]?.avatarNftBadge?.id);
+    const filteredNewNfts = newNfts?.filter((nft: any) => nft.id !== this.props.sharedState[username]?.avatarNft?.id && nft.id !== this.props.sharedState[username]?.avatarNftBadge?.id);
     return { newNfts: filteredNewNfts, hasMore, nextPage };
   };
 
@@ -185,10 +185,10 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
   };
   
   getNfts = async () => {
-    if (!this.props.commonState.all || !this.props.commonState.all.username) return;
-    const { username } = this.props.commonState.all;
-    const avatarNft = this.props.commonState[username]?.avatarNft;
-    const avatarNftBadge = this.props.commonState[username]?.avatarNftBadge;
+    if (!this.props.sharedState.global || !this.props.sharedState.global.username) return;
+    const { username } = this.props.sharedState.global;
+    const avatarNft = this.props.sharedState[username]?.avatarNft;
+    const avatarNftBadge = this.props.sharedState[username]?.avatarNftBadge;
     const isConnected = await dapplet.isWalletConnected();
     let currentNearAccount: string = '';
     let isLinked: boolean = false;
@@ -224,8 +224,8 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
           ? 'NCD'
           : '';
 
-    if (this.props.commonState.all.linkStateChanged) { 
-      this._notificationTimer = setTimeout(() => this.props.changeState?.({ linkStateChanged: false }), 5000);
+    if (this.props.sharedState.global.linkStateChanged) { 
+      this._notificationTimer = setTimeout(() => this.props.changeSharedState?.({ linkStateChanged: false }), 5000);
     }
 
     this.setState({
@@ -271,35 +271,35 @@ export default class App extends React.Component<IDappStateProps<IDappState>, IO
       });
     }
     if (
-      !prevProps.commonState.all
-      || !this.props.commonState.all
-      || !prevProps.commonState.all.username
-      || !this.props.commonState.all.username
-      || prevProps.commonState.all.username !== this.props.commonState.all.username
-      || prevProps.commonState.all.current !== this.props.commonState.all.current
-      || prevProps.commonState.all.theme !== this.props.commonState.all.theme
-      || prevProps.commonState.all.linkStateChanged !== this.props.commonState.all.linkStateChanged
-      || prevProps.commonState[this.props.commonState.all.username]?.avatarNft?.id !== this.props.commonState[this.props.commonState.all.username]?.avatarNft?.id
-      || prevProps.commonState[this.props.commonState.all.username]?.avatarNftBadge?.id !== this.props.commonState[this.props.commonState.all.username]?.avatarNftBadge?.id
+      !prevProps.sharedState.global
+      || !this.props.sharedState.global
+      || !prevProps.sharedState.global.username
+      || !this.props.sharedState.global.username
+      || prevProps.sharedState.global.username !== this.props.sharedState.global.username
+      || prevProps.sharedState.global.current !== this.props.sharedState.global.current
+      || prevProps.sharedState.global.theme !== this.props.sharedState.global.theme
+      || prevProps.sharedState.global.linkStateChanged !== this.props.sharedState.global.linkStateChanged
+      || prevProps.sharedState[this.props.sharedState.global.username]?.avatarNft?.id !== this.props.sharedState[this.props.sharedState.global.username]?.avatarNft?.id
+      || prevProps.sharedState[this.props.sharedState.global.username]?.avatarNftBadge?.id !== this.props.sharedState[this.props.sharedState.global.username]?.avatarNftBadge?.id
     ) {
       this.getNfts();
     }
   }
 
   render() {
-    if (!this.props.commonState.all) return <></>;
+    if (!this.props.sharedState.global) return <></>;
 
     const {
       current,
       username,
       theme,
       linkStateChanged,
-    } = this.props.commonState.all;
+    } = this.props.sharedState.global;
 
     if (!username) return <></>;
 
-    const avatarNft = this.props.commonState[username]?.avatarNft;
-    const avatarNftBadge = this.props.commonState[username]?.avatarNftBadge;
+    const avatarNft = this.props.sharedState[username]?.avatarNft;
+    const avatarNftBadge = this.props.sharedState[username]?.avatarNftBadge;
     const {
       parasNfts,
       mintbaseNfts,
