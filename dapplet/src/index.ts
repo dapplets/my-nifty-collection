@@ -2,7 +2,7 @@ import { } from '@dapplets/dapplet-extension';
 import { IDappState } from './types';
 import { getAvatarNft, getAvatarBadgeNft } from './get-nfts';
 import DappletApi from './api';
-import LOGO from './icons/myNifty_Logo_3_70x70.png';
+import LOGO from './icons/MyNifty_Logo_600.png';
 
 @Injectable
 export default class TwitterFeature {
