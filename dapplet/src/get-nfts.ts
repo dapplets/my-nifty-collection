@@ -202,7 +202,7 @@ export const fetchNftsByNearAcc_Paras = async (
 
   const fetchTokens = async (account: string): Promise<PResult[]> => {
     const resp = await fetch(
-      `https://api-v2-mainnet.paras.id/token?owner_id=${account}&__limit=${limit + 1}&__skip=${
+      `https://corsanywhere.herokuapp.com/https://api-v2-mainnet.paras.id/token?owner_id=${account}&__limit=${limit + 1}&__skip=${
         (page - 1) * limit
       }`,
     );
@@ -228,7 +228,7 @@ export const fetchNftsByNearAcc_Mintbase = async (
   );
 
   const fetchTokens = async (account: string): Promise<any> => {
-    const resp = await fetch('https://mintbase-mainnet.hasura.app/v1/graphql', {
+    const resp = await fetch('https://corsanywhere.herokuapp.com/https://mintbase-mainnet.hasura.app/v1/graphql', {
       body: `{
         \"operationName\": \"GET_USER_OWNED_TOKENS\",
         \"variables\": {
@@ -269,7 +269,7 @@ const getWidgetNft = (twitterAcc: string, nftId: string[]): Promise<INftMetadata
     },
     mintbase: async () => {
       try {
-        const res = await fetch(`https://mintbase-mainnet.hasura.app/api/rest/things/${nftId[0]}`);
+        const res = await fetch(`https://corsanywhere.herokuapp.com/https://mintbase-mainnet.hasura.app/api/rest/things/${nftId[0]}`);
         const nftData = await res.json();
         const thing = nftData.thing[0];
         return makeNftMetadata_Mintbase(thing);
