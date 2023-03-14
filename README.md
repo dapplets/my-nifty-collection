@@ -1,4 +1,4 @@
-![image](https://github.com/dapplets/my-nifty-collection/blob/main/My-nifty-collection.jpg)
+<img width="1245" alt="my-nifty-collection" src="https://user-images.githubusercontent.com/43613968/225068546-7f2cdebe-77c6-4904-8850-d738ade11d7b.png">
 
 # My Nifty Collection
 
