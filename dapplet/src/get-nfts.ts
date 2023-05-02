@@ -35,16 +35,16 @@ const getNearAccByTwitterAcc = async (twitterId: string): Promise<string[] | und
 const makeNftMetadata_Paras = (x: PResult): INftMetadata => {
   const isNumeric = (a) => !isNaN(a);
   const issued_at = x.metadata.issued_at;
-  const n = Number(issued_at);
-  const date =
-    issued_at !== null
-      ? isNumeric(issued_at)
-        ? new Date(issued_at.length > 13 ? n / 1_000_000 : n)
-        : new Date(issued_at)
-      : null;
+  const date = issued_at
+    ? isNumeric(issued_at)
+      ? new Date(issued_at.length > 13 ? Number(issued_at) / 1_000_000 : Number(issued_at))
+      : new Date(issued_at)
+    : null;
   const media =
     x.contract_id === 'x.paras.near'
       ? `https://paras-cdn.imgix.net/${x.metadata.media}?w=600?`
+      : x.contract_id === 'comic.paras.near'
+      ? `https://fleek.ipfs.io/ipfs/${x.metadata.media}`
       : x.metadata.media;
 
   return {
@@ -65,21 +65,21 @@ const makeNftMetadata_Paras = (x: PResult): INftMetadata => {
   };
 };
 
-const makeNftMetadata_Mintbase = (thing: any, ownerId?: string): INftMetadata => ({
-  name: thing.metadata.title,
-  description: thing.metadata.description,
+const makeNftMetadata_Mintbase = (nft: any): INftMetadata => ({
+  name: nft.title,
+  description: nft.description,
   image: {
-    LIGHT: thing.metadata.media,
-    DARK: thing.metadata.media,
+    LIGHT: nft.reference_blob || nft.media,
+    DARK: nft.reference_blob || nft.media,
   },
-  link: `https://www.mintbase.io/thing/${thing.id}`,
-  owner: ownerId || thing.tokens.map((token) => token.ownerId).join(', '),
-  issued_at: '',
+  link: `https://www.mintbase.xyz/meta/${nft.metadata_id?.replace(':', '%')}`,
+  owner: nft.owner,
+  issued_at: nft.issued_at || '',
   cohort: '',
   program: '',
-  id: thing.id,
+  id: nft.metadata_id,
   source: 'mintbase',
-  contract: '',
+  contract: nft.nft_contract_id,
 });
 
 const fetchNfts_NCD = async (
@@ -227,33 +227,50 @@ export const fetchNftsByNearAcc_Mintbase = async (
     x.endsWith('.testnet') ? x.replace(/.testnet$/gm, '.near') : x,
   );
 
-  const fetchTokens = async (account: string): Promise<any> => {
-    const resp = await Core.fetch('https://mintbase-mainnet.hasura.app/v1/graphql', {
-      body: `{
-        "operationName": "GET_USER_OWNED_TOKENS",
-        "variables": {
-          "account": "${account}",
-          "lastDate": "now()",
-          "limit": ${limit + 1},
-          "offset": ${(page - 1) * limit}
-        },
-        "query": "query GET_USER_OWNED_TOKENS($account: String!, $lastDate: timestamptz!, $limit: Int!, $offset: Int!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: $limit, offset: $offset) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      metadata {\\n        title\\n        description\\n        media\\n        media_hash\\n        animation_hash\\n        animation_url\\n        youtube_url\\n        document\\n        document_hash\\n        extra\\n        external_url\\n        category\\n        type\\n        visibility\\n        media_type\\n        animation_type\\n        tags\\n        media_size\\n        animation_size\\n        __typename\\n      }\\n      store {\\n        id\\n        is_external_contract\\n        __typename\\n      }\\n      __typename\\n    }\\n    royaltys {\\n      percent\\n      account\\n      __typename\\n    }\\n    splits {\\n      percent\\n      account\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"
-      }`,
-      method: 'POST',
-    });
-    // console.log('resp', resp);
-    const result = resp && (await resp.json());
-    // console.log('result ', result);
-    return result?.data?.token;
-  };
+  const operationsDoc = ({ account, limit, page }) => `
+    query MyQuery {
+      mb_views_nft_tokens(
+        limit: ${limit + 1}
+        offset: ${(page - 1) * limit}
+        where: {owner: {_eq: "${account}"}, _and: {burned_timestamp: {_is_null: true}}, nft_contract_is_mintbase: {_eq: true}}
+        order_by: {last_transfer_timestamp: asc}
+      ) {
+        title
+        description
+        nft_contract_id
+        media
+        metadata_id
+        reference
+        reference_blob(path: "animation_url")
+        owner
+        issued_at
+      }
+    }
+  `;
 
+  async function fetchGraphQL(operationsDoc, operationName, variables, params) {
+    const result = await Core.fetch('https://graph.mintbase.xyz/mainnet', {
+      method: 'POST',
+      headers: {
+        'mb-api-key': 'anon',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: operationsDoc(params),
+        variables: variables,
+        operationName: operationName,
+      }),
+    });
+    return await result.json();
+  }
+
+  const fetchTokens = async (account: string): Promise<any> => {
+    const result = await fetchGraphQL(operationsDoc, 'MyQuery', {}, { account, limit, page });
+    return result?.data?.mb_views_nft_tokens;
+  };
   const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
-  // console.log('subArraysTokens', subArraysTokens);
   const tokens = subArraysTokens?.flat().filter((t) => !!t);
-  // console.log('tokens', tokens);
-  const a = tokens && tokens.map((x) => x && makeNftMetadata_Mintbase(x.thing, x.ownerId));
-  // console.log('res', a);
-  return a;
+  return tokens.map(makeNftMetadata_Mintbase);
 };
 
 const getWidgetNft = (twitterAcc: string, nftId: string[]): Promise<INftMetadata | null> => {

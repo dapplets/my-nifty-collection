@@ -66,7 +66,7 @@ export function Nft(props: INftProps) {
         style={{ cursor: 'pointer', padding: '0.1rem' }}
         onClick={() => toggleInfo(!showInfo)}
       >
-        {mediaType === 'application/octet-stream' ? (
+        {mediaType === 'application/octet-stream' || mediaType === 'video/mp4' ? (
           <video src={image[theme]} autoPlay muted loop style={{ width: '100%' }} />
         ) : (
           <img src={image[theme]} />
@@ -117,7 +117,7 @@ export function Nft(props: INftProps) {
           <div
             style={{
               display: 'flex',
-              justifyContent: 'space-around',
+              justifyContent: 'space-between',
               position: 'relative',
               marginTop: '1em',
             }}

@@ -37,7 +37,7 @@ body {
 }
 
 .ui.feed .event > .label {
-  width: 26.5em !important;
+  width: 100% !important;
 }
 
 .ui.feed .event > .label img,
@@ -49,8 +49,8 @@ body {
     flex-direction: column !important;
     justify-content: center !important;
     position: relative !important;
-    margin: 0 0 0 -26.5em !important;
-    padding: 0.5em 0 0.35714286em 1.14285714em !important;
+    margin: 0 0 0 -100% !important;
+    padding: 2.5em !important;
     width: 100% !important;
     background: #ffffffed !important;
     transition: all 0.1s ease-out;
