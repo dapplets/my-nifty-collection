@@ -118,7 +118,7 @@ const fetchNfts_NCD = async (
   let image: { DARK: string; LIGHT: string } = { DARK: '', LIGHT: '' };
   try {
     const { icon, reference } = await contr.nft_metadata();
-    const res = await fetch(reference);
+    const res = await Core.fetch(reference);
     const parsedImages = await res.json();
     image = {
       DARK: parsedImages.icon_dark,
@@ -201,8 +201,8 @@ export const fetchNftsByNearAcc_Paras = async (
   );
 
   const fetchTokens = async (account: string): Promise<PResult[]> => {
-    const resp = await fetch(
-      `https://corsanywhere.herokuapp.com/https://api-v2-mainnet.paras.id/token?owner_id=${account}&__limit=${limit + 1}&__skip=${
+    const resp = await Core.fetch(
+      `https://api-v2-mainnet.paras.id/token?owner_id=${account}&__limit=${limit + 1}&__skip=${
         (page - 1) * limit
       }`,
     );
@@ -228,26 +228,32 @@ export const fetchNftsByNearAcc_Mintbase = async (
   );
 
   const fetchTokens = async (account: string): Promise<any> => {
-    const resp = await fetch('https://corsanywhere.herokuapp.com/https://mintbase-mainnet.hasura.app/v1/graphql', {
+    const resp = await Core.fetch('https://mintbase-mainnet.hasura.app/v1/graphql', {
       body: `{
-        \"operationName\": \"GET_USER_OWNED_TOKENS\",
-        \"variables\": {
-          \"account\": \"${account}\",
-          \"lastDate\": \"now()\",
-          \"limit\": ${limit + 1},
-          \"offset\": ${(page - 1) * limit}
+        "operationName": "GET_USER_OWNED_TOKENS",
+        "variables": {
+          "account": "${account}",
+          "lastDate": "now()",
+          "limit": ${limit + 1},
+          "offset": ${(page - 1) * limit}
         },
-        \"query\": \"query GET_USER_OWNED_TOKENS($account: String!, $lastDate: timestamptz!, $limit: Int!, $offset: Int!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: $limit, offset: $offset) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      metadata {\\n        title\\n        description\\n        media\\n        media_hash\\n        animation_hash\\n        animation_url\\n        youtube_url\\n        document\\n        document_hash\\n        extra\\n        external_url\\n        category\\n        type\\n        visibility\\n        media_type\\n        animation_type\\n        tags\\n        media_size\\n        animation_size\\n        __typename\\n      }\\n      store {\\n        id\\n        is_external_contract\\n        __typename\\n      }\\n      __typename\\n    }\\n    royaltys {\\n      percent\\n      account\\n      __typename\\n    }\\n    splits {\\n      percent\\n      account\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"
+        "query": "query GET_USER_OWNED_TOKENS($account: String!, $lastDate: timestamptz!, $limit: Int!, $offset: Int!) {\\n  token(where: {lastTransferred: {_lt: $lastDate}, ownerId: {_eq: $account}, _and: {burnedAt: {_is_null: true}}}, order_by: {lastTransferred: desc}, limit: $limit, offset: $offset) {\\n    id\\n    thingId\\n    ownerId\\n    storeId\\n    store {\\n      id\\n      __typename\\n    }\\n    lastTransferred\\n    thing {\\n      id\\n      metaId\\n      metadata {\\n        title\\n        description\\n        media\\n        media_hash\\n        animation_hash\\n        animation_url\\n        youtube_url\\n        document\\n        document_hash\\n        extra\\n        external_url\\n        category\\n        type\\n        visibility\\n        media_type\\n        animation_type\\n        tags\\n        media_size\\n        animation_size\\n        __typename\\n      }\\n      store {\\n        id\\n        is_external_contract\\n        __typename\\n      }\\n      __typename\\n    }\\n    royaltys {\\n      percent\\n      account\\n      __typename\\n    }\\n    splits {\\n      percent\\n      account\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n"
       }`,
       method: 'POST',
     });
-    const result = await resp.json();
-    return result.data.token;
+    // console.log('resp', resp);
+    const result = resp && (await resp.json());
+    // console.log('result ', result);
+    return result?.data?.token;
   };
 
   const subArraysTokens = await Promise.all(mainnetAccounts.map(fetchTokens));
-  const tokens = subArraysTokens.flat();
-  return tokens.map((x) => makeNftMetadata_Mintbase(x.thing, x.ownerId));
+  // console.log('subArraysTokens', subArraysTokens);
+  const tokens = subArraysTokens?.flat().filter((t) => !!t);
+  // console.log('tokens', tokens);
+  const a = tokens && tokens.map((x) => x && makeNftMetadata_Mintbase(x.thing, x.ownerId));
+  // console.log('res', a);
+  return a;
 };
 
 const getWidgetNft = (twitterAcc: string, nftId: string[]): Promise<INftMetadata | null> => {
@@ -255,8 +261,8 @@ const getWidgetNft = (twitterAcc: string, nftId: string[]): Promise<INftMetadata
     ncd: async () => fetchNfts_NCD(twitterAcc, nftId[0]),
     paras: async () => {
       try {
-        const res = await fetch(
-          `https://corsanywhere.herokuapp.com/https://api-v2-mainnet.paras.id/token?contract_id=${nftId[2]}&token_id=${nftId[0]}`,
+        const res = await Core.fetch(
+          `https://api-v2-mainnet.paras.id/token?contract_id=${nftId[2]}&token_id=${nftId[0]}`,
         );
         const nftData = await res.json();
 
@@ -269,7 +275,9 @@ const getWidgetNft = (twitterAcc: string, nftId: string[]): Promise<INftMetadata
     },
     mintbase: async () => {
       try {
-        const res = await fetch(`https://corsanywhere.herokuapp.com/https://mintbase-mainnet.hasura.app/api/rest/things/${nftId[0]}`);
+        const res = await Core.fetch(
+          `https://mintbase-mainnet.hasura.app/api/rest/things/${nftId[0]}`,
+        );
         const nftData = await res.json();
         const thing = nftData.thing[0];
         return makeNftMetadata_Mintbase(thing);

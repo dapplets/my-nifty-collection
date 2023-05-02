@@ -1,4 +1,4 @@
-import { } from '@dapplets/dapplet-extension';
+import {} from '@dapplets/dapplet-extension';
 import { IDappState } from './types';
 import { getAvatarNft, getAvatarBadgeNft } from './get-nfts';
 import DappletApi from './api';
@@ -27,23 +27,42 @@ https://github.com/dapplets/dapplet-extension/releases/latest
     }
     const state = Core.state<IDappState>(defaultState);
     const dappletApi = new DappletApi(this.adapter, state);
-    const overlay = Core.overlay<IDappState>({ name: 'my-nifty-collection-overlay', title: 'My Nifty Collection' })
+    const overlay = Core.overlay<IDappState>({
+      name: 'my-nifty-collection-overlay',
+      title: 'My Nifty Collection',
+    })
       .useState(state)
       .declare(dappletApi);
 
     const addAvatarAndBadgeToState = async (username: string) => {
       if (!state[username].username?.value) state[username].username?.next(username);
-      const avatarNft = state[username].avatarNft?.value || await getAvatarNft(username);
-      const badgeNft = state[username].avatarNftBadge?.value || await getAvatarBadgeNft(username);
+      const avatarNft = state[username].avatarNft?.value || (await getAvatarNft(username));
+      const badgeNft = state[username].avatarNftBadge?.value || (await getAvatarBadgeNft(username));
       if (!state[username].accounts?.value) {
-        const acc = await DappletApi.getTestAndMainNearAccounts(username)
+        const acc = await DappletApi.getTestAndMainNearAccounts(username);
         state[username].accounts?.next(acc);
       }
-      if (state[username].accounts?.value && state[username]?.avatarNft?.id.value !== avatarNft?.id) {
-        await DappletApi.changeWidgetNft(state[username].accounts?.value!, avatarNft, state[username].avatarNft);
+      if (
+        state[username].accounts?.value &&
+        state[username]?.avatarNft?.id.value !== avatarNft?.id
+      ) {
+        await DappletApi.changeWidgetNft(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+          state[username].accounts?.value!,
+          avatarNft,
+          state[username].avatarNft,
+        );
       }
-      if (state[username].accounts?.value && state[username].avatarNftBadge?.id.value !== badgeNft?.id) {
-        await DappletApi.changeWidgetNft(state[username].accounts?.value!, badgeNft, state[username].avatarNftBadge);
+      if (
+        state[username].accounts?.value &&
+        state[username].avatarNftBadge?.id.value !== badgeNft?.id
+      ) {
+        await DappletApi.changeWidgetNft(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+          state[username].accounts?.value!,
+          badgeNft,
+          state[username].avatarNftBadge,
+        );
       }
     };
 
@@ -56,7 +75,10 @@ https://github.com/dapplets/dapplet-extension/releases/latest
       if (!overlay.isOpen()) overlay.open();
     });
 
-    const addWidgets = (insertTo: 'POST' | 'PROFILE') => async (ctx: { authorUsername: string; theme: 'DARK' | 'LIGHT' }) => {
+    const addWidgets = (insertTo: 'POST' | 'PROFILE') => async (ctx: {
+      authorUsername: string;
+      theme: 'DARK' | 'LIGHT';
+    }) => {
       const { authorUsername, theme } = ctx;
       if (!authorUsername) return;
       state.global.theme.next(theme);
@@ -75,7 +97,7 @@ https://github.com/dapplets/dapplet-extension/releases/latest
               state.global.current.next(authorUsername === this.adapter.getCurrentUser().username);
               if (!overlay.isOpen()) overlay.open();
             },
-          }
+          },
         }),
         avatarBadge({
           DEFAULT: {
@@ -89,11 +111,14 @@ https://github.com/dapplets/dapplet-extension/releases/latest
               state.global.current.next(authorUsername === this.adapter.getCurrentUser().username);
               if (!overlay.isOpen()) overlay.open();
             },
-          }
-        })
+          },
+        }),
       ];
 
-      if (insertTo === 'PROFILE' && state[authorUsername].accounts?.testnetAccounts.value.length !== 0) {
+      if (
+        insertTo === 'PROFILE' &&
+        state[authorUsername].accounts?.testnetAccounts.value.length !== 0
+      ) {
         const { username } = this.adapter.getCurrentUser();
         widgets.push(
           button({
@@ -105,8 +130,8 @@ https://github.com/dapplets/dapplet-extension/releases/latest
                 state.global.current.next(authorUsername === username);
                 if (!overlay.isOpen()) overlay.open();
               },
-            }
-          })
+            },
+          }),
         );
       }
       return widgets;
@@ -114,7 +139,7 @@ https://github.com/dapplets/dapplet-extension/releases/latest
 
     this.adapter.attachConfig({
       POST: addWidgets('POST'),
-      PROFILE: addWidgets('PROFILE')
+      PROFILE: addWidgets('PROFILE'),
     });
   }
 }
