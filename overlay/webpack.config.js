@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const WebpackAssetsManifest = require('webpack-assets-manifest');
+const fs = require('fs');
 
 module.exports = {
     mode: 'development',
@@ -46,7 +47,10 @@ module.exports = {
     devServer: {
         contentBase: path.join(__dirname, "build"),
         port: 3007,
-        https: true,
+        https: {
+          key: fs.readFileSync('src/secret/localhost/localhost.decrypted.key'),
+          cert: fs.readFileSync('src/secret/localhost/localhost.crt')
+        },
         hot: false,
         inline: false,
         liveReload: false,

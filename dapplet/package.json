@@ -1,6 +1,6 @@
 {
   "name": "my-nifty-collection",
-  "version": "0.10.5",
+  "version": "0.10.7",
   "description": "present my NFTs to public",
   "main": "lib/index.js",
   "scripts": {
